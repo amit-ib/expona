@@ -1,13 +1,150 @@
+@import url("https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: "Lexend", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* background: linear-gradient(180deg, #2c2c34 0%, #222222 100%); */
+  background: linear-gradient(180deg, #2c2c34 30%, #222222 100%);
+  /* background: #222222; */
+  min-height: 100vh;
+}
+
+.home-bg {
+  background: url(/public/images/grains-bg.png) repeat-x;
+  background-size: cover;
+
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+/* Custom scrollbar styling for chat content */
+.chat-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.chat-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+.chat-scrollbar::-webkit-scrollbar-thumb {
+  background: #44444F;
+  border-radius: 10px;
+}
+
+.chat-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #53545C;
+}
+
+/* Firefox scrollbar styling */
+.chat-scrollbar {
+
+  scrollbar-width: none;
+  scrollbar-color: #44444F rgba(0, 0, 0, 0.2);
+}
+
+.animate-bg {
+  /* background: url(../public/images/animate-bg.svg);
+  background-position: 35% 0%;
+  background-size: 140%;
+  height: 587px;
+  width: 576px;
+  padding: 140px 0px 0px 65px; */
+}
+
+.triangle-left {
+  width: 0;
+  height: 0;
+  border-top: 15px solid transparent;
+  border-right: 20px solid #F8F8F8;
+  border-bottom: 15px solid transparent;
+  position: absolute;
+  left: -15px;
+}
+
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 150%;
+  }
+
+  50% {
+    background-position: 100% 150%;
+  }
+
+  100% {
+    background-position: 0% 150%;
+  }
+}
+
+.tour-border-gradient {
+  background-size: 250% 150%;
+  /* Make the background larger to allow animation */
+  animation: gradient-animation 5s ease infinite;
+  /* Apply the animation */
+}
+
+/* Hide the default checkbox */
+.custom-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  /* Add your desired size and basic styling */
+  width: 17px;
+  /* Adjust size as needed */
+  height: 17px;
+  /* Adjust size as needed */
+  border: 2px solid #ccc;
+  /* Example border */
+  border-radius: 2px;
+  /* Example rounded corners */
+  cursor: pointer;
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Style the custom checkbox when checked */
+.custom-checkbox:checked {
+  background-color: white;
+  /* White background when checked */
+  border-color: white;
+  /* White border when checked */
+}
+
+/* Create a custom tick mark using a pseudo-element */
+.custom-checkbox:checked::before {
+  content: '';
+  display: block;
+  /* Clear previous styles */
+  background-color: transparent;
+  border-radius: 0;
+
+  /* Create the tick mark shape */
+  width: 6px;
+  /* Adjust size of tick */
+  height: 12px;
+  /* Adjust size of tick */
+  border: solid #222;
+  /* Color of the tick mark, adjust to match your theme */
+  border-width: 0 2px 2px 0;
+  /* Create two borders for the tick shape */
+  transform: rotate(45deg) translate(-50%, -50%);
+  /* Rotate and position */
+  position: absolute;
+  top: 40%;
+  left: 13%;
+  /* Adjust translate values if needed based on width/height and border-width */
+}
+
+/* You might need to adjust the sizes, colors, and positioning to match your design */

@@ -1,24 +1,34 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Header from "./components/layout/Header";
+import Hero from "./components/layout/Hero";
+import Dashboard from "./pages/Dashboard";
+import Chat from "./pages/Chat";
+import { AuthProvider } from "./contexts/AuthContext";
 
 function App() {
+  const [projectsVisibility, setProjectsVisibility] = useState(true);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <AuthProvider>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <div className="min-h-screen home-bg bg-cover bg-center">
+                <Header setProjectsVisibility={setProjectsVisibility} />
+                <main>
+                  <Hero setProjectsVisibility={setProjectsVisibility} />
+                </main>
+              </div>
+            }
+          />
+          <Route path="/dashboard" element={<Dashboard projectsVisibility={projectsVisibility} />} />
+          <Route path="/chat" element={<Chat setProjectsVisibility={setProjectsVisibility} />} />
+        </Routes>
+      </AuthProvider>
+    </Router>
   );
 }
 

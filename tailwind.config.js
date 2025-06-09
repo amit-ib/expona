@@ -13,7 +13,7 @@ module.exports = {
         "primary-gray": "#676775",
         "dark-gray": "#2C2C34",
         "darker-gray": "#222222",
-
+        "gray-ec": "#E8EDEC",
         "gray-2d": "#292A2D",
         "gray-ae": "#A2A2AE",
         "gray-5c": "#53545C",

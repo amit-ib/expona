@@ -5,7 +5,7 @@ import Modal from '../common/Modal';
 import UploadAction from '../dashboard/UploadAction';
 import ProfilePopup from './ProfilePopup';
 
-const Header = ({ setProjectsVisibility }) => {
+const Header = ({ setProjectsVisibility, hideSignInButton }) => {
   const { isAuthenticated, isLoggedIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -31,7 +31,7 @@ const Header = ({ setProjectsVisibility }) => {
           />
         </div>
         <div className="flex items-center" id="header-buttons">
-          {!isAuthenticated ? (
+          {!isAuthenticated && !hideSignInButton ? (
             <button
               className="text-sm px-4 mr-4 py-2 text-white border border-white/30 rounded-md hover:bg-white/10 transition-colors"
             >

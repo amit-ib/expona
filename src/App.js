@@ -4,6 +4,7 @@ import Header from "./components/layout/Header";
 import Hero from "./components/layout/Hero";
 import Dashboard from "./pages/Dashboard";
 import Chat from "./pages/Chat";
+import SignIn from "./pages/SignIn";
 import { AuthProvider } from "./contexts/AuthContext";
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
           />
           <Route path="/dashboard" element={<Dashboard projectsVisibility={projectsVisibility} />} />
           <Route path="/chat" element={<Chat setProjectsVisibility={setProjectsVisibility} />} />
+          <Route path="/signin" element={<SignIn />} />
         </Routes>
       </AuthProvider>
     </Router>

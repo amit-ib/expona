@@ -1,6 +1,6 @@
 import React from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import Modal from '../common/Modal';
 import UploadAction from '../dashboard/UploadAction';
 import ProfilePopup from './ProfilePopup';
@@ -32,11 +32,12 @@ const Header = ({ setProjectsVisibility, hideSignInButton }) => {
         </div>
         <div className="flex items-center" id="header-buttons">
           {!isAuthenticated && !hideSignInButton ? (
-            <button
+            <Link
+              to="/signin"
               className="text-sm px-4 mr-4 py-2 text-white border border-white/30 rounded-md hover:bg-white/10 transition-colors"
             >
               Sign In
-            </button>
+            </Link>
           ) : isLoggedIn ? (
             <>
               {location.pathname !== "/dashboard" && (

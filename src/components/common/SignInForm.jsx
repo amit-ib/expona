@@ -2,7 +2,7 @@ import React from 'react';
 
 const SignInForm = () => {
   return (
-    <div className="p-[1px] mb-16 rounded-xl bg-gradient-to-br from-[#FF3C3C] via-[#3C00FF] to-[#212224] shadow-[0_0_32px_8px_rgba(60,0,255,0.25)] w-[528px]
+    <div className="p-[1px] mb-16 rounded-xl bg-gradient-to-br from-[#FF3C3C]  to-[#3C00FF]  w-[528px]
 
 ">
       <div className="sign-in-form relative rounded-xl bg-[#23242B] p-14 w-full mx-auto">

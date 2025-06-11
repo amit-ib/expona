@@ -2,8 +2,8 @@ import React from 'react';
 
 const MessageInput = ({ message, setMessage, isDisabled }) => {
   return (
-    <div className="absolute bottom-0 left-0 right-0 pb-6">
-      <div className=" flex items-center border border-gray-5c bg-gray-37 rounded-2xl px-4 py-3 mx-6">
+    <div className="absolute bottom-0 left-0 right-0 pb-4">
+      <div className=" flex items-center border border-gray-5c bg-gray-37 rounded-2xl px-4 py-3">
         <input
           type="text"
           value={message}

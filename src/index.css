@@ -94,6 +94,10 @@ code {
   /* Apply the animation */
 }
 
+.search-icon {
+  background: url(../public/images/search-icon-gray.svg) no-repeat 7px 50%;
+}
+
 /* Hide the default checkbox */
 .custom-checkbox {
   appearance: none;

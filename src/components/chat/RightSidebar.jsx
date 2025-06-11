@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Tooltip from '../common/Tooltip';
 import PdfViewerModal from "../common/PdfViewerModal";
+import InfoTooltip from '../common/InfoTooltip';
 
 const RightSidebar = ({ sources, setSources, collapsed, setCollapsed, onCheckedChange }) => {
   // State to track which checkboxes are checked
@@ -55,14 +56,16 @@ const RightSidebar = ({ sources, setSources, collapsed, setCollapsed, onCheckedC
       className={`border-l border-gray-42 transition-all duration-300 ${collapsed ? 'w-[80px]' : 'w-[300px]'} transition-all duration-300 flex flex-col`}
     >
 
-      <div className={`flex h-[72px] border-b border-[#373742]  items-center ${collapsed ? 'justify-center pl-0 ' : 'justify-between pl-4 pr-2'}`}>
+      <div className={`flex h-[72px]   items-center ${collapsed ? 'justify-center pl-0 ' : 'justify-between pl-6 pr-4'}`}>
 
         {!collapsed && (
           <>
             <button
-              className={`h-full  text-white`}
+              className="h-full flex items-center text-white"
             >
-              Documents
+              Documents <InfoTooltip position="left" tooltipContent="Key points helps you to  quickly return to important responses. Some are suggested by AI to get you started. You can add more as you go.">
+                <img src="images/help-icon.svg" alt="help" className='ml-1 cursor-pointer group' />
+              </InfoTooltip>
             </button>
 
           </>
@@ -81,23 +84,23 @@ const RightSidebar = ({ sources, setSources, collapsed, setCollapsed, onCheckedC
 
       {/* Added Files Section */}
       {/* {!collapsed && ( */}
-      <div className="p-4   flex flex-col justify-center relative">
+      <div className="py-4 px-6 pt-0  flex flex-col justify-center relative">
         {/* Add Document Button */}
         <input type="file" className={`absolute top-4 left-10 opacity-0 z-40 h-16  cursor-pointer ${collapsed ? 'w-5' : 'w-44'}`} />
-        <button className="w-full flex items-center justify-center gap-2 py-3.5 bg-gray-2d hover:bg-gray-32 rounded text-sm font-medium transition-all duration-300 cursor-pointer">
+        <button className="w-full flex items-center justify-center gap-2 py-3.5 bg-gray-32 hover:bg-gray-37 rounded text-sm font-medium transition-all duration-300 cursor-pointer">
           {/* Use the reusable Tooltip component */}
           <Tooltip tooltipContent="Upload Documents" showCondition={collapsed}>
             {/* The icon is the child that triggers the tooltip */}
-            <img src="/images/add2-icon.svg" alt="Add Document" />
+            <img src="/images/upload-icon.svg" alt="Add Document" />
           </Tooltip>
 
           {/* The "Upload Documents" text (only visible when not collapsed) */}
           {!collapsed && <span>Upload Documents</span>}
         </button>
-        <div >
+        <div className='border-t border-gray-42 mt-5'>
           {!collapsed && (
             sources.length > 0 ? (
-              <h3 className="flex items-center justify-between text-sm font-normal text-white mb-2 mt-6">
+              <h3 className="flex items-center justify-between text-xs font-normal text-white  mt-6">
                 <span>Uploaded documents</span>
                 {/* <input
                   type="checkbox"

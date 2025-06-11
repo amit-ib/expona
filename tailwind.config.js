@@ -13,7 +13,7 @@ module.exports = {
         "primary-gray": "#676775",
         "dark-gray": "#2C2C34",
         "darker-gray": "#222222",
-
+        "gray-2f": "#2F2F37",
         "gray-2d": "#292A2D",
         "gray-ae": "#A2A2AE",
         "gray-5c": "#53545C",
@@ -22,7 +22,9 @@ module.exports = {
         "gray-24": "#212224",
         "gray-32": "#2E2F32",
         "gray-4f": "#44444F",
+        "gray-99": "#999999",
         "gray-light": "#F8F8F8",
+        "gray-ec": "#E8EDEC",
         "border-gray": "rgba(255, 255, 255, 0.3)",
       },
     },

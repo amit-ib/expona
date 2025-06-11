@@ -152,11 +152,11 @@ const ChatContent = ({ chatContent, navigate, setShowSavedNote, sources, saved, 
 
 
       {/* Scrollable Chat Content */}
-      <div className="flex items-start pt-6 overflow-y-auto max-h-[calc(100vh-280px)] chat-scrollbar scrollbar-hide relative" style={{ scrollBehavior: 'smooth' }}>
+      <div className="flex items-start pt-6 overflow-y-auto max-h-[calc(100vh-230px)] chat-scrollbar scrollbar-hide relative" style={{ scrollBehavior: 'smooth' }}>
         {/* <img src="/images/expona-logo-sm.svg" alt="Expona" className='mr-2' /> */}
 
         {sources.length > 0 ? (
-          <div className='pr-8 pl-8'>
+          <div >
             {/* Overview */}
             <div className="mb-8">
               <p className="whitespace-pre-line text-sm leading-relaxed font-light">
@@ -196,14 +196,14 @@ const ChatContent = ({ chatContent, navigate, setShowSavedNote, sources, saved, 
               </div>
 
               {/* Table */}
-              <div className="w-full mb-8 mt-0 border rounded-md  border-gray-5c">
+              <div className="rw-full mb-8 mt-0 border border-gray-42 rounded-md  boder-gray-5c">
 
 
                 <table className="w-full border-collapse  ">
                   <thead>
-                    <tr className="border-b border-b-gray-42 bg-gray-42 ">
-                      <th className="py-3.5 px-3 text-left  rounded-t-md" >Timeline</th>
-                      <th className="py-3.5 px-3 text-left  rounded-t-md">Important Date</th>
+                    <tr className="border-b border-b-gray-42 bg-gray-2d ">
+                      <th className="py-3.5 px-3 text-left  rounded-tl-md border-r border-gray-5c" >Timeline</th>
+                      <th className="py-3.5 px-3 text-left  rounded-tr-md">Important Date</th>
 
                     </tr>
                   </thead>

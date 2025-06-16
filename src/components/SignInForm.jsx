@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const SignInForm = () => {
+  const navigate = useNavigate();
   return (
     <div className="p-[1px] mb-16 rounded-xl bg-gradient-to-br from-[#FF3C3C]  to-[#3C00FF]  w-[528px]
 
@@ -50,7 +52,7 @@ const SignInForm = () => {
         </div>
 
         {/* Sign In Button */}
-        <button className="bg-expona-red text-white py-3 px-6 rounded w-full font-semibold shadow-md hover:opacity-90 transition-opacity">
+        <button className="bg-expona-red text-white py-3 px-6 rounded w-full font-semibold shadow-md hover:opacity-90 transition-opacity" onClick={() => navigate('/company-detail')}>
           Sign in
         </button>
       </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import Header from '../components/layout/Header';
-import SignInForm from '../components/common/SignInForm';
+import SignInForm from '../components/SignInForm';
 import { Link } from 'react-router-dom';
 
 const SignIn = () => {

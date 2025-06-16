@@ -5,6 +5,8 @@ import Hero from "./components/layout/Hero";
 import Dashboard from "./pages/Dashboard";
 import Chat from "./pages/Chat";
 import SignIn from "./pages/SignIn";
+import CompanyDetail from "./pages/CompanyDetail";
+import CompanyProfile from "./pages/CompanyProfile";
 import { AuthProvider } from "./contexts/AuthContext";
 
 function App() {
@@ -28,6 +30,8 @@ function App() {
           <Route path="/dashboard" element={<Dashboard projectsVisibility={projectsVisibility} />} />
           <Route path="/chat" element={<Chat setProjectsVisibility={setProjectsVisibility} />} />
           <Route path="/signin" element={<SignIn />} />
+          <Route path="/company-detail" element={<CompanyDetail />} />
+          <Route path="/company-profile" element={<CompanyProfile />} />
         </Routes>
       </AuthProvider>
     </Router>

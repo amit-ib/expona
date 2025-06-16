@@ -9,14 +9,21 @@ const tourSteps = [
     },
     {
         title: 'Documents',
-        text: "See the documents you've uploaded and select which ones Expona should use for generating responses.",
+        text: "List of documents are added here for processing and quick overview.",
         targetId: 'right-sidebar', // Placeholder ID for the right sidebar
         position: 'left', // Position popup to the left of the target
     },
     {
         title: 'New Tenders',
         text: 'Create new tenders and start a new converesation',
-        targetId: 'header-buttons', // Placeholder ID for the chat content area
+        targetId: 'new-tender-btn', // Placeholder ID for the chat content area
+        position: 'bottom', // Position popup below the target
+    },
+
+    {
+        title: 'Check Your Eligibility',
+        text: 'You can check your eligibility for the tender here.',
+        targetId: 'eligibility-btn', // Placeholder ID for the chat content area
         position: 'top', // Position popup below the target
     },
 
@@ -59,20 +66,20 @@ const TourPopup = ({ isVisible, onClose }) => {
 
                     switch (tourSteps[currentStep].position) {
                         case 'right':
-                            top = targetRect.top + targetRect.height / 2 - popupRect.height / 2 - 250;
-                            left = targetRect.right + 10;
+                            top = targetRect.top + targetRect.height / 2 - popupRect.height / 2 - 200;
+                            left = targetRect.right - 20;
                             break;
                         case 'left':
                             top = targetRect.top + targetRect.height / 2 - popupRect.height / 2 - 200;
                             left = targetRect.left - popupRect.width - 10;
                             break;
                         case 'bottom':
-                            top = targetRect.bottom + 15;
-                            left = targetRect.left + targetRect.width / 2 - popupRect.width / 2;
+                            top = targetRect.bottom - 150;
+                            left = targetRect.left + targetRect.width / 2 - popupRect.width / 2 + 350;
                             break;
                         case 'top':
                             top = targetRect.top - targetRect.height / 2 - popupRect.height / 2 + 100;
-                            left = targetRect.left + targetRect.width / 2 - popupRect.width / 2 - 300;
+                            left = targetRect.left + targetRect.width / 2 - popupRect.width / 2 - 250;
                             break;
                         default:
                             break;
@@ -107,6 +114,12 @@ const TourPopup = ({ isVisible, onClose }) => {
     const handleSkip = () => {
         onClose();
         localStorage.setItem('exponaTourSeen', 'true');
+    };
+
+    const handlePrev = () => {
+        if (currentStep > 0) {
+            setCurrentStep(currentStep - 1);
+        }
     };
 
     const isLastStep = currentStep === tourSteps.length - 1;
@@ -150,8 +163,6 @@ const TourPopup = ({ isVisible, onClose }) => {
                 <div className="absolute inset-0 rounded-lg tour-border-gradient" style={{ border: '2px solid transparent', backgroundOrigin: 'border-box', backgroundClip: 'content-box, border-box', backgroundImage: 'linear-gradient(#1e1e1e, #1e1e1e), linear-gradient(to right, #3C00FF, #ff0000)' }}></div>
 
                 <div className="relative z-10 flex flex-col">
-
-
                     {/* Title */}
                     <h3 className="text-xl  mb-2 flex justify-between items-center">{tourSteps[currentStep].title}
                         {/* Dots indicator */}
@@ -169,21 +180,32 @@ const TourPopup = ({ isVisible, onClose }) => {
                     <p className="text-sm text-gray-ae mb-6">{tourSteps[currentStep].text}</p>
 
                     {/* Buttons */}
-                    <div className="flex justify-end space-x-4">
+                    <div className="flex items-center justify-between mt-2">
+                        {/* Skip on the left */}
                         {!isLastStep && (
                             <button
-                                className="px-4 py-2 text-sm font-semibold text-white rounded-md hover:bg-gray-700 transition-colors"
+                                className="px-2 py-2 text-sm font-semibold text-white rounded-md  transition-colors"
                                 onClick={handleSkip}
                             >
                                 Skip
                             </button>
                         )}
-                        <button
-                            className="px-4 py-2 text-sm font-semibold text-white rounded-md bg-expona-red hover:bg-red-700 transition-colors"
-                            onClick={handleNext}
-                        >
-                            {isLastStep ? 'Done' : 'Next'}
-                        </button>
+                        {/* Prev, Next on the right */}
+                        <div className="flex gap-3">
+                            <button
+                                className={`px-6 py-2 text-sm font-semibold rounded-md border border-white/40 text-white bg-transparent transition-colors ${currentStep === 0 ? 'opacity-60 cursor-not-allowed' : 'hover:bg-gray-700'}`}
+                                onClick={handlePrev}
+                                disabled={currentStep === 0}
+                            >
+                                Prev
+                            </button>
+                            <button
+                                className="px-6 py-2 text-sm font-semibold text-white rounded-md bg-expona-red hover:bg-red-700 transition-colors"
+                                onClick={handleNext}
+                            >
+                                {isLastStep ? 'Done' : 'Next'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

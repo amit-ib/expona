@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Tooltip from '../common/Tooltip';
 import InfoTooltip from '../common/InfoTooltip';
 
-const LeftSidebar = ({ navigationItems, activeHash, collapsed, setCollapsed, showSavedNote, sources = [], setShowSavedNote, setSaved }) => {
+const LeftSidebar = ({ navigationItems, activeHash, collapsed, setCollapsed, showSavedNote, sources = [], setShowSavedNote, setSaved, onNewTenderClick }) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileMenuRef = useRef(null);
   const profileToggleRef = useRef(null);
@@ -39,7 +39,7 @@ const LeftSidebar = ({ navigationItems, activeHash, collapsed, setCollapsed, sho
   return (
     <div id="left-sidebar" className={`flex relative flex-col  bg-gray-2d  transition-all duration-500 ${collapsed ? 'w-[70px] ' : 'w-[300px]  '}`}>
       <button
-        className={` absolute transition-all duration-500 top-8 flex items-center justify-center z-50 hover:bg-gray-32 rounded-full ${collapsed ? 'right-5' : 'right-3'}`}
+        className={` absolute transition-all duration-500 top-8 flex items-center justify-center z-10 hover:bg-gray-32 rounded-full ${collapsed ? 'right-5' : 'right-3'}`}
         style={{ minWidth: 35 }}
         onClick={() => setCollapsed(!collapsed)}
       >
@@ -128,8 +128,13 @@ const LeftSidebar = ({ navigationItems, activeHash, collapsed, setCollapsed, sho
       </div>
       <div className={`absolute bottom-0 left-0 right-0 py-4  flex items-center justify-between transition-all duration-500 ${collapsed ? 'px-3' : 'px-5'}`}>
         <div className='relative w-full'>
-          <button className={`border flex items-center justify-center  rounded-md ${collapsed ? 'p-2' : 'w-full p-3'}`}><img src='images/add-icon.svg' />
-            <span className={`transition-all duration-500 delay-200 ${collapsed ? 'opacity-0 -left-48 absolute' : ''}`}>New Tender</span></button>
+          <button id="new-tender-btn"
+            className={`border flex items-center justify-center  rounded-md ${collapsed ? 'p-2' : 'w-full p-3'}`}
+            onClick={onNewTenderClick}
+          >
+            <img src='images/add-icon.svg' />
+            <span className={`transition-all duration-500 delay-200 ${collapsed ? 'opacity-0 -left-48 absolute' : ''}`}>New Tender</span>
+          </button>
           <div className="flex relative items-center border-t border-gray-42 pt-3 mt-4 cursor-pointer" onClick={handleProfileClick} ref={profileToggleRef}>
             <img src="/images/user.jpeg" alt="User Avatar" className="w-10 h-10 rounded-full absolute" />
             {/* User Profile Card */}
@@ -140,7 +145,7 @@ const LeftSidebar = ({ navigationItems, activeHash, collapsed, setCollapsed, sho
           </div>
           {showProfileMenu && (
             <div className="absolute bottom-11 left-0 py-4 px-2 w-52 mb-2  bg-gray-32 rounded-md border border-gray-4f shadow-lg py-2 z-50" ref={profileMenuRef}>
-              <a href="#" className="flex items-center rounded px-4 py-2 text-white hover:bg-gray-42">
+              <a href="/company-profile" className="flex items-center rounded px-4 py-2 text-white hover:bg-gray-42">
                 <img src="/images/user-icon.svg" alt="Profile Icon" className="w-5 h-5 mr-3" />
                 Profile
               </a>

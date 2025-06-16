@@ -22,8 +22,8 @@ const ProjectCard = ({ project }) => {
         </div>
       </div>
       <div className="flex items-center gap-4">
-        <span className="font-lexend font-light text-[14px] leading-[1.25] text-white/80 text-right">{date}</span>
-        <img src="/images/more-icon.svg" alt="More options" width="24" height="24" />
+        <span className="font-lexend font-light text-xs leading-[1.25] text-white/80 text-right bg-gray-24 px-4 py-2 rounded-full">{date}</span>
+
       </div>
     </div>
   );

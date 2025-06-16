@@ -62,14 +62,14 @@ const ProfilePopup = ({ isOpen, onClose }) => {
                     className="flex-1 flex items-center justify-center px-4 py-4 text-sm rounded-l-full bg-gray-42 hover:bg-gray-24 border-r border-gray-4f"
                     onClick={() => { /* Handle Settings click */ onClose(); }}
                 >
-                    <img src="/images/setting-icon.svg" alt="Settings" className="mr-2 w-4 h-4" /> {/* Placeholder icon */} Settings
+                    <img src="/images/setting-icon.svg" alt="Settings" className="mr-2 w-4 h-4" />  Settings
                 </button>
                 {/* Logout Button */}
                 <button
                     className="flex-1 flex items-center justify-center px-4 py- text-sm rounded-r-full bg-gray-42 hover:bg-gray-24 "
                     onClick={() => { /* Handle Logout click */ onClose(); }}
                 >
-                    <img src="/images/logout-icon.svg" alt="Logout" className="mr-2 w-4 h-4" /> {/* Placeholder icon */} Logout
+                    <img src="/images/logout-icon.svg" alt="Logout" className="mr-2 w-4 h-4" />  Logout
                 </button>
             </div>
             {/* Dark mode toggle (Placeholder) */}

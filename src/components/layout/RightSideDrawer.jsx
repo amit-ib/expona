@@ -39,7 +39,7 @@ const RightSideDrawer = ({ isOpen, onClose }) => {
             {/* Background Image Section */}
             <div className="relative  w-full flex items-end justify-start bg-gray-800 overflow-hidden">
                 <img
-                    src="/images/eligibility-bg.png"
+                    src="/images/eligibility-bg.svg"
                     alt="Eligibility background"
                     className="absolute inset-0 w-full h-[335px] object-cover opacity-70"
                 />

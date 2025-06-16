@@ -8,6 +8,9 @@ import LeftSidebar from "../components/chat/LeftSidebar";
 import { chatContent, navigationItems } from "../data/chatData";
 import TourPopup from "../components/layout/TourPopup";
 import RightSideDrawer from "../components/layout/RightSideDrawer";
+import Modal from '../components/common/Modal';
+import UploadAction from '../components/dashboard/UploadAction';
+import { Link } from 'react-router-dom';
 
 const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
   const navigate = useNavigate();
@@ -23,6 +26,10 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
   // State to track if any document is checked
   const [isAnyDocumentChecked, setIsAnyDocumentChecked] = useState(true); // Initialize to true
   const [isDrawerOpen, setIsDrawerOpen] = useState(false); // New state for drawer visibility
+  const [isModalOpen, setIsModalOpen] = useState(false); // State for New Tender modal
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   useEffect(() => {
     // Update activeHash when location.hash changes
@@ -70,6 +77,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                 sources={sources}
                 setShowSavedNote={setShowSavedNote}
                 setSaved={setSaved}
+                onNewTenderClick={openModal}
               />
               <div className="flex flex-1 flex-col">
                 <div className="flex items-center justify-between gap-4 py-6 px-5 border-b border-gray-42 bg-gray-24 rounded-t-lg">
@@ -105,7 +113,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                   >
                     {/* <img src="/images/expand-collaps2.svg" alt="Expand" /> */}
                   </button>
-                  <button className="bg-expona-red rounded-md p-3 flex items-center relative overflow-hidden transition-all w-12 duration-700 group hover:w-56" onClick={() => setIsDrawerOpen(true)}>
+                  <button id="eligibility-btn" className="bg-expona-red rounded-md p-3 flex items-center relative overflow-hidden transition-all w-12 duration-700 group hover:w-56" onClick={() => setIsDrawerOpen(true)}>
                     <img src="images/speedometer-icon.svg" alt="Speedometer icon" className="flex-shrink-0" />
                     <span className="pl-2 whitespace-nowrap relative opacity-0  transition-all  duration-500 group-hover:right-0   group-hover:opacity-100 ">
                       Check Your Eligibility
@@ -191,6 +199,12 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
         <h2 className="text-white text-lg">Check Your Eligibility Content</h2>
         <p className="text-gray-400">More information will go here.</p>
       </RightSideDrawer>
+
+      {/* New Tender Modal */}
+      <Modal isOpen={isModalOpen} onClose={closeModal} size="large">
+        <Link to="/dashboard" className="text-white border border-gray-ae px-4 py-2 rounded-md hover:bg-gray-2d -mt-4 absolute top-9 left-5">My Projects</Link>
+        <UploadAction projectsVisibility={false} fullHeight={true} onFileSelect={closeModal} />
+      </Modal>
     </div >
   );
 };

@@ -8,6 +8,7 @@ module.exports = {
       },
       colors: {
         "expona-red": "#EA1B3D",
+        "red-83": "#FF6A83",
         "ib-red": "#AA142D",
         "ib-red-dark": "#7C2235",
         "primary-gray": "#676775",

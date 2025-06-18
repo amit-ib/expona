@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ignaite AI Hackathon 1.0</title>
+    <style>
+        /* Base styles */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+            font-family: 'Lexend', Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -webkit-text-size-adjust: 100%;
+            width: 100% !important;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+
+        /* Container */
+        .wrapper-table {
+            max-width: 600px;
+            background-color: #ffffff;
+            margin: 0 auto;
+            table-layout: fixed;
+        }
+
+        .master-container {
+
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+        }
+
+        table {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Header */
+        .header {
+            border-top: 4px solid #EA1B3D;
+
+        }
+
+        .header-content {
+            max-width: 196px;
+        }
+
+        .header-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #373742;
+            margin: 0;
+        }
+
+        .header-subtitle {
+            font-size: 24px;
+            font-weight: 300;
+            color: #373742;
+            margin: 8px 0;
+        }
+
+        .header-date {
+            font-size: 20px;
+            font-weight: 700;
+            color: #9F012E;
+            margin: 8px 0;
+            text-transform: uppercase;
+        }
+
+        /* Intro */
+        .intro {
+            background-color: #FFEFD1;
+            padding: 30px 30px 10px 30px;
+            font-size: 18px;
+
+        }
+
+        .intro-text {
+            font-size: 18px;
+
+            color: #2F2F39;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        /* Video section */
+        .video-section {
+            background-color: #2F2F39;
+
+            text-align: center;
+        }
+
+        .video-container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .video-link {
+            display: block;
+            position: relative;
+            text-decoration: none;
+        }
+
+        .video-thumbnail {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Highlights */
+        .highlights {
+            padding: 0 30px;
+            background: #FFF9ED;
+        }
+
+        .highlights-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2F2F39;
+            text-align: center;
+            padding: 20px 0;
+
+        }
+
+        .content-grid {
+            max-width: 540px;
+            margin: 0 auto;
+            background-color: #FEF8EC;
+            padding: 8px;
+        }
+
+        /* Info cards */
+        .info-card {
+            background-color: #FFFDFA;
+            margin-bottom: 8px;
+            border: 2px solid #FFEFD1;
+            padding: 16px;
+            margin-bottom: 8px;
+        }
+
+        .info-label {
+            font-size: 16px;
+            font-weight: 500;
+            color: #AA142D;
+            margin: 0;
+        }
+
+        .info-value {
+            font-size: 12px;
+            font-weight: 300;
+            color: #000000;
+            margin: 0;
+            line-height: 1.4;
+            text-align: left;
+            padding-left: 20px;
+        }
+
+        .info-value li {
+            text-align: left;
+            margin-bottom: 4px;
+        }
+
+        /* CTA */
+        .cta {
+            padding: 30px;
+            text-align: center;
+            background: #FFF9ED;
+        }
+
+        .cta-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2F2F39;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #373742;
+            padding: 16px 30px;
+
+        }
+
+        .footer-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .footer-icon {
+            width: 40px;
+            vertical-align: middle;
+        }
+
+        .footer-icon img {
+            vertical-align: middle;
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .footer-text {
+            font-size: 12px;
+            font-weight: 400;
+            color: #FFFFFF;
+            margin: 0;
+            text-align: right;
+            padding-left: 15px;
+        }
+
+        /* Responsive styles */
+        @media screen and (max-width: 600px) {
+            .master-container {
+                padding: 10px;
+                width: 100%
+            }
+
+            .video-section {
+                padding: 50px 20px;
+            }
+
+            .info-row {
+                flex-direction: column;
+            }
+
+            .info-card {
+                width: auto;
+            }
+
+            .header-content {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Outer table for Gmail width constraint -->
+    <table class="wrapper-table" cellpadding="0" cellspacing="0" border="0" align="center">
+        <tr>
+            <td align="center" valign="top">
+                <!-- Inner content container -->
+                <table class="master-container" cellpadding="0" cellspacing="0" border="0" align="center"
+                    style="max-width:600px; margin:0 auto;">
+                    <tr>
+                        <td align="center" valign="top">
+                            <div style="width:100%; max-width:600px; margin:0 auto;">
+                                <!-- Header section -->
+                                <div class="header">
+                                    <table cellpadding="0" cellspacing="0" border="0">
+                                        <tr>
+                                            <td style="background: #FFF9ED;"><img
+                                                    src="https://expona2-ib.web.app/emailer/images/header.png"
+                                                    style="margin-bottom:-5px" alt="ignaite" width="100%"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="intro">
+                                                    <p class="intro-text">Hello team! Here’s the scoop on what’s to come
+                                                        in<br>ignaite - AI Hackathon
+                                                        1.0.<br>
+                                                    <div style="margin-top:10px;">Check out this Frugal AI
+                                                        generated video.</div>
+                                                    </p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <!-- Video section -->
+                                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                    <tr>
+                                        <td class="video-section" align="center" style="background-color: #2F2F39;">
+                                            <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                                                style="max-width: 600px;">
+                                                <tr>
+                                                    <td align="center">
+                                                        <a href="https://apploginteligenius.blob.core.windows.net/ignaite/video.mp4?sp=r&st=2025-06-17T04:50:53Z&se=2027-06-17T12:50:53Z&spr=https&sv=2024-11-04&sr=b&sig=f6h9xzTc%2B38h1nkBhPnQ%2BfCSe03SI81z9kEKEXAZy%2Bw%3D"
+                                                            target="_blank"
+                                                            style="text-decoration: none; display: block;">
+                                                            <img src="https://expona2-ib.web.app/emailer/images/video.jpg"
+                                                                alt="Click to watch video" border="0"
+                                                                style="display: block; width: 100%; max-width: 600px; height: auto;"
+                                                                width="600">
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                                </video>
+                                </a>
+                            </div>
+                            </div>
+
+                            <!-- Highlights section -->
+                            <div class="highlights">
+                                <div class="highlights-title">If you are not able to see this video right
+                                    away,<br>below are the key
+                                    highlights.</div>
+                                <div class="content-grid">
+                                    <!-- Event Dates -->
+                                    <div class="info-card">
+                                        <table cellspacing="0" cellpadding="0" border="0" width="100%"
+                                            style="margin-bottom: 8px;">
+                                            <tr>
+                                                <td width="24" style="vertical-align: middle;">
+                                                    <img src="https://expona2-ib.web.app/emailer/images/calendar-icon.jpg"
+                                                        alt="Calendar" width="24" height="24" style="display: block;">
+                                                </td>
+                                                <td style="vertical-align: middle; padding-left: 8px;">
+                                                    <p class="info-label">Event Dates:</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <ul class="info-value"
+                                            style="text-align: left; margin-left: 0; padding-left: 20px;">
+                                            <li>June 20-22, 2025</li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Locations -->
+                                    <div class="info-card">
+                                        <table cellspacing="0" cellpadding="0" border="0" width="100%"
+                                            style="margin-bottom: 8px;">
+                                            <tr>
+                                                <td width="24" style="vertical-align: middle;">
+                                                    <img src="https://expona2-ib.web.app/emailer/images/location-icon.jpg"
+                                                        alt="Location" width="24" height="24" style="display: block;">
+                                                </td>
+                                                <td style="vertical-align: middle; padding-left: 8px;">
+                                                    <p class="info-label">Locations:</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <ul class="info-value">
+                                            <li>Indore, Pune, Chennai, or Remote</li>
+                                            <li>Hackathon from office strongly
+                                                recommended, but remote teams can definitely join in virtually and
+                                                make their mark</li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Team Formation -->
+                                    <div class="info-card">
+                                        <table cellspacing="0" cellpadding="0" border="0" width="100%"
+                                            style="margin-bottom: 8px;">
+                                            <tr>
+                                                <td width="24" style="vertical-align: middle;">
+                                                    <img src="https://expona2-ib.web.app/emailer/images/team-icon.jpg"
+                                                        alt="Team" width="24" height="24" style="display: block;">
+                                                </td>
+                                                <td style="vertical-align: middle; padding-left: 8px;">
+                                                    <p class="info-label">Team Formation:</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <ul class="info-value">
+                                            <li>Teams of 3–5 people</li>
+                                            <li>Team members must be from different domains Cross-functional
+                                                collaboration encouraged
+                                                (developers, designers, data specialists, etc.)</li>
+                                    </div>
+
+                                    <!-- Key Rules -->
+                                    <div class="info-card">
+                                        <table cellspacing="0" cellpadding="0" border="0" width="100%"
+                                            style="margin-bottom: 8px;">
+                                            <tr>
+                                                <td width="24" style="vertical-align: middle;">
+                                                    <img src="https://expona2-ib.web.app/emailer/images/rules-icon.jpg"
+                                                        alt="Rules" width="24" height="24" style="display: block;">
+                                                </td>
+                                                <td style="vertical-align: middle; padding-left: 8px;">
+                                                    <p class="info-label">Key Rules:</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <ul class="info-value">
+                                            <li>No real client data or IP allowed to be used</li>
+                                            <li>Must deliver a working
+                                                demo</li>
+                                            <li>Procure your own AI tool subscriptions</li>
+                                    </div>
+
+                                    <!-- Theme -->
+                                    <div class="info-card">
+                                        <table cellspacing="0" cellpadding="0" border="0" width="100%"
+                                            style="margin-bottom: 8px;">
+                                            <tr>
+                                                <td width="24" style="vertical-align: middle;">
+                                                    <img src="https://expona2-ib.web.app/emailer/images/theme-icon.jpg"
+                                                        alt="Theme" width="24" height="24" style="display: block;">
+                                                </td>
+                                                <td style="vertical-align: middle; padding-left: 8px;">
+                                                    <p class="info-label">Theme:</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <ul class="info-value">
+                                            <li>Reimagine Delivery with AI"</li>
+                                            <li>Find repetitive tasks in your project delivery workflow</li>
+                                            <li>Rebuild them using AI to deliver better quality in less time</li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- Prize -->
+                                    <div class="info-card">
+                                        <table cellspacing="0" cellpadding="0" border="0" width="100%"
+                                            style="margin-bottom: 8px;">
+                                            <tr>
+                                                <td width="24" style="vertical-align: middle;">
+                                                    <img src="https://expona2-ib.web.app/emailer/images/prize-icon.jpg"
+                                                        alt="Prize" width="24" height="24" style="display: block;">
+                                                </td>
+                                                <td style="vertical-align: middle; padding-left: 8px;">
+                                                    <p class="info-label">Prize:</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <ul class="info-value">
+                                            <li>₹1,00,000 prize money for the winning team</li>
+                                            <li>Bragging rights and
+                                                leadership spotlight</li>
+                                            <li>Potential client showcases and reusable framework development</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Call to action -->
+                            <div class="cta">
+                                <p class="cta-text">Start forming your teams and identifying that process<br>you've
+                                    always wanted to
+                                    automate!<br>More details <span style="color: #EA1B3D;">coming soon</span></p>
+                            </div> <!-- Footer -->
+                            <div class="footer">
+                                <table class="footer-table" cellpadding="0" cellspacing="0" border="0">
+                                    <tr>
+                                        <td class="footer-icon" align="left" valign="middle" style="width: 40px;">
+                                            <img src="https://expona2-ib.web.app/emailer/images/footer-icon-container.png"
+                                                alt="Infobeans" style="display: inline-block; vertical-align: middle;">
+                                        </td>
+                                        <td class="footer-text" align="right" valign="middle">
+                                            Questions? Contact: <a href="mailto:ignaite@infobeans.com"
+                                                style="color: #ffffff;">ignaite@infobeans.com</a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

@@ -1,12 +1,11 @@
 import React from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { useNavigate, useLocation, Link } from "react-router-dom";
-import ProfilePopup from './ProfilePopup';
+import { useNavigate, Link } from "react-router-dom";
+import ProfilePopup from "./ProfilePopup";
 
 const Header = ({ setProjectsVisibility, hideSignInButton }) => {
-  const { isAuthenticated, isLoggedIn } = useAuth();
+  const { isAuthenticated, isLoggedIn, user } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [isProfilePopupOpen, setIsProfilePopupOpen] = React.useState(false);
 
@@ -14,12 +13,11 @@ const Header = ({ setProjectsVisibility, hideSignInButton }) => {
 
   return (
     <header className="w-full py-5">
-      <div className="px-10 mx-auto  flex items-center justify-between">
+      <div className="px-10 mx-auto flex items-center justify-between">
         <div className="flex items-center">
           <img
             src="/images/expona-logo.svg"
             alt="Expona"
-
             className="cursor-pointer"
             onClick={() => navigate("/")}
           />
@@ -33,9 +31,24 @@ const Header = ({ setProjectsVisibility, hideSignInButton }) => {
               Sign In
             </Link>
           ) : isLoggedIn ? (
-            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm relative">
-              <button onClick={toggleProfilePopup}>AK</button>
-              <ProfilePopup isOpen={isProfilePopupOpen} onClose={toggleProfilePopup} />
+            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm relative cursor-pointer">
+              {user?.picture ? (
+                <img
+                  src={user.picture}
+                  alt={user?.name || "User avatar"}
+                  className="w-10 h-10 rounded-full"
+                  onClick={toggleProfilePopup}
+                />
+              ) : (
+                <button onClick={toggleProfilePopup}>
+                  {user?.initials || "U"}
+                </button>
+              )}
+              <ProfilePopup
+                isOpen={isProfilePopupOpen}
+                onClose={() => setIsProfilePopupOpen(false)}
+                user={user}
+              />
             </div>
           ) : null}
         </div>

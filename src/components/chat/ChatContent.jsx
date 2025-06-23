@@ -3,6 +3,8 @@ import ChatActions from './ChatActions';
 import Markdown from "react-markdown";
 import UploadAction from "../dashboard/UploadAction";
 
+import Lottie from "lottie-react";
+import animationData from "./chat-loader.json";
 const markdownComponents = {
   p: ({ node, ...props }) => (
     <p className="mb-5" {...props} />
@@ -33,12 +35,16 @@ const markdownComponents = {
   ),
 };
 
-const ChatContent = ({ chatContent, navigate, setShowSavedNote, sources, saved, setSaved, projectsVisibility }) => {
-  // Split bidInfo into header and list items
-  // const bidInfoParts = chatContent.bidInfo.split('\n\n', 2);
-  // const bidInfoHeader = bidInfoParts[0].replace(/\*\*/g, ''); // Remove markdown bold syntax
-  // const bidInfoListItems = bidInfoParts.length > 1 ? bidInfoParts[1] : '';
-
+const ChatContent = ({
+  isLoading,
+  chatContent,
+  navigate,
+  setShowSavedNote,
+  sources,
+  saved,
+  setSaved,
+  projectsVisibility
+}) => {
   const [popup, setPopup] = React.useState({
     visible: false,
     content: '',
@@ -57,6 +63,12 @@ const ChatContent = ({ chatContent, navigate, setShowSavedNote, sources, saved, 
   // Ref for section elements
   const sectionRefs = React.useRef({});
 
+  // Ref for export popup
+  const exportPopupRef = React.useRef(null);
+
+  // Ref for otherPrompts div
+  const otherPromptsRef = React.useRef(null);
+
   // Callback to set refs for sections
   const setSectionRef = (id) => (element) => {
     if (element) {
@@ -73,6 +85,44 @@ const ChatContent = ({ chatContent, navigate, setShowSavedNote, sources, saved, 
       element.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  // Function to scroll to otherPrompts
+  const scrollToOtherPrompts = () => {
+    otherPromptsRef.current.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Close export popup on outside click
+  React.useEffect(() => {
+    if (!exportPopup.visible) return;
+    function handleClickOutside(event) {
+      if (exportPopupRef.current && !exportPopupRef.current.contains(event.target)) {
+        closeExportPopup();
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [exportPopup.visible]);
+
+  // Scroll to otherPrompts when it becomes visible
+  React.useEffect(() => {
+    if (showOtherPrompts && otherPromptsRef.current) {
+      scrollToOtherPrompts();
+    }
+  }, [showOtherPrompts]);
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[calc(100vh-150px)] items-center justify-center">
+
+        <Lottie animationData={animationData} loop={true} style={{ height: 220 }} />
+      </div>
+    );
+  }
+
+  // Split bidInfo into header and list items
+  // const bidInfoParts = chatContent.bidInfo.split('\n\n', 2);
+  // const bidInfoHeader = bidInfoParts[0].replace(/\*\*/g, ''); // Remove markdown bold syntax
+  // const bidInfoListItems = bidInfoParts.length > 1 ? bidInfoParts[1] : '';
 
   const handleCitationClick = (event, citationContent, index, clientX, clientY) => {
     const popupWidth = 560; // Corresponds to w-[560px]
@@ -116,36 +166,6 @@ const ChatContent = ({ chatContent, navigate, setShowSavedNote, sources, saved, 
   };
 
   const closeExportPopup = () => setExportPopup({ ...exportPopup, visible: false });
-
-  // Ref for export popup
-  const exportPopupRef = React.useRef(null);
-
-  // Ref for otherPrompts div
-  const otherPromptsRef = React.useRef(null);
-
-  // Function to scroll to otherPrompts
-  const scrollToOtherPrompts = () => {
-    otherPromptsRef.current.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  // Close export popup on outside click
-  React.useEffect(() => {
-    if (!exportPopup.visible) return;
-    function handleClickOutside(event) {
-      if (exportPopupRef.current && !exportPopupRef.current.contains(event.target)) {
-        closeExportPopup();
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [exportPopup.visible]);
-
-  // Scroll to otherPrompts when it becomes visible
-  React.useEffect(() => {
-    if (showOtherPrompts && otherPromptsRef.current) {
-      scrollToOtherPrompts();
-    }
-  }, [showOtherPrompts]);
 
   return (
     <div id="chat-content" className="flex-1 flex flex-col relative">
@@ -390,4 +410,4 @@ const ChatContent = ({ chatContent, navigate, setShowSavedNote, sources, saved, 
   );
 };
 
-export default ChatContent; 
+export default ChatContent;

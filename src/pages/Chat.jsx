@@ -11,6 +11,7 @@ import RightSideDrawer from "../components/layout/RightSideDrawer";
 import Modal from '../components/common/Modal';
 import UploadAction from '../components/dashboard/UploadAction';
 import { Link } from 'react-router-dom';
+import Loader from "../components/common/Loader";
 
 const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
   const [isAnyDocumentChecked, setIsAnyDocumentChecked] = useState(true); // Initialize to true
   const [isDrawerOpen, setIsDrawerOpen] = useState(false); // New state for drawer visibility
   const [isModalOpen, setIsModalOpen] = useState(false); // State for New Tender modal
+  const [isLoading, setIsLoading] = useState(true);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -43,6 +45,21 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
       setIsTourVisible(true);
     }
   }, []); // Empty dependency array ensures this runs only once on mount
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Simulate API call with 15 second delay
+        await new Promise(resolve => setTimeout(resolve, 15000));
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error loading data:", error);
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   // Optional: Scroll to the element when activeHash changes, if needed
   // useEffect(() => {
@@ -69,6 +86,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
             <div className="flex flex-1 bg-gray-24">
               {/* Left Sidebar - Navigation */}
               <LeftSidebar
+                isLoading={isLoading}
                 navigationItems={navigationItems}
                 activeHash={activeHash}
                 collapsed={leftSidebarCollapsed}
@@ -125,6 +143,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                   <div className="flex-1 relative max-w-[730px] mx-auto px-5">
                     <div className="py-2 ">
                       <ChatContent
+                        isLoading={isLoading}
                         chatContent={chatContent}
                         navigate={navigate}
                         setShowSavedNote={setShowSavedNote}
@@ -134,40 +153,18 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                         projectsVisibility={projectsVisibility}
                       />
                     </div>
-
-                    {/* Message Input */}
-                    <div
-                      id="message-input"
-                      className="absolute bottom-5 left-0 right-0  pt-20 pb-1 px-4"
-                    >
-                      <div className="px-8 relative">
-                        <MessageInput
-                          message={message}
-                          setMessage={setMessage}
-                          isDisabled={
-                            !isAnyDocumentChecked || sources.length === 0
-                          }
-                        />
-                        <div className="text-xs text-center p-1 text-gray-ae bg-gray-24 absolute mx-auto left-0 right-0 -mt-2">
-                          Expona analyzes tender files with AI. Review everything before you
-                          submit. Built by{" "}
-                          <a
-                            href="https:wwww.infobeans.com"
-                            target="blank"
-                            className="text-white underline"
-                          >
-                            InfoBeans
-                          </a>
-                          .
-                        </div>
-                      </div>
-
-
-                    </div>
-
+                    {/* Message Input Section */}
+                    {!isLoading && (
+                      <MessageInput
+                        message={message}
+                        setMessage={setMessage}
+                        isAnyDocumentChecked={isAnyDocumentChecked}
+                      />
+                    )}
                   </div>
                   {/* Right Sidebar - Documents/Notes */}
                   <RightSidebar
+                    isLoading={isLoading}
                     sources={sources}
                     setSources={setSources}
                     collapsed={rightSidebarCollapsed}

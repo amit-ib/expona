@@ -2,8 +2,16 @@ import React, { useState, useEffect } from 'react';
 import Tooltip from '../common/Tooltip';
 import PdfViewerModal from "../common/PdfViewerModal";
 import InfoTooltip from '../common/InfoTooltip';
+import Loader from '../common/Loader';
 
-const RightSidebar = ({ sources, setSources, collapsed, setCollapsed, onCheckedChange }) => {
+const RightSidebar = ({ 
+  isLoading,
+  sources, 
+  setSources, 
+  collapsed, 
+  setCollapsed, 
+  onCheckedChange 
+}) => {
   // State to track which checkboxes are checked
   const [checkedItems, setCheckedItems] = useState([]);
   const [openMenuIndex, setOpenMenuIndex] = useState(null);
@@ -49,6 +57,14 @@ const RightSidebar = ({ sources, setSources, collapsed, setCollapsed, onCheckedC
 
   // Determine if all are checked
   // const allChecked = checkedItems.length > 0 && checkedItems.every(Boolean);
+
+  if (isLoading) {
+    return (
+      <div className={`bg-gray-2d transition-all duration-500 ${collapsed ? 'w-0' : 'w-[300px]'}`}>
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import Header from "../components/layout/Header";
+import React, { useState, useEffect, useRef } from "react";
+// import Header from "../components/layout/Header";
 import { useNavigate, useLocation } from "react-router-dom";
 import MessageInput from "../components/chat/MessageInput";
 import ChatContent from "../components/chat/ChatContent";
@@ -11,7 +11,8 @@ import RightSideDrawer from "../components/layout/RightSideDrawer";
 import Modal from '../components/common/Modal';
 import UploadAction from '../components/dashboard/UploadAction';
 import { Link } from 'react-router-dom';
-import Loader from "../components/common/Loader";
+import { uploadTenderFile } from "../api/apiHelper";
+// import Loader from "../components/common/Loader";
 
 const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
   const navigate = useNavigate();
@@ -28,10 +29,56 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
   const [isAnyDocumentChecked, setIsAnyDocumentChecked] = useState(true); // Initialize to true
   const [isDrawerOpen, setIsDrawerOpen] = useState(false); // New state for drawer visibility
   const [isModalOpen, setIsModalOpen] = useState(false); // State for New Tender modal
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadResponse, setUploadResponse] = useState("");
+  const [hasFinalSummary, setHasFinalSummary] = useState(false);
+  const finalSummaryFlag = useRef(false);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
+
+  useEffect(() => {
+    const file = location.state?.fileToUpload;
+    if (file) {
+      finalSummaryFlag.current = false; // Reset flag on new upload
+      setHasFinalSummary(false); // Reset summary flag
+      const doUpload = async () => {
+        setIsUploading(true);
+        setUploadResponse(""); // Reset response state
+        try {
+          await uploadTenderFile(file, (chunk) => {
+            setUploadResponse(prev => {
+              const summaryMarker = "--- Final Summary ---";
+              const analyzingMarker = "--- Analyzing PDF ---";
+              let newContent = prev + chunk;
+
+              // Remove all occurrences of the analyzing marker
+              newContent = newContent.split(analyzingMarker).join("");
+
+              const markerIndex = newContent.indexOf(summaryMarker);
+              if (markerIndex !== -1) {
+                finalSummaryFlag.current = true;
+                setHasFinalSummary(true);
+                // Remove everything before and including the summary marker
+                return newContent.substring(markerIndex + summaryMarker.length);
+              } else {
+                return newContent;
+              }
+            });
+          });
+        } catch (error) {
+          console.error("Tender upload error:", error);
+          setUploadResponse("Upload failed");
+        } finally {
+          setIsUploading(false);
+        }
+      };
+      doUpload();
+      // Clear the file from the state so it doesn't re-upload
+      navigate(location.pathname, { replace: true, state: { ...location.state, fileToUpload: null } });
+    }
+  }, [location, navigate]);
 
   useEffect(() => {
     // Update activeHash when location.hash changes
@@ -45,21 +92,6 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
       setIsTourVisible(true);
     }
   }, []); // Empty dependency array ensures this runs only once on mount
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Simulate API call with 15 second delay
-        await new Promise(resolve => setTimeout(resolve, 15000));
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error loading data:", error);
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   // Optional: Scroll to the element when activeHash changes, if needed
   // useEffect(() => {
@@ -86,7 +118,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
             <div className="flex flex-1 bg-gray-24">
               {/* Left Sidebar - Navigation */}
               <LeftSidebar
-                isLoading={isLoading}
+                isLoading={isLoading || isUploading}
                 navigationItems={navigationItems}
                 activeHash={activeHash}
                 collapsed={leftSidebarCollapsed}
@@ -114,7 +146,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                         <img src="/images/chat-head-icon.png" alt="Expona" />
                       </span> */}
                       <h1 className="text-lg font-medium flex items-center cursor-pointer pl-3 ">
-                        {chatContent.title}{" "}
+                        {chatContent.title} {" "}
                         <img
                           src="/images/edit-icon.svg"
                           alt="Edit Title"
@@ -143,7 +175,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                   <div className="flex-1 relative max-w-[730px] mx-auto px-5">
                     <div className="py-2 ">
                       <ChatContent
-                        isLoading={isLoading}
+                        isLoading={isLoading || isUploading}
                         chatContent={chatContent}
                         navigate={navigate}
                         setShowSavedNote={setShowSavedNote}
@@ -151,6 +183,8 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                         saved={saved}
                         setSaved={setSaved}
                         projectsVisibility={projectsVisibility}
+                        uploadResponse={uploadResponse}
+                        hasFinalSummary={hasFinalSummary}
                       />
                     </div>
                     {/* Message Input Section */}
@@ -164,7 +198,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                   </div>
                   {/* Right Sidebar - Documents/Notes */}
                   <RightSidebar
-                    isLoading={isLoading}
+                    isLoading={isLoading || isUploading}
                     sources={sources}
                     setSources={setSources}
                     collapsed={rightSidebarCollapsed}

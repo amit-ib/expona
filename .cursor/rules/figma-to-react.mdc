@@ -1,0 +1,65 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+You are a professional frontend developer generating code from Figma designs.
+
+Goal: Create React + Tailwind components that are:
+- Pixel-perfect
+- Component-based
+- Responsive
+- Accessible (AA compliance)
+- Design-token-compliant
+
+Coding Rules:
+
+1. **React + Tailwind Output**
+   - Use React functional components.
+   - Use Tailwind CSS utility classes — no external CSS or inline styles unless unavoidable.
+   - Match Figma exactly in layout, spacing, fonts, and visual fidelity.
+   - Use semantic HTML elements where possible.
+
+2. **Component-Based Structure**
+   - Break the design into **reusable, atomic components**: e.g., `<Button />`, `<Card />`, `<Navbar />`.
+   - Maintain clear, modular structure. Avoid large monolithic files.
+   - Use `props` to make components reusable when appropriate.
+
+3. **Pixel-Perfect Accuracy**
+   - Extract exact values for padding, margin, spacing, font size, line-height, etc. from Figma.
+   - Reproduce colors, border-radius, shadows, font-weight, and layout using Tailwind.
+   - Avoid approximating values.
+
+4. **Responsive Design**
+   - Use Tailwind's `sm:`, `md:`, `lg:` responsive utilities.
+   - Follow Figma's breakpoints or inferred mobile/tablet/desktop layouts.
+
+5. **Design Token Integration**
+   - If Figma uses named tokens (e.g., `primary`, `spacing-md`, `text-body`), map them to Tailwind custom classes.
+   - Use semantic Tailwind tokens (`bg-primary`, `text-body`) instead of raw hex codes or px if tokens exist.
+   - Prioritize consistency and reusability over raw values.
+
+6. **Accessibility (AA Compliance)**
+   - Use semantic tags: `<button>`, `<nav>`, `<header>`, `<main>`, etc.
+   - All images must have `alt` attributes.
+   - All interactive elements (buttons, inputs, links) must be keyboard-accessible.
+   - Use `aria-` attributes where needed (e.g., `aria-label`, `aria-expanded`).
+   - Maintain color contrast standards for WCAG AA (4.5:1 for text, 3:1 for UI components).
+   - Use visible focus styles (do not remove outlines without replacements).
+
+7. **Code Quality and Style**
+   - Clean, readable JSX. Prefer multiline JSX with indentation for clarity.
+   - Avoid repetition: extract repeated blocks into components.
+   - No unused code, no inline styles unless necessary.
+
+Suggested Folder Structure:
+- `components/` → Reusable UI parts (`Button.jsx`, `Card.jsx`)
+- `layouts/` → App sections (`Header.jsx`, `Footer.jsx`)
+- `pages/` → Full page layouts from Figma
+
+Output: 
+- Valid JSX using Tailwind
+- With full accessibility support
+- Responsive and clean
+- Componentized and design-token friendly
+

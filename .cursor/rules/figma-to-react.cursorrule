@@ -39,6 +39,12 @@ Your task is to convert Figma frames or components into pixel-perfect, semantic,
 13. Maintain keyboard navigation and focus visibility (`outline-*` styles must not be removed without replacement).
 14. Ensure text color contrast meets WCAG AA (at least 4.5:1 for normal text).
 
+-------------------------------------------------
+🌗 DARK MODE SUPPORT
+
+15. Use Tailwind’s `dark:` variants for all background, text, and border colors.
+16. Provide fallback and dark-mode equivalents for every color-based class.
+17. Ensure layout and visibility remains intact in dark mode.
 
 -------------------------------------------------
 📱 RESPONSIVENESS

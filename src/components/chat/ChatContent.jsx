@@ -17,7 +17,7 @@ const markdownComponents = {
       <ul
         className={
           isNested
-            ? "list-disc ml-8 mb-8 text-sm -mt-3 space-y-1"
+            ? "list-disc ml-8 mb-4 text-sm mt-3 space-y-1"
             : "list-disc ml-5 mb-5 text-sm space-y-1"
         }
         {...props}
@@ -43,7 +43,9 @@ const ChatContent = ({
   sources,
   saved,
   setSaved,
-  projectsVisibility
+  projectsVisibility,
+  uploadResponse,
+  hasFinalSummary
 }) => {
   const [popup, setPopup] = React.useState({
     visible: false,
@@ -110,10 +112,15 @@ const ChatContent = ({
     }
   }, [showOtherPrompts]);
 
-  if (isLoading) {
+  // React.useEffect(() => {
+  //   if (uploadResponse) {
+  //     console.log('Upload response in ChatContent:', uploadResponse);
+  //   }
+  // }, [uploadResponse]);
+
+  if (isLoading && !uploadResponse) {
     return (
       <div className="flex h-[calc(100vh-150px)] items-center justify-center">
-
         <Lottie animationData={animationData} loop={true} style={{ height: 220 }} />
       </div>
     );
@@ -125,8 +132,8 @@ const ChatContent = ({
   // const bidInfoListItems = bidInfoParts.length > 1 ? bidInfoParts[1] : '';
 
   const handleCitationClick = (event, citationContent, index, clientX, clientY) => {
-    const popupWidth = 560; // Corresponds to w-[560px]
-    const viewportWidth = window.innerWidth;
+    // const popupWidth = 560; // Corresponds to w-[560px]
+    // const viewportWidth = window.innerWidth;
     const scrollableContainer = document.querySelector('.chat-scrollbar'); // Get the scrollable container
     const containerRect = scrollableContainer.getBoundingClientRect();
     const scrollTop = scrollableContainer.scrollTop;
@@ -178,10 +185,10 @@ const ChatContent = ({
         {sources.length > 0 ? (
           <div >
             {/* Overview */}
-            <div className="mb-8">
-              <p className="whitespace-pre-line text-sm leading-relaxed font-light">
-                {chatContent.overview}
-              </p>
+            <div className={`mb-8 ${!hasFinalSummary ? "text-gray-ae" : ""}`}>
+              <Markdown components={markdownComponents}>
+                {uploadResponse}
+              </Markdown>
             </div>
 
             {/* Separator */}
@@ -189,8 +196,8 @@ const ChatContent = ({
             <div className='group' id="datetime">
               <div className='flex mb-6 mt-6 items-center relative'><strong className='block py-2'>Important Dates & Timelines</strong>
                 <div className={`ml-3 flex space-x-3 group-hover:block ${exportPopup.visible ? '' : 'hidden group-hover:block'}`}>
-                  <button className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/copy-icon.svg' title="Copy"></img></button>
-                  <button onClick={handleExportClick} className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/export-icon.svg' title="Export" /></button>
+                  <button className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/copy-icon.svg' alt="Copy" title="Copy"></img></button>
+                  <button onClick={handleExportClick} className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/export-icon.svg' alt="Export" title="Export" /></button>
                 </div>
                 {/* Export Popup */}
                 {exportPopup.visible && (
@@ -255,7 +262,7 @@ const ChatContent = ({
             <div id="todo" className='group'>
               <div className='flex mb-4 mt-6 items-center'><strong className='py-2'>List of To-Do's</strong>
                 <div className='hidden ml-3 group-hover:inline-block flex space-x-3'>
-                  <button className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/copy-icon.svg' title="Copy" />
+                  <button className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/copy-icon.svg' alt="Copy" title="Copy" />
                   </button>
                 </div></div>
               {/* <p className="whitespace-pre-line text-base leading-relaxed font-bold">
@@ -288,7 +295,7 @@ const ChatContent = ({
             {/* Pre-Submission */}
             <div className="mb-8 relative group" id="presubmisssion">
               <div className='flex mb-4 mt-6 items-center'>
-                <strong className='py-2'> Pre-submission Checklist</strong><div className='hidden ml-3 group-hover:inline-block flex space-x-3'><button className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/copy-icon.svg' title="Copy" /></button> </div></div>
+                <strong className='py-2'> Pre-submission Checklist</strong><div className='hidden ml-3 group-hover:inline-block flex space-x-3'><button className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/copy-icon.svg' alt="Copy" title="Copy" /></button> </div></div>
               <ul className='mt-4 font-light text-sm space-y-1'>
                 <li>✅ Upload duly filled tender form</li>
                 <li>✅ Submit EMD in specified format</li>
@@ -311,7 +318,7 @@ const ChatContent = ({
             {/* Evaluation Criteria */}
             <div className="mb-8 relative group" id="eval">
               <div className='flex mb-4 mt-6 items-center'>
-                <strong className='py-2'> Evaluation Criteria</strong><div className='hidden ml-3 group-hover:inline-block flex space-x-3'><button className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/copy-icon.svg' title="Copy"></img></button> </div></div>
+                <strong className='py-2'> Evaluation Criteria</strong><div className='hidden ml-3 group-hover:inline-block flex space-x-3'><button className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/copy-icon.svg' alt="Copy" title="Copy"></img></button> </div></div>
               <Markdown
                 components={markdownComponents}
               >
@@ -352,7 +359,7 @@ const ChatContent = ({
                 <div className='text-sm font-light flex flex-col'><div className='self-end max-w-xl bg-gray-4f px-4 py-2 rounded-md'>Process for bid evaluation</div></div>
                 <div className='group'>
                   <div className='flex mb-4 mt-6 items-center'>
-                    <strong className='py-2'> Pre-submission Checklist</strong><div className='hidden ml-3 group-hover:inline-block flex space-x-3'><button className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/copy-icon.svg' title="Copy"></img></button> </div></div>
+                    <strong className='py-2'> Pre-submission Checklist</strong><div className='hidden ml-3 group-hover:inline-block flex space-x-3'><button className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/copy-icon.svg' alt="Copy" title="Copy"></img></button> </div></div>
                   <ul className='mt-6 list-disc ml-5 text-sm font-light space-y-1'>
                     <li>Upload duly filled tender form</li>
                     <li>Submit EMD in specified format</li>

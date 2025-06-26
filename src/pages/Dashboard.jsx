@@ -1,10 +1,29 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../components/layout/Header";
 import UploadAction from "../components/dashboard/UploadAction";
 import ProjectList from "../components/dashboard/ProjectList";
-import DashboardCard from "../components/dashboard/DashboardCard";
+import { fetchGoogleSessionData } from "../api/apiHelper";
+// import DashboardCard from "../components/dashboard/DashboardCard";
 
 const Dashboard = ({ projectsVisibility }) => {
+  const [sessionData, setSessionData] = useState(null);
+
+  useEffect(() => {
+    // Get token from URL query string ('scope' param)
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("scope");
+    if (token) {
+      fetchGoogleSessionData(token)
+        .then(data => {
+          setSessionData(data);
+          console.log("Google session data:", data);
+        })
+        .catch(err => {
+          console.error("Failed to fetch Google session data:", err);
+        });
+    }
+  }, []);
+
   console.log(projectsVisibility, "projectsVisibility")
   return (
     <div className="min-h-screen bg-gray-2d text-white">

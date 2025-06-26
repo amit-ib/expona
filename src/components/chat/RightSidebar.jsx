@@ -4,13 +4,13 @@ import PdfViewerModal from "../common/PdfViewerModal";
 import InfoTooltip from '../common/InfoTooltip';
 import Loader from '../common/Loader';
 
-const RightSidebar = ({ 
+const RightSidebar = ({
   isLoading,
-  sources, 
-  setSources, 
-  collapsed, 
-  setCollapsed, 
-  onCheckedChange 
+  sources,
+  setSources,
+  collapsed,
+  setCollapsed,
+  onCheckedChange
 }) => {
   // State to track which checkboxes are checked
   const [checkedItems, setCheckedItems] = useState([]);
@@ -19,7 +19,7 @@ const RightSidebar = ({
   const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
   const [deleteIndex, setDeleteIndex] = useState(null);
   // Add state for upload tooltip visibility
-  const [showUploadTooltip, setShowUploadTooltip] = useState(false);
+  // const [showUploadTooltip, setShowUploadTooltip] = useState(false);
   const [showPdf, setShowPdf] = useState(false);
   const pdfUrl = "/A_Brief_Introduction_To_AI.pdf"; // File in public folder
 
@@ -58,13 +58,13 @@ const RightSidebar = ({
   // Determine if all are checked
   // const allChecked = checkedItems.length > 0 && checkedItems.every(Boolean);
 
-  if (isLoading) {
-    return (
-      <div className={`bg-gray-2d transition-all duration-500 ${collapsed ? 'w-0' : 'w-[300px]'}`}>
-        <Loader />
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className={`bg-gray-2d transition-all duration-500 ${collapsed ? 'w-0' : 'w-[300px]'}`}>
+  //       <Loader />
+  //     </div>
+  //   );
+  // }
 
   return (
     <div
@@ -100,102 +100,106 @@ const RightSidebar = ({
 
       {/* Added Files Section */}
       {/* {!collapsed && ( */}
-      <div className="py-4 px-6 pt-0  flex flex-col justify-center relative">
-        {/* Add Document Button */}
-        <input type="file" className={`absolute top-4 left-10 opacity-0 z-40 h-16  cursor-pointer ${collapsed ? 'w-5' : 'w-44'}`} />
-        <button className="w-full flex items-center justify-center gap-2 py-3.5 bg-gray-32 hover:bg-gray-37 rounded text-sm font-medium transition-all duration-300 cursor-pointer">
-          {/* Use the reusable Tooltip component */}
-          <Tooltip tooltipContent="Upload Documents" showCondition={collapsed}>
-            {/* The icon is the child that triggers the tooltip */}
-            <img src="/images/upload-icon.svg" alt="Add Document" />
-          </Tooltip>
+      {isLoading ? (
+        <Loader />
+      ) :
+        <div className="py-4 px-6 pt-0  flex flex-col justify-center relative">
+          {/* Add Document Button */}
+          <input type="file" className={`absolute top-4 left-10 opacity-0 z-40 h-16  cursor-pointer ${collapsed ? 'w-5' : 'w-44'}`} />
+          <button className="w-full flex items-center justify-center gap-2 py-3.5 bg-gray-32 hover:bg-gray-37 rounded text-sm font-medium transition-all duration-300 cursor-pointer">
+            {/* Use the reusable Tooltip component */}
+            <Tooltip tooltipContent="Upload Documents" showCondition={collapsed}>
+              {/* The icon is the child that triggers the tooltip */}
+              <img src="/images/upload-icon.svg" alt="Add Document" />
+            </Tooltip>
 
-          {/* The "Upload Documents" text (only visible when not collapsed) */}
-          {!collapsed && <span>Upload Documents</span>}
-        </button>
-        <div className='border-t border-gray-42 mt-5'>
-          {!collapsed && (
-            sources.length > 0 ? (
-              <h3 className="flex items-center justify-between text-xs font-normal text-white  mt-6">
-                <span>Uploaded documents</span>
-                {/* <input
+            {/* The "Upload Documents" text (only visible when not collapsed) */}
+            {!collapsed && <span>Upload Documents</span>}
+          </button>
+          <div className='border-t border-gray-42 mt-5'>
+            {!collapsed && (
+              sources.length > 0 ? (
+                <h3 className="flex items-center justify-between text-xs font-normal text-white  mt-6">
+                  <span>Uploaded documents</span>
+                  {/* <input
                   type="checkbox"
                   className='p-1 custom-checkbox'
                   id="selectall"
                   checked={allChecked}
                   onChange={handleSelectAll}
                 /> */}
-              </h3>
-            ) : (
-              <span className='text-xs text-gray-ae mt-6 block'>Uploaded documents will appear here. Upload a file to continue.</span>
-            )
-          )}
-          {sources.map((source, index) => (
-            <div key={index} className={`flex relative items-center justify-center py-3 rounded group ${collapsed ? 'justify-center' : 'justify-between'}`}>
-              <div className="flex items-center gap-2.5 cursor-pointer group">
-                <div className="w-6 h-6 flex items-center justify-center group cursor-pointer ">
-                  <img
-                    src="/images/file2-icon.svg"
-                    alt="Files"
-                    className={`${!collapsed ? 'group-hover:hidden' : ''}`}
-                    onMouseEnter={e => {
-                      if (collapsed) {
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        setHoveredIndex(index);
-                        setPopupPosition({
-                          top: rect.top + rect.height / 2,
-                          left: rect.left - 8 // 8px gap to the left of the icon
-                        });
-                      }
-                    }}
-                    onMouseLeave={() => collapsed && setHoveredIndex(null)}
-                  />
-                  {collapsed && hoveredIndex === index && (
-                    <div
-                      className="fixed z-50 bg-gray-32  text-sm rounded px-3 py-2 shadow-lg whitespace-nowrap"
-                      style={{
-                        top: `${popupPosition.top}px`,
-                        left: `${popupPosition.left}px`,
-                        transform: 'translate(-100%, -50%)'
+                </h3>
+              ) : (
+                <span className='text-xs text-gray-ae mt-6 block'>Uploaded documents will appear here. Upload a file to continue.</span>
+              )
+            )}
+            {sources.map((source, index) => (
+              <div key={index} className={`flex relative items-center justify-center py-3 rounded group ${collapsed ? 'justify-center' : 'justify-between'}`}>
+                <div className="flex items-center gap-2.5 cursor-pointer group">
+                  <div className="w-6 h-6 flex items-center justify-center group cursor-pointer ">
+                    <img
+                      src="/images/file2-icon.svg"
+                      alt="Files"
+                      className={`${!collapsed ? 'group-hover:hidden' : ''}`}
+                      onMouseEnter={e => {
+                        if (collapsed) {
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          setHoveredIndex(index);
+                          setPopupPosition({
+                            top: rect.top + rect.height / 2,
+                            left: rect.left - 8 // 8px gap to the left of the icon
+                          });
+                        }
                       }}
-                    >
-                      {source.name}
-                    </div>
-                  )}
-                  <img src="/images/3dots-icon.svg" alt="Show Options" className={`hidden  cursor-pointer ${!collapsed ? 'group-hover:inline-flex' : ''}`} onClick={e => { e.stopPropagation(); setOpenMenuIndex(openMenuIndex === index ? null : index); }} />
-                  {openMenuIndex === index && (
-                    <div className="absolute z-50 mt-36 text-xs left-1 w-40 bg-gray-2d rounded shadow-xl flex flex-col p-2">
-                      <button className="px-4 py-3 text-left hover:bg-gray-24 rounded-lg">Rename Document</button>
-                      <button className="px-4 py-3 text-left hover:bg-gray-24 rounded-lg" onClick={() => setDeleteIndex(index)}>Delete Document</button>
-                    </div>
-                  )}
+                      onMouseLeave={() => collapsed && setHoveredIndex(null)}
+                    />
+                    {collapsed && hoveredIndex === index && (
+                      <div
+                        className="fixed z-50 bg-gray-32  text-sm rounded px-3 py-2 shadow-lg whitespace-nowrap"
+                        style={{
+                          top: `${popupPosition.top}px`,
+                          left: `${popupPosition.left}px`,
+                          transform: 'translate(-100%, -50%)'
+                        }}
+                      >
+                        {source.name}
+                      </div>
+                    )}
+                    <img src="/images/3dots-icon.svg" alt="Show Options" className={`hidden  cursor-pointer ${!collapsed ? 'group-hover:inline-flex' : ''}`} onClick={e => { e.stopPropagation(); setOpenMenuIndex(openMenuIndex === index ? null : index); }} />
+                    {openMenuIndex === index && (
+                      <div className="absolute z-50 mt-36 text-xs left-1 w-40 bg-gray-2d rounded shadow-xl flex flex-col p-2">
+                        <button className="px-4 py-3 text-left hover:bg-gray-24 rounded-lg">Rename Document</button>
+                        <button className="px-4 py-3 text-left hover:bg-gray-24 rounded-lg" onClick={() => setDeleteIndex(index)}>Delete Document</button>
+                      </div>
+                    )}
+                  </div>
+                  {!collapsed &&
+                    <div>
+                      <button className="text-sm font-normal text-white" onClick={() => setShowPdf(true)}>{source.name}</button>
+                      <p className="text-xs text-gray-ae">{source.date}</p>
+                    </div>}
                 </div>
-                {!collapsed &&
-                  <div>
-                    <button className="text-sm font-normal text-white" onClick={() => setShowPdf(true)}>{source.name}</button>
-                    <p className="text-xs text-gray-ae">{source.date}</p>
-                  </div>}
-              </div>
-              {/* {!collapsed && <input
+                {/* {!collapsed && <input
                 type="checkbox"
                 className='p-1 custom-checkbox'
                 checked={checkedItems[index] || false}
                 onChange={() => handleCheckboxChange(index)}
               />} */}
-              {/* <button className="text-xs invisible group-hover:visible">
+                {/* <button className="text-xs invisible group-hover:visible">
                     Delete
                   </button> */}
-            </div>
-          ))}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      }
       {deleteIndex !== null && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-gray-24 rounded-lg p-8 shadow-lg w-[400px] max-w-full">
             <div className="flex flex-col items-center justify-center">
               <div className="mb-4 text-center flex flex-col justify-center items-center">
                 <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-42 mb-2">
-                  <span className='bg-white p-1 inline-block rounded-full'><span className="flex rounded-full p-1 inline-block"><img src="images/alert-circle.svg" /></span></span>
+                  <span className='bg-white p-1 inline-block rounded-full'><span className="flex rounded-full p-1 inline-block"><img src="images/alert-circle.svg" alt='Alert' /></span></span>
                 </div>
                 <h2 className="text-lg font-semibold text-white mb-2">Delete this file?</h2>
                 <p className="text-gray-ae font-light text-center">

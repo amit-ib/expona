@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import Tooltip from "../common/Tooltip";
 import InfoTooltip from "../common/InfoTooltip";
-import Loader from "../common/Loader";
+// import Loader from "../common/Loader";
+import Lottie from "lottie-react";
+import animationData from "./loader-left-bar.json";
 
 const LeftSidebar = ({
   isLoading,
@@ -61,14 +63,12 @@ const LeftSidebar = ({
   return (
     <div
       id="left-sidebar"
-      className={`flex relative flex-col  bg-gray-2d  transition-all duration-500 ${
-        collapsed ? "w-[70px] " : "w-[300px]  "
-      }`}
+      className={`flex relative flex-col  bg-gray-2d  transition-all duration-500 ${collapsed ? "w-[70px] " : "w-[300px]  "
+        }`}
     >
       <button
-        className={` absolute transition-all duration-500 top-8 flex items-center justify-center z-10 hover:bg-gray-32 rounded-full ${
-          collapsed ? "right-5" : "right-3"
-        }`}
+        className={` absolute transition-all duration-500 top-8 flex items-center justify-center z-10 hover:bg-gray-32 rounded-full ${collapsed ? "right-5" : "right-3"
+          }`}
         style={{ minWidth: 35 }}
         onClick={() => setCollapsed(!collapsed)}
       >
@@ -86,9 +86,8 @@ const LeftSidebar = ({
         </Tooltip>
       </button>
       <div
-        className={`relative items-center transition-all duration-300  px-5 py-6  ${
-          collapsed ? "-left-48  opacity-0" : "left-0"
-        }`}
+        className={`relative items-center transition-all duration-300  px-5 py-6  ${collapsed ? "-left-48  opacity-0" : "left-0"
+          }`}
       >
         {/* ${collapsed ? 'justify-left px-0 py-3 ' : 'justify-between px-4 py-8  border-gray-42'} */}
         <img
@@ -114,8 +113,8 @@ const LeftSidebar = ({
           />
         </div>
         {isLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader />
+          <div className="flex flex-col">
+            <Lottie animationData={animationData} loop={true} />
           </div>
         ) : sources.length > 0 ? (
           // left Sidebar Content
@@ -139,12 +138,11 @@ const LeftSidebar = ({
               <a
                 key={index}
                 href={item.link}
-                className={`w-full text-left px-2 py-2 text-sm relative ${
-                  (activeHash === "" && index === 0) ||
+                className={`w-full text-left px-2 py-2 text-sm relative ${(activeHash === "" && index === 0) ||
                   item.link.substring(item.link.indexOf("#")) === activeHash
-                    ? "text-white font-medium before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[1.5px] before:bg-expona-red"
-                    : "text-gray-ae hover:text-white font-light"
-                }`}
+                  ? "text-white font-medium before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[1.5px] before:bg-expona-red"
+                  : "text-gray-ae hover:text-white font-light"
+                  }`}
               >
                 {item.title}
               </a>
@@ -193,9 +191,8 @@ const LeftSidebar = ({
         ) : (
           // !collapsed && (
           <div
-            className={`text-xs py-6 px-4  transition-all duration-300 ${
-              collapsed ? "opacity-0" : ""
-            }`}
+            className={`text-xs py-6 px-4  transition-all duration-300 ${collapsed ? "opacity-0" : ""
+              }`}
           >
             It looks quiet here. Upload a tender to see key areas show up.
           </div>
@@ -203,23 +200,20 @@ const LeftSidebar = ({
         )}
       </div>
       <div
-        className={`absolute bottom-0 left-0 right-0 py-4  flex items-center justify-between transition-all duration-500 ${
-          collapsed ? "px-3" : "px-5"
-        }`}
+        className={`absolute bottom-0 left-0 right-0 py-4  flex items-center justify-between transition-all duration-500 ${collapsed ? "px-3" : "px-5"
+          }`}
       >
         <div className="relative w-full">
           <button
             id="new-tender-btn"
-            className={`border flex items-center justify-center  rounded-md ${
-              collapsed ? "p-2" : "w-full p-3"
-            }`}
+            className={`border flex items-center justify-center  rounded-md ${collapsed ? "p-2" : "w-full p-3"
+              }`}
             onClick={onNewTenderClick}
           >
-            <img src="images/add-icon.svg" />
+            <img src="images/add-icon.svg" alt="New Tender" />
             <span
-              className={`transition-all duration-500 delay-200 ${
-                collapsed ? "opacity-0 -left-48 absolute" : ""
-              }`}
+              className={`transition-all duration-500 delay-200 ${collapsed ? "opacity-0 -left-48 absolute" : ""
+                }`}
             >
               New Tender
             </span>
@@ -236,9 +230,8 @@ const LeftSidebar = ({
             />
             {/* User Profile Card */}
             <div
-              className={`flex  ml-14 flex-col transition-all duration-800 ${
-                collapsed ? "opacity-0 " : ""
-              }`}
+              className={`flex  ml-14 flex-col transition-all duration-800 ${collapsed ? "opacity-0 " : ""
+                }`}
             >
               <span className="text-white text-base font-medium">
                 Anish Kudaal

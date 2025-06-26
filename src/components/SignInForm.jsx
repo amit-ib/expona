@@ -1,8 +1,34 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+// import { apiGet } from '../api/api';
+// import { fetchAuthStart } from "../api/api";
+// import { API_ENDPOINTS } from '../api/apiConfig';
+import { fetchAuthStart } from '../api/apiHelper';
 
 const SignInForm = () => {
   const navigate = useNavigate();
+  // const [authStartResult, setAuthStartResult] = useState(null);
+  // Handler for Google sign-in button
+  const handleGoogleSignIn = async () => {
+    try {
+      const response = await fetchAuthStart();
+      console.log('Google Sign-In API response:', response);
+      if (response?.data?.redirect_url) {
+        window.location.href = response.data.redirect_url;
+      }
+    } catch (error) {
+      console.error('Google Sign-In API error:', error);
+    }
+    // try {
+    //   const result = await fetchAuthStart();
+    //   setAuthStartResult(result);
+    //   alert("fetchAuthStart result: " + JSON.stringify(result));
+    // } catch (error) {
+    //   setAuthStartResult(error);
+    //   alert("fetchAuthStart error: " + error);
+    // }
+  };
+
   return (
     <div className="p-[1px] mb-16 rounded-xl bg-gradient-to-br from-[#FF3C3C]  to-[#3C00FF]  w-[528px]
 
@@ -17,7 +43,10 @@ const SignInForm = () => {
         </div>
 
         {/* Sign in with Google Button */}
-        <button className="bg-gray-32  text-white py-4 px-6 rounded w-full flex items-center justify-center space-x-2 mb-6 hover:bg-gray-800 transition-colors">
+        <button
+          className="bg-gray-32  text-white py-4 px-6 rounded w-full flex items-center justify-center space-x-2 mb-6 hover:bg-gray-37 transition-colors"
+          onClick={handleGoogleSignIn}
+        >
           <img src="/images/google-icon.svg" alt="Google Icon" className="w-5 h-5" />
           <span>Sign in with Google</span>
         </button>
@@ -29,32 +58,34 @@ const SignInForm = () => {
           <div className="flex-grow border-t border-gray-700"></div>
         </div>
 
-        {/* Email Input */}
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-white text-sm font-medium mb-2">Email</label>
-          <input
-            type="email"
-            id="email"
-            className=" border bg-transparent border-gray-42 text-gray-ae text-base rounded-lg block w-full p-4 outline-none transition-colors placeholder-gray-500"
-            placeholder="example@tenderai.com"
-          />
-        </div>
+        <form>
+          {/* Email Input */}
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-white text-sm font-medium mb-2">Email</label>
+            <input
+              type="email"
+              id="email"
+              className=" border bg-transparent border-gray-42 text-gray-ae text-base rounded-lg block w-full p-4 outline-none transition-colors placeholder-gray-500"
+              placeholder="example@tenderai.com"
+            />
+          </div>
 
-        {/* Password Input */}
-        <div className="mb-6">
-          <label htmlFor="password" className="block text-white text-sm font-medium mb-2">Password</label>
-          <input
-            type="password"
-            id="password"
-            className=" border bg-transparent  border-gray-42  text-gray-ae text-base rounded-lg block w-full p-4 outline-none transition-colors placeholder-gray-500"
-            placeholder="••••••••••••"
-          />
-        </div>
+          {/* Password Input */}
+          <div className="mb-6">
+            <label htmlFor="password" className="block text-white text-sm font-medium mb-2">Password</label>
+            <input
+              type="password"
+              id="password"
+              className=" border bg-transparent  border-gray-42  text-gray-ae text-base rounded-lg block w-full p-4 outline-none transition-colors placeholder-gray-500"
+              placeholder="••••••••••••"
+            />
+          </div>
 
-        {/* Sign In Button */}
-        <button className="bg-expona-red text-white py-3 px-6 rounded w-full font-semibold shadow-md hover:opacity-90 transition-opacity" onClick={() => navigate('/company-detail')}>
-          Sign in
-        </button>
+          {/* Sign In Button */}
+          <button className="bg-expona-red text-white py-3 px-6 rounded w-full font-semibold shadow-md hover:opacity-90 transition-opacity" onClick={() => navigate('/company-detail')}>
+            Sign in
+          </button>
+        </form>
       </div>
     </div>
   );

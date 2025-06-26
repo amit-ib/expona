@@ -8,6 +8,7 @@ import SignIn from "./pages/SignIn";
 import CompanyDetail from "./pages/CompanyDetail";
 import CompanyProfile from "./pages/CompanyProfile";
 import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   const [projectsVisibility, setProjectsVisibility] = useState(true);
@@ -27,7 +28,14 @@ function App() {
               </div>
             }
           />
-          <Route path="/dashboard" element={<Dashboard projectsVisibility={projectsVisibility} />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard projectsVisibility={projectsVisibility} />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/chat" element={<Chat setProjectsVisibility={setProjectsVisibility} />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/company-detail" element={<CompanyDetail />} />

@@ -1,12 +1,12 @@
 import React from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import ProfilePopup from './ProfilePopup';
 
 const Header = ({ setProjectsVisibility, hideSignInButton }) => {
   const { isAuthenticated, isLoggedIn } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
+  // const location = useLocation();
 
   const [isProfilePopupOpen, setIsProfilePopupOpen] = React.useState(false);
 

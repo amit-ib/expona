@@ -8,6 +8,7 @@ import Chat from "./pages/Chat";
 import SignIn from "./pages/SignIn";
 import CompanyDetail from "./pages/CompanyDetail";
 import CompanyProfile from "./pages/CompanyProfile";
+import ProtectedRoute from "./components/common/ProtectedRoute";
 
 function App() {
   const [projectsVisibility, setProjectsVisibility] = useState(true);
@@ -29,7 +30,11 @@ function App() {
           />
           <Route
             path="/dashboard"
-            element={<Dashboard projectsVisibility={projectsVisibility} />}
+            element={
+              <ProtectedRoute>
+                <Dashboard projectsVisibility={projectsVisibility} />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/chat"

@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import ProfilePopup from './ProfilePopup';
 
 const Header = ({ setProjectsVisibility, hideSignInButton }) => {
-  const { isAuthenticated, isLoggedIn } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   // const location = useLocation();
 
@@ -25,16 +25,16 @@ const Header = ({ setProjectsVisibility, hideSignInButton }) => {
           />
         </div>
         <div className="flex items-center" id="header-buttons">
-          {!isAuthenticated && !hideSignInButton ? (
+          {!user && !hideSignInButton ? (
             <Link
               to="/signin"
               className="text-sm px-4 mr-4 py-2 text-white border border-white/30 rounded-md hover:bg-white/10 transition-colors"
             >
               Sign In
             </Link>
-          ) : isLoggedIn ? (
+          ) : user ? (
             <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm relative">
-              <button onClick={toggleProfilePopup}>AK</button>
+              <button onClick={toggleProfilePopup}>{user?.initials || ''}</button>
               <ProfilePopup isOpen={isProfilePopupOpen} onClose={toggleProfilePopup} />
             </div>
           ) : null}

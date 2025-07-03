@@ -4,6 +4,8 @@ import InfoTooltip from "../common/InfoTooltip";
 // import Loader from "../common/Loader";
 import Lottie from "lottie-react";
 import animationData from "./loader-left-bar.json";
+import { useAuth } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const LeftSidebar = ({
   isLoading,
@@ -20,6 +22,8 @@ const LeftSidebar = ({
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileMenuRef = useRef(null);
   const profileToggleRef = useRef(null);
+  const { logout, user } = useAuth();
+  const navigate = useNavigate();
 
   const handleProfileClick = () => {
     setShowProfileMenu(!showProfileMenu);
@@ -59,7 +63,7 @@ const LeftSidebar = ({
   //     </div>
   //   );
   // }
-
+  console.log(user)
   return (
     <div
       id="left-sidebar"
@@ -118,7 +122,7 @@ const LeftSidebar = ({
           </div>
         ) : sources.length > 0 ? (
           // left Sidebar Content
-          <div className="py-3 flex flex-col transition-all duration-500">
+          <div className="py-3 flex flex-col transition-all duration-500 hidden">
             {/* {!collapsed && ( */}
             <div className="flex itemss-center transition-all duration-500 text-gray-99 mb-4 relative text-xs">
               Key Areas
@@ -224,7 +228,7 @@ const LeftSidebar = ({
             ref={profileToggleRef}
           >
             <img
-              src="/images/user.jpeg"
+              src={user?.picture}
               alt="User Avatar"
               className="w-10 h-10 rounded-full absolute"
             />
@@ -234,10 +238,10 @@ const LeftSidebar = ({
                 }`}
             >
               <span className="text-white text-base font-medium">
-                Anish Kudaal
+                {user?.first_name || ""} {user?.last_name || ""}
               </span>
               <span className="text-gray-ae text-sm">
-                anish.kudaal@askcorp.com
+                {user?.email || ""}
               </span>
             </div>
           </div>
@@ -257,9 +261,9 @@ const LeftSidebar = ({
                 />
                 Profile
               </a>
-              <a
-                href="#"
-                className="flex items-center rounded px-4 py-2 text-white hover:bg-gray-42"
+              <button
+                className="flex items-center rounded px-4 py-2 text-white hover:bg-gray-42 w-full"
+                onClick={() => { logout(); navigate('/signin'); }}
               >
                 <img
                   src="/images/logout-icon.svg"
@@ -267,7 +271,7 @@ const LeftSidebar = ({
                   className="w-5 h-5 mr-3"
                 />
                 Logout
-              </a>
+              </button>
             </div>
           )}
         </div>

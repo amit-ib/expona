@@ -54,6 +54,10 @@ code {
   scrollbar-color: #44444F rgba(0, 0, 0, 0.2);
 }
 
+.summary hr {
+  margin-bottom: 20px;
+}
+
 .animate-bg {
   /* background: url(../public/images/animate-bg.svg);
   background-position: 35% 0%;

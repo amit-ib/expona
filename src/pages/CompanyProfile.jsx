@@ -1,12 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EditableInput from '../components/ui/EditableInput';
+import { fetchCompanyProfile, uploadCompanyDocument } from '../api/apiHelper';
+import CompanyDocumentsUpload from '../components/CompanyDocumentsUpload';
+import CompanyFileList from '../components/CompanyFileList';
 
 const CompanyProfile = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('company-info');
     const [editingSection, setEditingSection] = useState(null);
     const [editingField, setEditingField] = useState(null);
+    const [companyProfile, setCompanyProfile] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [uploadedFiles, setUploadedFiles] = useState([]);
+
+    const loadCompanyProfile = async (companyId) => {
+        setLoading(true);
+        try {
+            const data = await fetchCompanyProfile(companyId);
+            setCompanyProfile(data);
+            setError('');
+        } catch (err) {
+            setError('Failed to fetch company profile');
+            setCompanyProfile(null);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadCompanyProfile(26); // Call once on page load
+    }, []);
+
+    // Destructure message for easier access to fields
+    const message = companyProfile?.message || {};
+
+    // Utility to extract file name from URL
+    const extractFileName = (url) => {
+        if (!url) return '';
+        const path = url.split('?')[0];
+        return path.substring(path.lastIndexOf('/') + 1);
+    };
+
+    const profileFiles = [];
+    if (message.Certificate_of_Incorporation) {
+        profileFiles.push({
+            name: extractFileName(message.Certificate_of_Incorporation),
+            url: message.Certificate_of_Incorporation,
+            date: message.Date_of_Incorporation || '',
+        });
+    }
 
     const tabs = [
         { key: 'company-info', label: 'Company Info' },
@@ -31,6 +75,22 @@ const CompanyProfile = () => {
         setEditingSection(null);
         setEditingField(null);
         // Add save logic here
+    };
+
+    // Handler for file upload/remove
+    const handleFileUpload = async (file, action) => {
+        if (action === 'add') {
+            try {
+                // Use company_id = 26 for now
+                await uploadCompanyDocument({ file, company_id: 26 });
+                setUploadedFiles(prev => [...prev, { name: file.name, date: new Date().toLocaleDateString() }]);
+            } catch (err) {
+                alert('Failed to upload document');
+            }
+        } else if (action === 'remove') {
+            setUploadedFiles(prev => prev.filter(f => f.name !== file.name));
+            // Optionally: call API to delete the file
+        }
     };
 
     return (
@@ -58,6 +118,12 @@ const CompanyProfile = () => {
             <main className="px-8 py-6">
                 <div className="max-w-[1088px] mx-auto">
 
+                    {/* Loading/Error/Debug Info */}
+                    {loading && <div className="text-white mb-4">Loading company profile...</div>}
+                    {error && <div className="text-red-500 mb-4">{error}</div>}
+                    {companyProfile && (
+                        <pre className="text-white bg-gray-32 rounded p-4 mb-4 overflow-x-auto text-xs">{JSON.stringify(companyProfile, null, 2)}</pre>
+                    )}
 
                     {/* Tab Group */}
                     <div className="border-b border-gray-4f mb-6">
@@ -98,8 +164,8 @@ const CompanyProfile = () => {
                                         <div className="grid grid-cols-2 gap-6">
                                             <EditableInput
                                                 label="Type of Business"
-                                                placeholder="Steel Exporter"
-                                                defaultValue="Steel Exporter"
+                                                placeholder=""
+                                                defaultValue={message.Type_of_Business || ''}
                                                 fieldId="typeOfBusiness"
                                                 sectionId="basicInfo"
                                                 editingSection={editingSection}
@@ -109,8 +175,8 @@ const CompanyProfile = () => {
 
                                             <EditableInput
                                                 label="Date of Incorporation"
-                                                placeholder="12.05.2025"
-                                                defaultValue="12.05.2025"
+                                                placeholder=""
+                                                defaultValue={message.Date_of_Incorporation || ''}
                                                 fieldId="dateOfIncorporation1"
                                                 sectionId="basicInfo"
                                                 editingSection={editingSection}
@@ -132,7 +198,7 @@ const CompanyProfile = () => {
                                             <EditableInput
                                                 label="Business Category"
                                                 placeholder="Steel Exporter"
-                                                defaultValue="Steel Exporter"
+                                                defaultValue=""
                                                 fieldId="businessCategory"
                                                 sectionId="basicInfo"
                                                 editingSection={editingSection}
@@ -171,8 +237,8 @@ const CompanyProfile = () => {
                                         <div className="grid grid-cols-2 gap-6">
                                             <EditableInput
                                                 label="GST/VAT Number"
-                                                placeholder="27AADCT1234A1Z5"
-                                                defaultValue="27AADCT1234A1Z5"
+                                                placeholder=""
+                                                defaultValue={message.GST_VAT_Number || ''}
                                                 fieldId="gstNumber"
                                                 sectionId="taxInfo"
                                                 editingSection={editingSection}
@@ -182,8 +248,8 @@ const CompanyProfile = () => {
 
                                             <EditableInput
                                                 label="PAN Number"
-                                                placeholder="AADCT1234A"
-                                                defaultValue="AADCT1234A"
+                                                placeholder=""
+                                                defaultValue={message.PAN_Number || ''}
                                                 fieldId="panNumber"
                                                 sectionId="taxInfo"
                                                 editingSection={editingSection}
@@ -193,8 +259,8 @@ const CompanyProfile = () => {
 
                                             <EditableInput
                                                 label="Tax Residency"
-                                                placeholder="India"
-                                                defaultValue="India"
+                                                placeholder=""
+                                                defaultValue={message.Tax_Residency || ''}
                                                 fieldId="taxResidency"
                                                 sectionId="taxInfo"
                                                 editingSection={editingSection}
@@ -233,8 +299,8 @@ const CompanyProfile = () => {
                                         <div className="grid grid-cols-2 gap-6">
                                             <EditableInput
                                                 label="Legal Entity Type"
-                                                placeholder="Private Limited Company"
-                                                defaultValue="Private Limited Company"
+                                                placeholder=""
+                                                defaultValue={message.Legal_Entity_Type || ''}
                                                 fieldId="legalEntityType"
                                                 sectionId="legalInfo"
                                                 editingSection={editingSection}
@@ -244,8 +310,8 @@ const CompanyProfile = () => {
 
                                             <EditableInput
                                                 label="Number of Directors"
-                                                placeholder="3"
-                                                defaultValue="3"
+                                                placeholder=""
+                                                defaultValue={message.Number_of_Directors || ''}
                                                 fieldId="numberOfDirectors"
                                                 sectionId="legalInfo"
                                                 editingSection={editingSection}
@@ -255,8 +321,8 @@ const CompanyProfile = () => {
 
                                             <EditableInput
                                                 label="Authorized Capital"
-                                                placeholder="₹10,00,000"
-                                                defaultValue="₹10,00,000"
+                                                placeholder=""
+                                                defaultValue={message.Authorized_Capital || ''}
                                                 fieldId="authorizedCapital"
                                                 sectionId="legalInfo"
                                                 editingSection={editingSection}
@@ -306,41 +372,14 @@ const CompanyProfile = () => {
                                                 </div>
                                             </div>
                                             <div className="flex flex-col gap-6 px-6">
-                                                <div className="border-2 border-dashed border-gray-4f rounded-lg p-11 flex items-center justify-center gap-4 text-center">
-                                                    <div className="w-12 h-12 bg-ib-red rounded-full flex items-center justify-center">
-                                                        <img src="/images/upload-figma-icon.svg" className='h-6' alt="upload-icon" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-white text-sm font-medium mb-1">
-                                                            Drag & drop files here <span className="text-gray-ae">or</span> <span className="underline cursor-pointer hover:text-gray-300">click here</span>
-                                                        </p>
-                                                        <p className="text-gray-ae text-xs">PDF, DOC, TXT (Max file size 20 mb)</p>
-                                                    </div>
-                                                </div>
+                                                {/* Company Requirement Documents Upload */}
+                                                <CompanyDocumentsUpload uploadedFiles={uploadedFiles} onFileUpload={handleFileUpload} />
+                                                {/* After editable inputs for company info */}
+                                                <CompanyFileList uploadedFiles={profileFiles} onFileUpload={() => { }} />
+
                                             </div>
                                         </div>
 
-                                        <div className="bg-gray-32 rounded-xl flex flex-col gap-4 w-full">
-                                            <div className="flex gap-3 px-6 py-0">
-                                                <div className="flex-1">
-                                                    <h4 className="text-white font-medium mb-1">Certificate of Incorporation</h4>
-                                                    <p className="text-gray-ae text-xs">Official document proving your company's legal existence</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex flex-col gap-6 px-6">
-                                                <div className="border-2 border-dashed border-gray-4f rounded-lg p-11 flex  items-center justify-center gap-4 text-center">
-                                                    <div className="w-12 h-12 bg-ib-red rounded-full flex items-center justify-center">
-                                                        <img src="/images/upload-figma-icon.svg" className='h-6' alt="upload-icon" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-white text-sm font-medium mb-1">
-                                                            Drag & drop files here <span className="text-gray-ae">or</span> <span className="underline cursor-pointer hover:text-gray-300">click here</span>
-                                                        </p>
-                                                        <p className="text-gray-ae text-xs">PDF, DOC, TXT (Max file size 20 mb)</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
 
                                         <div className="bg-gray-32 rounded-xl flex flex-col gap-4 w-full">
                                             <div className="flex gap-3 px-6 py-0">
@@ -366,6 +405,8 @@ const CompanyProfile = () => {
                                         </div>
                                     </div>
                                 </div>
+
+
                             </div>
                         )}
 

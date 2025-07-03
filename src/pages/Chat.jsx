@@ -11,7 +11,7 @@ import RightSideDrawer from "../components/layout/RightSideDrawer";
 import Modal from '../components/common/Modal';
 import UploadAction from '../components/dashboard/UploadAction';
 import { Link } from 'react-router-dom';
-import { uploadTenderFile } from "../api/apiHelper";
+import { uploadTenderFile, fetchTenderSummary } from "../api/apiHelper";
 // import Loader from "../components/common/Loader";
 
 const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
@@ -34,6 +34,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
   const [uploadResponse, setUploadResponse] = useState("");
   const [hasFinalSummary, setHasFinalSummary] = useState(false);
   const finalSummaryFlag = useRef(false);
+  const [storedSummary, setStoredSummary] = useState("");
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -49,8 +50,8 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
         try {
           await uploadTenderFile(file, (chunk) => {
             setUploadResponse(prev => {
-              const summaryMarker = "--- Final Summary ---";
-              const analyzingMarker = "--- Analyzing PDF ---";
+              const summaryMarker = "<---FINAL_SUMMARY--->## TENDER SUMMARY";
+              const analyzingMarker = "<-------Analyze PDF--------";
               let newContent = prev + chunk;
 
               // Remove all occurrences of the analyzing marker
@@ -92,6 +93,26 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
       setIsTourVisible(true);
     }
   }, []); // Empty dependency array ensures this runs only once on mount
+
+  useEffect(() => {
+    const tenderId = location.state?.id;
+    if (tenderId) {
+      const fetchSummary = async () => {
+        try {
+          const response = await fetchTenderSummary();
+          const summaryObj = response.data.find(item => item.id === tenderId);
+          if (summaryObj) {
+            setStoredSummary(summaryObj.summary);
+          } else {
+            setStoredSummary("");
+          }
+        } catch (err) {
+          setStoredSummary("");
+        }
+      };
+      fetchSummary();
+    }
+  }, [location.state]);
 
   // Optional: Scroll to the element when activeHash changes, if needed
   // useEffect(() => {
@@ -185,6 +206,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                         projectsVisibility={projectsVisibility}
                         uploadResponse={uploadResponse}
                         hasFinalSummary={hasFinalSummary}
+                        storedSummary={storedSummary}
                       />
                     </div>
                     {/* Message Input Section */}

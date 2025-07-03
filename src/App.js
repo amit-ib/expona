@@ -9,40 +9,45 @@ import CompanyDetail from "./pages/CompanyDetail";
 import CompanyProfile from "./pages/CompanyProfile";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+
+const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
 function App() {
   const [projectsVisibility, setProjectsVisibility] = useState(true);
 
   return (
-    <Router>
-      <AuthProvider>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <div className="min-h-screen home-bg bg-cover bg-center">
-                <Header setProjectsVisibility={setProjectsVisibility} />
-                <main>
-                  <Hero setProjectsVisibility={setProjectsVisibility} />
-                </main>
-              </div>
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard projectsVisibility={projectsVisibility} />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/chat" element={<Chat setProjectsVisibility={setProjectsVisibility} />} />
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/company-detail" element={<CompanyDetail />} />
-          <Route path="/company-profile" element={<CompanyProfile />} />
-        </Routes>
-      </AuthProvider>
-    </Router>
+    <GoogleOAuthProvider clientId={clientId}>
+      <Router>
+        <AuthProvider>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <div className="min-h-screen home-bg bg-cover bg-center">
+                  <Header setProjectsVisibility={setProjectsVisibility} />
+                  <main>
+                    <Hero setProjectsVisibility={setProjectsVisibility} />
+                  </main>
+                </div>
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard projectsVisibility={projectsVisibility} />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/chat" element={<ProtectedRoute><Chat setProjectsVisibility={setProjectsVisibility} /></ProtectedRoute>} />
+            <Route path="/signin" element={<SignIn />} />
+            <Route path="/company-detail" element={<ProtectedRoute><CompanyDetail /></ProtectedRoute>} />
+            <Route path="/company-profile" element={<ProtectedRoute><CompanyProfile /></ProtectedRoute>} />
+          </Routes>
+        </AuthProvider>
+      </Router>
+    </GoogleOAuthProvider>
   );
 }
 

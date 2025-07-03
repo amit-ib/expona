@@ -1,4 +1,5 @@
 export const chatContent = {
+  tenderId: "1d10f3a9-b7fd-4ecc-b034-ad5ec1144818",
   title: "Badadev Micro Irrigation Project – Volume I",
   emoji: "🚰",
   overview: `Here's a summary of the tender:\n\nThe tender is issued by the Water Resources Department, Government of Madhya Pradesh for the construction of Saner Dam and a Pressurised Micro Irrigation System in Seoni District under the BADADEV Micro Irrigation Project on a turnkey basis.`,
@@ -46,8 +47,8 @@ export const chatContent = {
 };
 
 export const navigationItems = [
-  { title: "Important Date & Timelines", active: true, link: "/chat#datetime" },
-  { title: "List of To do's", active: false, link: "/chat#todo" },
-  { title: "Pre-submission Checklist", active: false, link: "/chat#presubmisssion" },
-  { title: "Evaluation Criteria", active: false, link: "/chat#eval" }
+  { tenderId: "1d10f3a9-b7fd-4ecc-b034-ad5ec1144818", title: "Important Date & Timelines", active: true, link: "/chat#datetime" },
+  { tenderId: "1d10f3a9-b7fd-4ecc-b034-ad5ec1144818", title: "List of To do's", active: false, link: "/chat#todo" },
+  { tenderId: "1d10f3a9-b7fd-4ecc-b034-ad5ec1144818", title: "Pre-submission Checklist", active: false, link: "/chat#presubmisssion" },
+  { tenderId: "1d10f3a9-b7fd-4ecc-b034-ad5ec1144818", title: "Evaluation Criteria", active: false, link: "/chat#eval" }
 ]; 

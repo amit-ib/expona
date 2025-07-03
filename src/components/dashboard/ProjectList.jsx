@@ -1,11 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ProjectCard from "./ProjectCard";
 import { projects as initialProjects } from "../../data/projects";
-
+import { fetchTenderSummary } from "../../api/apiHelper";
+import { fetchTenderList } from '../../api/apiHelper';
 const ProjectList = ({ projectsVisibility = true }) => {
   const [projects] = useState(initialProjects);
+  const [tenderList, setTenderList] = useState([]);
+  useEffect(() => {
+    fetchTenderList({})
+      .then(data => {
+        console.log("Tender list API response:", data);
+        setTenderList(data.data || []);
+      })
+      .catch(() => setTenderList([]));
+  }, []);
 
   if (!projectsVisibility) return null;
+
+
+
+
+  // Handler to fetch summary for a project by id
+  const handleProjectClick = async (projectId) => {
+    try {
+      // console.log("Received projectId from ProjectCard:", projectId);
+      const response = await fetchTenderSummary();
+      // Find the summary for the clicked project
+
+      // const summaryObj = response.data[0].find(item => item.id === projectId);
+      if (response) {
+        // console.log(`Summary: ${summaryObj.summary}`);
+        console.log("TENDER LIST:", response.data[0].id)
+      } else {
+        console.log("No summary found for this project.");
+      }
+    } catch (err) {
+      console.log("Failed to fetch tender summary.", err);
+    }
+  };
 
   return (
     <div className="w-full flex-1  px-0 bg-gray-32 border border-gray-4f rounded-lg">
@@ -28,16 +60,9 @@ const ProjectList = ({ projectsVisibility = true }) => {
 
         {/* Project Cards with border-b except last */}
         <div className="flex flex-col mx-4">
-          {projects.map((project, idx) => (
-            <div
-              key={project.id}
-            // className={
-            //   idx !== projects.length - 1
-            //     ? "border-b border-[#44444F]"
-            //     : ""
-            // }
-            >
-              <ProjectCard project={project} />
+          {Array.isArray(tenderList) && tenderList.map((tender, idx) => (
+            <div key={tender.id}>
+              <ProjectCard tender={tender} onProjectClick={handleProjectClick} />
             </div>
           ))}
         </div>

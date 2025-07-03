@@ -45,7 +45,8 @@ const ChatContent = ({
   setSaved,
   projectsVisibility,
   uploadResponse,
-  hasFinalSummary
+  hasFinalSummary,
+  storedSummary
 }) => {
   const [popup, setPopup] = React.useState({
     visible: false,
@@ -185,174 +186,172 @@ const ChatContent = ({
         {sources.length > 0 ? (
           <div >
             {/* Overview */}
-            <div className={`mb-8 ${!hasFinalSummary ? "text-gray-ae" : ""}`}>
+            <div className={`mb-8 summary text-sm ${hasFinalSummary || storedSummary ? "" : "text-gray-ae"}`}>
+              {/* Show fetched summary if available */}
+              {storedSummary && (
+                <>
+                  <Markdown components={markdownComponents}>{storedSummary}</Markdown>
+                </>
+              )}
+              {/* Tender Summary */}
               <Markdown components={markdownComponents}>
                 {uploadResponse}
               </Markdown>
             </div>
 
-            {/* Separator */}
-            <div className="w-full h-px bg-gray-42 my-5"></div>
-            <div className='group' id="datetime">
-              <div className='flex mb-6 mt-6 items-center relative'><strong className='block py-2'>Important Dates & Timelines</strong>
-                <div className={`ml-3 flex space-x-3 group-hover:block ${exportPopup.visible ? '' : 'hidden group-hover:block'}`}>
-                  <button className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/copy-icon.svg' alt="Copy" title="Copy"></img></button>
-                  <button onClick={handleExportClick} className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/export-icon.svg' alt="Export" title="Export" /></button>
-                </div>
-                {/* Export Popup */}
-                {exportPopup.visible && (
-                  <div
-                    ref={exportPopupRef}
-                    className="absolute z-50 bg-gray-2d rounded shadow-lg p-2"
-                    style={{ top: 40, left: 290 }}
-                  >
-                    <button
-                      className="block w-full text-left py-2 px-4 hover:bg-gray-24 rounded-lg text-xs"
-                      onClick={() => { /* Export as CSV logic here */ closeExportPopup(); }}
-                    >
-                      Export as CSV
-                    </button>
-                    <button
-                      className="block w-full text-left py-2 pl-4 pr-8 hover:bg-gray-24 rounded-lg text-xs"
-                      onClick={() => { /* Export as Image logic here */ closeExportPopup(); }}
-                    >
-                      Export as Image
-                    </button>
+            <div className='hidden'>
+              {/* Separator */}
+              <div className="w-full h-px bg-gray-42 my-5"></div>
+              <div className='group' id="datetime">
+                <div className='flex mb-6 mt-6 items-center relative'><strong className='block py-2'>Important Dates & Timelines</strong>
+                  <div className={`ml-3 flex space-x-3 group-hover:block ${exportPopup.visible ? '' : 'hidden group-hover:block'}`}>
+                    <button className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/copy-icon.svg' alt="Copy" title="Copy"></img></button>
+                    <button onClick={handleExportClick} className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/export-icon.svg' alt="Export" title="Export" /></button>
                   </div>
-                )}
-              </div>
+                  {/* Export Popup */}
+                  {exportPopup.visible && (
+                    <div
+                      ref={exportPopupRef}
+                      className="absolute z-50 bg-gray-2d rounded shadow-lg p-2"
+                      style={{ top: 40, left: 290 }}
+                    >
+                      <button
+                        className="block w-full text-left py-2 px-4 hover:bg-gray-24 rounded-lg text-xs"
+                        onClick={() => { /* Export as CSV logic here */ closeExportPopup(); }}
+                      >
+                        Export as CSV
+                      </button>
+                      <button
+                        className="block w-full text-left py-2 pl-4 pr-8 hover:bg-gray-24 rounded-lg text-xs"
+                        onClick={() => { /* Export as Image logic here */ closeExportPopup(); }}
+                      >
+                        Export as Image
+                      </button>
+                    </div>
+                  )}
+                </div>
 
-              {/* Table */}
-              <div className="rw-full mb-8 mt-0 border border-gray-42 rounded-md  boder-gray-5c">
+                {/* Table */}
+                <div className="rw-full mb-8 mt-0 border border-gray-42 rounded-md  boder-gray-5c">
 
 
-                <table className="w-full border-collapse  ">
-                  <thead>
-                    <tr className="border-b border-b-gray-42 bg-gray-2d ">
-                      <th className="py-3.5 px-3 text-left  rounded-tl-md border-r border-gray-5c" >Timeline</th>
-                      <th className="py-3.5 px-3 text-left  rounded-tr-md">Important Date</th>
+                  <table className="w-full border-collapse  ">
+                    <thead>
+                      <tr className="border-b border-b-gray-42 bg-gray-2d ">
+                        <th className="py-3.5 px-3 text-left  rounded-tl-md border-r border-gray-5c" >Timeline</th>
+                        <th className="py-3.5 px-3 text-left  rounded-tr-md">Important Date</th>
 
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {chatContent.tableData.map((row, index) => (
-                      <tr key={index} className={`text-sm ${index !== chatContent.tableData.length - 1 ? 'border-b border-b-gray-5c' : ''}  `}>
-                        <td className="py-2.5 px-3  relative border-r border-gray-5c rounded">{row.feature}</td>
-                        <td className="py-2.5 px-3  relative  rounded">
-                          {row.value}
-                          {row.citation && (
-                            <span
-                              className="px-2 py-1 bg-gray-4f text-xs rounded-full w-6 h-6 ml-2 cursor-pointer"
-                              onClick={(event) => handleCitationClick(event, row.citation, index, event.clientX, event.clientY)}
-                            >
-                              {row.citation}
-                            </span>
-                          )}
-                        </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {chatContent.tableData.map((row, index) => (
+                        <tr key={index} className={`text-sm ${index !== chatContent.tableData.length - 1 ? 'border-b border-b-gray-5c' : ''}  `}>
+                          <td className="py-2.5 px-3  relative border-r border-gray-5c rounded">{row.feature}</td>
+                          <td className="py-2.5 px-3  relative  rounded">
+                            {row.value}
+                            {row.citation && (
+                              <span
+                                className="px-2 py-1 bg-gray-4f text-xs rounded-full w-6 h-6 ml-2 cursor-pointer"
+                                onClick={(event) => handleCitationClick(event, row.citation, index, event.clientX, event.clientY)}
+                              >
+                                {row.citation}
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
-            {/* Separator */}
-            <div className="w-full h-px bg-gray-42 my-5"></div>
+              {/* Separator */}
+              <div className="w-full h-px bg-gray-42 my-5"></div>
 
-            {/* Bid Information */}
-            <div id="todo" className='group'>
-              <div className='flex mb-4 mt-6 items-center'><strong className='py-2'>List of To-Do's</strong>
-                <div className='hidden ml-3 group-hover:inline-block flex space-x-3'>
-                  <button className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/copy-icon.svg' alt="Copy" title="Copy" />
-                  </button>
-                </div></div>
-              {/* <p className="whitespace-pre-line text-base leading-relaxed font-bold">
+              {/* Bid Information */}
+              <div id="todo" className='group'>
+                <div className='flex mb-4 mt-6 items-center'><strong className='py-2'>List of To-Do's</strong>
+                  <div className='hidden ml-3 group-hover:inline-block flex space-x-3'>
+                    <button className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/copy-icon.svg' alt="Copy" title="Copy" />
+                    </button>
+                  </div></div>
+                {/* <p className="whitespace-pre-line text-base leading-relaxed font-bold">
             {bidInfoHeader}
           </p>
           <p className="whitespace-pre-line text-sm leading-relaxed font-light mt-2">
             {bidInfoListItems}
           </p> */}
-              <Markdown
-                components={markdownComponents}
-              >
-                {chatContent.bidInfo}
-              </Markdown>
-            </div>
+                <Markdown
+                  components={markdownComponents}
+                >
+                  {chatContent.bidInfo}
+                </Markdown>
+              </div>
 
-            {/* Separator */}
-            {/* <div className="w-full h-px bg-gray-5c my-4"></div> */}
+              {/* Separator */}
+              <div className="w-full h-px bg-gray-42 mt-8 mb-4"></div>
 
-            {/* Scope of Work */}
-            {/* <div className="mb-8">
-          <p className="whitespace-pre-line text-sm leading-relaxed font-semibold">
-            {chatContent.scopeOfWork}
-          </p>
-        </div> */}
-
-
-            {/* Separator */}
-            <div className="w-full h-px bg-gray-42 mt-8 mb-4"></div>
-
-            {/* Pre-Submission */}
-            <div className="mb-8 relative group" id="presubmisssion">
-              <div className='flex mb-4 mt-6 items-center'>
-                <strong className='py-2'> Pre-submission Checklist</strong><div className='hidden ml-3 group-hover:inline-block flex space-x-3'><button className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/copy-icon.svg' alt="Copy" title="Copy" /></button> </div></div>
-              <ul className='mt-4 font-light text-sm space-y-1'>
-                <li>✅ Upload duly filled tender form</li>
-                <li>✅ Submit EMD in specified format</li>
-                <li>✅ Financial bid in BOQ format</li>
-                <li>✅ Signed and scanned copies of all pages of tender document</li>
-                <li>✅ Relevant licenses and registration certificates</li>
-                <li>✅ GST registration and PAN copy</li>
-                <li>✅ Power of attorney/authorization letter (if applicable)</li>
-                <li>✅ Affidavit of not being blacklisted</li>
-                <li>✅ Attend pre-bid meeting (optional but recommended)</li></ul>
-              {/* <Markdown
+              {/* Pre-Submission */}
+              <div className="mb-8 relative group" id="presubmisssion">
+                <div className='flex mb-4 mt-6 items-center'>
+                  <strong className='py-2'> Pre-submission Checklist</strong><div className='hidden ml-3 group-hover:inline-block flex space-x-3'><button className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/copy-icon.svg' alt="Copy" title="Copy" /></button> </div></div>
+                <ul className='mt-4 font-light text-sm space-y-1'>
+                  <li>✅ Upload duly filled tender form</li>
+                  <li>✅ Submit EMD in specified format</li>
+                  <li>✅ Financial bid in BOQ format</li>
+                  <li>✅ Signed and scanned copies of all pages of tender document</li>
+                  <li>✅ Relevant licenses and registration certificates</li>
+                  <li>✅ GST registration and PAN copy</li>
+                  <li>✅ Power of attorney/authorization letter (if applicable)</li>
+                  <li>✅ Affidavit of not being blacklisted</li>
+                  <li>✅ Attend pre-bid meeting (optional but recommended)</li></ul>
+                {/* <Markdown
                           components={markdownComponents}
                         >
                            {chatContent.preSubmission}
                         </Markdown> */}
-            </div>
-            {/* Separator */}
-            <div className="w-full h-px bg-gray-42 mt-8 mb-4"></div>
-
-            {/* Evaluation Criteria */}
-            <div className="mb-8 relative group" id="eval">
-              <div className='flex mb-4 mt-6 items-center'>
-                <strong className='py-2'> Evaluation Criteria</strong><div className='hidden ml-3 group-hover:inline-block flex space-x-3'><button className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/copy-icon.svg' alt="Copy" title="Copy"></img></button> </div></div>
-              <Markdown
-                components={markdownComponents}
-              >
-                {chatContent.evaluationCriteria}
-              </Markdown>
-            </div>
-            {/* Separator */}
-            <div className="w-full h-px bg-gray-42 my-4"></div>
-            {/* Suggested Categories Section */}
-            <div className="mt-6">
-              <p className="text-base  mb-4">Would you like details on any specific category?</p>
-              <div className="flex flex-wrap gap-3">
-                <button className="px-4 py-2 border border-gray-5c rounded-md text-sm hover:bg-gray-4f transition-colors">
-                  Payment milestones for the project?
-                </button>
-                <button className="px-4 py-2 border border-gray-5c rounded-md text-sm hover:bg-gray-4f transition-colors">
-                  Penalties for project delays?
-                </button>
-                <button className="px-4 py-2 border border-gray-5c rounded-md text-sm hover:bg-gray-4f transition-colors"
-                  onClick={() => {
-                    setShowOtherPrompts(!showOtherPrompts);
-                    // Scroll only if showing, otherwise it might scroll before hiding
-                    if (!showOtherPrompts) { // Check the state *before* it toggles
-                      // Use a timeout to allow state update and rendering
-                      setTimeout(() => scrollToSection('otherPrompts'), 0);
-                    }
-                  }}
-                >
-                  Process for bid evaluation
-                </button>
               </div>
+              {/* Separator */}
+              <div className="w-full h-px bg-gray-42 mt-8 mb-4"></div>
+
+              {/* Evaluation Criteria */}
+              <div className="mb-8 relative group" id="eval">
+                <div className='flex mb-4 mt-6 items-center'>
+                  <strong className='py-2'> Evaluation Criteria</strong><div className='hidden ml-3 group-hover:inline-block flex space-x-3'><button className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/copy-icon.svg' alt="Copy" title="Copy"></img></button> </div></div>
+                <Markdown
+                  components={markdownComponents}
+                >
+                  {chatContent.evaluationCriteria}
+                </Markdown>
+              </div>
+              {/* Separator */}
+              <div className="w-full h-px bg-gray-42 my-4"></div>
+              {/* Suggested Categories Section */}
+              <div className="mt-6">
+                <p className="text-base  mb-4">Would you like details on any specific category?</p>
+                <div className="flex flex-wrap gap-3">
+                  <button className="px-4 py-2 border border-gray-5c rounded-md text-sm hover:bg-gray-4f transition-colors">
+                    Payment milestones for the project?
+                  </button>
+                  <button className="px-4 py-2 border border-gray-5c rounded-md text-sm hover:bg-gray-4f transition-colors">
+                    Penalties for project delays?
+                  </button>
+                  <button className="px-4 py-2 border border-gray-5c rounded-md text-sm hover:bg-gray-4f transition-colors"
+                    onClick={() => {
+                      setShowOtherPrompts(!showOtherPrompts);
+                      // Scroll only if showing, otherwise it might scroll before hiding
+                      if (!showOtherPrompts) { // Check the state *before* it toggles
+                        // Use a timeout to allow state update and rendering
+                        setTimeout(() => scrollToSection('otherPrompts'), 0);
+                      }
+                    }}
+                  >
+                    Process for bid evaluation
+                  </button>
+                </div>
+              </div>
+              {/* Actions Section */}
+              <ChatActions setShowSavedNote={setShowSavedNote} />
             </div>
-            {/* Actions Section */}
-            <ChatActions setShowSavedNote={setShowSavedNote} />
             {/* Other Prompts */}
             {showOtherPrompts && (
               <div className='w-full my-10' id="otherPrompts" ref={setSectionRef('otherPrompts')}>

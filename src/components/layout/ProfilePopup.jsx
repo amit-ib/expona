@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react';
+import { useAuth } from "../../contexts/AuthContext";
 
 const ProfilePopup = ({ isOpen, onClose }) => {
+    const { user } = useAuth();
     const popupRef = useRef(null);
 
     useEffect(() => {
@@ -23,13 +25,6 @@ const ProfilePopup = ({ isOpen, onClose }) => {
 
     if (!isOpen) return null;
 
-    // Placeholder data - ideally this would come from props or context
-    const user = {
-        initials: 'AK',
-        name: 'Anish Kudal',
-        email: 'anish.kudal@infobeans.com',
-    };
-
     return (
         <div className="absolute right-0 top-10 mt-2 w-64 rounded-lg shadow-lg bg-gray-32 border border-gray-4f z-50 p-4 w-[366px]" ref={popupRef}>
             {/* Close button (optional in image, but good practice) */}
@@ -40,15 +35,15 @@ const ProfilePopup = ({ isOpen, onClose }) => {
             <div className="flex flex-col items-center text-center mb-4">
                 {/* Initials Circle */}
                 <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-lg font-semibold mb-2">
-                    {user.initials}
+                    {user?.initials || ''}
                 </div>
                 {/* User Name */}
                 <div className="font-semibold text-sm mb-1">
-                    {user.name}
+                    {user?.first_name || user?.name || ''} {user?.last_name || ''}
                 </div>
                 {/* User Email */}
                 <div className="text-xs text-gray-ae mb-4">
-                    {user.email}
+                    {user?.email || ''}
                 </div>
             </div>
 

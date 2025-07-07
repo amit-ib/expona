@@ -1,6 +1,7 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import { verifyToken } from "../api/apiHelper";
 import { jwtDecode } from "jwt-decode";
+import { getCompanyIdFromUser } from "../utils";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -38,6 +39,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem("securedToken", token);
         localStorage.setItem("userDetail", JSON.stringify(userDetailWithInitials));
         setUser(userDetailWithInitials); // Set user to userDetail with initials
+        getCompanyIdFromUser(userDetailWithInitials); // Set company_id in localStorage
       }
 
       // --- Google Auth only ---
@@ -57,6 +59,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("userDetail");
     localStorage.removeItem("securedToken");
     localStorage.removeItem('tenderReport');
+    localStorage.removeItem('company_id');
   };
 
   useEffect(() => {

@@ -1,7 +1,11 @@
 // Utility to extract Company_ID from user object
 export function getCompanyIdFromUser(user) {
     if (user && Array.isArray(user.company_profile) && user.company_profile.length > 0) {
-        return user.company_profile[0].Company_ID;
+        const companyId = user.company_profile[0].Company_ID;
+        if (companyId) {
+            localStorage.setItem('company_id', companyId);
+        }
+        return companyId;
     }
     return undefined;
 }

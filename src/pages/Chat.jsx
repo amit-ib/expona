@@ -85,14 +85,14 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
           });
           // Fetch Final Tender Report 
           try {
-            const companyId = getCompanyIdFromUser(user);
+            const companyId = localStorage.getItem('company_id');
             const fetchedReport = await fetchTenderReport({
               filename: file.name,
               company_id: companyId
             });
             setReport(fetchedReport);
             localStorage.setItem('tenderReport', JSON.stringify(fetchedReport));
-            console.log('fetchTenderReport output:', fetchedReport);
+
           } catch (err) {
             console.error('fetchTenderReport error:', err);
           }
@@ -135,6 +135,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
               if (Array.isArray(data.data) && data.data.length > 0) {
                 const lastSummary = data.data[data.data.length - 1].summary;
                 if (lastSummary) {
+                  console.log('lastSummary:', lastSummary);
                   setUploadResponse(lastSummary);
                 }
               }
@@ -193,7 +194,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
       // Fetch report
       const fetchReport = async () => {
         try {
-          const companyId = getCompanyIdFromUser(user);
+          const companyId = localStorage.getItem('company_id');
           const filename = tenderFile;
           if (filename && companyId) {
             const fetchedReport = await fetchTenderReport({

@@ -245,7 +245,7 @@ const ChatContent = ({
       {/* {renderReportSection()} */}
 
       {/* Scrollable Chat Content */}
-      <div className="flex items-start pt-6 overflow-y-auto max-h-[calc(100vh-230px)] chat-scrollbar scrollbar-hide relative" style={{ scrollBehavior: 'smooth' }}>
+      <div className="flex flex-col items-start pt-6 overflow-y-auto max-h-[calc(100vh-230px)] chat-scrollbar scrollbar-hide relative" style={{ scrollBehavior: 'smooth' }}>
         {report === null && !uploadResponse && (
           <div className="py-8 mx-auto w-full text-center">
             <Lottie animationData={animationData} loop={true} style={{ height: 220 }} />
@@ -257,21 +257,21 @@ const ChatContent = ({
         {/* {sources.length > 0 ? ( */}
         <>
           {/* Overview */}
-          {!report && (
-            <div className={`mb-8 summary text-sm ${hasFinalSummary || storedSummary ? "" : "text-gray-ae"}`}>
-              {/* Show fetched summary if available, only if no report */}
-              {/* {!report && storedSummary && (
-                <>
-                  <Markdown components={markdownComponents}>{storedSummary}</Markdown>
-                </>
-              )} */}
-              {/* Tender Summary */}
-              <Markdown components={markdownComponents}>
-                {uploadResponse}
-              </Markdown>
+          {/* {!report && ( */}
+          <div className={`mb-8 summary text-sm ${hasFinalSummary || storedSummary ? "" : "text-gray-ae"}`}>
+            {/* Show fetched summary if available, only if no report */}
+            {/* {!report && storedSummary && ( */}
+            <>
+              <Markdown components={markdownComponents}>{storedSummary}</Markdown>
+            </>
+            {/* )} */}
+            {/* Tender Summary */}
+            <Markdown components={markdownComponents}>
+              {uploadResponse}
+            </Markdown>
 
-            </div>
-          )}
+          </div>
+          {/* )} */}
           {/* Show Report Section */}
 
 

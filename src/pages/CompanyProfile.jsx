@@ -30,7 +30,10 @@ const CompanyProfile = () => {
     };
 
     useEffect(() => {
-        loadCompanyProfile(82); // Call once on page load
+        const companyId = localStorage.getItem('company_id');
+        if (companyId) {
+            loadCompanyProfile(Number(companyId));
+        }
     }, []);
 
     // Destructure message for easier access to fields

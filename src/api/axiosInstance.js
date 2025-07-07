@@ -18,6 +18,7 @@ axiosInstance.interceptors.response.use(
             localStorage.removeItem("securedToken");
             localStorage.removeItem("userDetail");
             localStorage.removeItem('tenderReport');
+            localStorage.removeItem('company_id');
             window.location.href = "/signin";
             window.location.reload();
         }

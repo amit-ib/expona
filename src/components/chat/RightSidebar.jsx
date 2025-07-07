@@ -3,7 +3,7 @@ import Tooltip from '../common/Tooltip';
 import PdfViewerModal from "../common/PdfViewerModal";
 import InfoTooltip from '../common/InfoTooltip';
 import Loader from '../common/Loader';
-import { fetchTenderList, deleteTenderById } from '../../api/apiHelper';
+import { fetchSupportingDocs, deleteTenderById } from '../../api/apiHelper';
 
 const RightSidebar = ({
   isLoading,
@@ -23,10 +23,10 @@ const RightSidebar = ({
   // const [showUploadTooltip, setShowUploadTooltip] = useState(false);
   const [showPdf, setShowPdf] = useState(false);
   const pdfUrl = "/A_Brief_Introduction_To_AI.pdf"; // File in public folder
-  const [tenderList, setTenderList] = useState([]);
+  const [supportingDocList, setSupportingDocList] = useState([]);
   const [tenderLoading, setTenderLoading] = useState(false);
-  const AUTH_TOKEN = "hardcoded_token_here"; // Replace with your real token
   const [deleting, setDeleting] = useState(false);
+
 
   // Update checkedItems if sources change
   useEffect(() => {
@@ -42,12 +42,14 @@ const RightSidebar = ({
   }, [openMenuIndex]);
 
   useEffect(() => {
-    fetchTenderList({})
+    // TODO: Replace 'company_id' with actual value from props/context
+    const company_id = "82";
+    fetchSupportingDocs(company_id)
       .then(data => {
-        console.log("Tender list API response:", data);
-        setTenderList(data.data || []);
+        console.log("Supporting docs API response:", data);
+        setSupportingDocList(data.data || []);
       })
-      .catch(() => setTenderList([]));
+      .catch(() => setSupportingDocList([]));
   }, []);
 
   // Handler for individual checkbox
@@ -82,7 +84,7 @@ const RightSidebar = ({
 
   const handleDeleteTender = async () => {
     if (deleteIndex === null) return;
-    const tender = tenderList[deleteIndex];
+    const tender = supportingDocList[deleteIndex];
     if (!tender || !tender.id) {
       setDeleteIndex(null);
       return;
@@ -90,7 +92,7 @@ const RightSidebar = ({
     setDeleting(true);
     try {
       await deleteTenderById(tender.id);
-      setTenderList(prev => prev.filter((_, i) => i !== deleteIndex));
+      setSupportingDocList(prev => prev.filter((_, i) => i !== deleteIndex));
     } catch (err) {
       // Optionally show error to user
       console.error('Failed to delete tender', err);
@@ -167,55 +169,55 @@ const RightSidebar = ({
                 <span className='text-xs text-gray-ae mt-6 block'>Uploaded documents will appear here. Upload a file to continue.</span>
               )
             )}
-            {/* {tenderLoading ? <Loader /> : tenderList.map((tender, index) => ( */}
-            {/* <div key={index} className={`flex relative items-center justify-center py-3 rounded group ${collapsed ? 'justify-center' : 'justify-between'}`}>
-              <div className="flex items-center gap-2.5 cursor-pointer group">
-                <div className="w-6 h-6 flex items-center justify-center group cursor-pointer ">
-                  <img
-                    src="/images/file2-icon.svg"
-                    alt="Files"
-                    className={`${!collapsed ? 'group-hover:hidden' : ''}`}
-                    onMouseEnter={e => {
-                      if (collapsed) {
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        setHoveredIndex(index);
-                        setPopupPosition({
-                          top: rect.top + rect.height / 2,
-                          left: rect.left - 8 // 8px gap to the left of the icon
-                        });
-                      }
-                    }}
-                    onMouseLeave={() => collapsed && setHoveredIndex(null)}
-                  />
-                  {collapsed && hoveredIndex === index && (
-                    <div
-                      className="fixed z-50 bg-gray-32  text-sm rounded px-3 py-2 shadow-lg whitespace-nowrap"
-                      style={{
-                        top: `${popupPosition.top}px`,
-                        left: `${popupPosition.left}px`,
-                        transform: 'translate(-100%, -50%)'
+            {tenderLoading ? <Loader /> : Array.isArray(supportingDocList) && supportingDocList.map((tender, idx) => (
+              <div key={idx} className={`flex relative items-center justify-center py-3 rounded group ${collapsed ? 'justify-center' : 'justify-between'}`}>
+                <div className="flex items-center gap-2.5 cursor-pointer group">
+                  <div className="w-6 h-6 flex items-center justify-center group cursor-pointer ">
+                    <img
+                      src="/images/file2-icon.svg"
+                      alt="Files"
+                      className={`${!collapsed ? 'group-hover:hidden' : ''}`}
+                      onMouseEnter={e => {
+                        if (collapsed) {
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          setHoveredIndex(idx);
+                          setPopupPosition({
+                            top: rect.top + rect.height / 2,
+                            left: rect.left - 8 // 8px gap to the left of the icon
+                          });
+                        }
                       }}
-                    >
-                      {tender.filename || `Tender ${index + 1}`}
-                    </div>
-                  )}
-                  <img src="/images/3dots-icon.svg" alt="Show Options" className={`hidden  cursor-pointer ${!collapsed ? 'group-hover:inline-flex' : ''}`} onClick={e => { e.stopPropagation(); setOpenMenuIndex(openMenuIndex === index ? null : index); }} />
-                  {openMenuIndex === index && (
-                    <div className="absolute z-50 mt-36 text-xs left-1 w-40 bg-gray-2d rounded shadow-xl flex flex-col p-2">
-                      <button className="px-4 py-3 text-left hover:bg-gray-24 rounded-lg">Rename Document</button>
-                      <button className="px-4 py-3 text-left hover:bg-gray-24 rounded-lg" onClick={() => setDeleteIndex(index)}>Delete Document</button>
-                    </div>
-                  )}
+                      onMouseLeave={() => collapsed && setHoveredIndex(null)}
+                    />
+                    {collapsed && hoveredIndex === idx && (
+                      <div
+                        className="fixed z-50 bg-gray-32  text-sm rounded px-3 py-2 shadow-lg whitespace-nowrap"
+                        style={{
+                          top: `${popupPosition.top}px`,
+                          left: `${popupPosition.left}px`,
+                          transform: 'translate(-100%, -50%)'
+                        }}
+                      >
+                        {tender.filename || `Tender ${idx + 1}`}
+                      </div>
+                    )}
+                    <img src="/images/3dots-icon.svg" alt="Show Options" className={`hidden  cursor-pointer ${!collapsed ? 'group-hover:inline-flex' : ''}`} onClick={e => { e.stopPropagation(); setOpenMenuIndex(openMenuIndex === idx ? null : idx); }} />
+                    {openMenuIndex === idx && (
+                      <div className="absolute z-50 mt-36 text-xs left-1 w-40 bg-gray-2d rounded shadow-xl flex flex-col p-2">
+                        <button className="px-4 py-3 text-left hover:bg-gray-24 rounded-lg">Rename Document</button>
+                        <button className="px-4 py-3 text-left hover:bg-gray-24 rounded-lg" onClick={() => setDeleteIndex(idx)}>Delete Document</button>
+                      </div>
+                    )}
+                  </div>
+                  {!collapsed &&
+                    <div>
+                      <button className="text-sm font-normal text-white" onClick={() => setShowPdf(true)}>{tender.filename}</button>
+
+                    </div>}
                 </div>
-                {!collapsed &&
-                  <div>
-                    <button className="text-sm font-normal text-white" onClick={() => setShowPdf(true)}>{tender.filename}</button>
-                   
-                  </div>}
+
               </div>
-              
-            </div> */}
-            {/* ))} */}
+            ))}
           </div>
         </div>
       }

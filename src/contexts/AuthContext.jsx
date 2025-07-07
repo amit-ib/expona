@@ -9,15 +9,15 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credential, decodedUser) => {
     try {
-      console.log("LOGIN CALLED", credential);
+      // console.log("LOGIN CALLED", credential);
       // Decode the Google JWT token
       const decoded = jwtDecode(credential);
       // Extract first and last name (Google tokens use 'given_name' and 'family_name')
-      const firstName = decoded.given_name || "";
-      const lastName = decoded.family_name || "";
-      const firstInitial = firstName ? firstName[0].toUpperCase() : "";
-      const lastInitial = lastName ? lastName[0].toUpperCase() : "";
-      const initials = `${firstInitial}${lastInitial}` || (firstInitial || "");
+      // const firstName = decoded.given_name || "";
+      // const lastName = decoded.family_name || "";
+      // const firstInitial = firstName ? firstName[0].toUpperCase() : "";
+      // const lastInitial = lastName ? lastName[0].toUpperCase() : "";
+      // const initials = `${firstInitial}${lastInitial}` || (firstInitial || "");
 
       // --- Custom backend token logic ---
       const response = await verifyToken(credential);
@@ -56,6 +56,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     localStorage.removeItem("userDetail");
     localStorage.removeItem("securedToken");
+    localStorage.removeItem('tenderReport');
   };
 
   useEffect(() => {

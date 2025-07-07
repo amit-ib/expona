@@ -4,11 +4,12 @@ import { useNavigate } from "react-router-dom";
 const ProjectCard = ({ tender, onProjectClick }) => {
   const navigate = useNavigate();
   if (!tender) return null;
-  const { id, title, issuer, matched_criteria, total_criteria } = tender;
+  const { id, filename, title, issuer, matched_criteria, total_criteria } = tender;
 
   const handleCardClick = () => {
     if (onProjectClick) {
-      navigate("/chat", { state: { id } });
+      localStorage.removeItem('tenderReport');
+      navigate("/chat", { state: { id, filename, title } });
     }
   };
 

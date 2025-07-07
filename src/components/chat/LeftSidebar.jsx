@@ -63,7 +63,7 @@ const LeftSidebar = ({
   //     </div>
   //   );
   // }
-  console.log(user)
+
   return (
     <div
       id="left-sidebar"
@@ -122,7 +122,7 @@ const LeftSidebar = ({
           </div>
         ) : sources.length > 0 ? (
           // left Sidebar Content
-          <div className="py-3 flex flex-col transition-all duration-500 hidden">
+          <div className="py-3 flex flex-col transition-all duration-500">
             {/* {!collapsed && ( */}
             <div className="flex itemss-center transition-all duration-500 text-gray-99 mb-4 relative text-xs">
               Key Areas

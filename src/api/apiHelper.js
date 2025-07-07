@@ -187,3 +187,31 @@ export async function fetchTenderSummary() {
         throw error;
     }
 }
+
+// ####### GET request to FETCH_SUPPORTING_DOCS endpoint with company_id as query param #######
+export async function fetchSupportingDocs(company_id) {
+    try {
+        const url = `${API_ENDPOINTS.FETCH_SUPPORTING_DOCS}?company_id=${encodeURIComponent(company_id)}`;
+        const response = await axiosInstance.get(url, {
+            headers: getAuthHeaders()
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching supporting docs:', error);
+        throw error;
+    }
+}
+
+// ####### GET request to FETCH_TENDER_REPORT endpoint with filename and company_id as query params #######
+export async function fetchTenderReport({ filename, company_id }) {
+    try {
+        const url = `${API_ENDPOINTS.FETCH_TENDER_REPORT}?filename=${encodeURIComponent(filename)}&company_id=${encodeURIComponent(company_id)}`;
+        const response = await axiosInstance.get(url, {
+            headers: getAuthHeaders()
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching tender report:', error);
+        throw error;
+    }
+}

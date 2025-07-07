@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useAuth } from "../../contexts/AuthContext";
 
 const ProfilePopup = ({ isOpen, onClose }) => {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     const popupRef = useRef(null);
 
     useEffect(() => {
@@ -62,7 +62,7 @@ const ProfilePopup = ({ isOpen, onClose }) => {
                 {/* Logout Button */}
                 <button
                     className="flex-1 flex items-center justify-center px-4 py- text-sm rounded-r-full bg-gray-42 hover:bg-gray-24 "
-                    onClick={() => { /* Handle Logout click */ onClose(); }}
+                    onClick={() => { logout(); onClose(); }}
                 >
                     <img src="/images/logout-icon.svg" alt="Logout" className="mr-2 w-4 h-4" />  Logout
                 </button>

@@ -11,7 +11,10 @@ import RightSideDrawer from "../components/layout/RightSideDrawer";
 import Modal from '../components/common/Modal';
 import UploadAction from '../components/dashboard/UploadAction';
 import { Link } from 'react-router-dom';
-import { uploadTenderFile, fetchTenderSummary } from "../api/apiHelper";
+import { uploadTenderFile, fetchTenderSummary, fetchTenderReport } from "../api/apiHelper";
+import { useAuth } from "../contexts/AuthContext";
+import { getCompanyIdFromUser } from "../utils";
+
 // import Loader from "../components/common/Loader";
 
 const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
@@ -35,13 +38,24 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
   const [hasFinalSummary, setHasFinalSummary] = useState(false);
   const finalSummaryFlag = useRef(false);
   const [storedSummary, setStoredSummary] = useState("");
+  const hasUploaded = useRef(false);
+  const { user } = useAuth();
+  const [report, setReport] = useState(() => {
+    const saved = localStorage.getItem('tenderReport');
+    return saved ? JSON.parse(saved) : null;
+  });
+  const lastReportKey = useRef(null);
+  const tenderTitle = location.state?.title;
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
   useEffect(() => {
     const file = location.state?.fileToUpload;
+
     if (file) {
+      if (hasUploaded.current) return;
+      hasUploaded.current = true;
       finalSummaryFlag.current = false; // Reset flag on new upload
       setHasFinalSummary(false); // Reset summary flag
       const doUpload = async () => {
@@ -51,7 +65,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
           await uploadTenderFile(file, (chunk) => {
             setUploadResponse(prev => {
               const summaryMarker = "<---FINAL_SUMMARY--->## TENDER SUMMARY";
-              const analyzingMarker = "<-------Analyze PDF--------";
+              const analyzingMarker = "<---ANALYZE_PDF--->";
               let newContent = prev + chunk;
 
               // Remove all occurrences of the analyzing marker
@@ -65,14 +79,69 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                 return newContent.substring(markerIndex + summaryMarker.length);
               } else {
                 return newContent;
+                // console.log("AAAAAA:", newContent)
               }
             });
           });
+          // Fetch Final Tender Report 
+          try {
+            const companyId = getCompanyIdFromUser(user);
+            const fetchedReport = await fetchTenderReport({
+              filename: file.name,
+              company_id: companyId
+            });
+            setReport(fetchedReport);
+            localStorage.setItem('tenderReport', JSON.stringify(fetchedReport));
+            console.log('fetchTenderReport output:', fetchedReport);
+          } catch (err) {
+            console.error('fetchTenderReport error:', err);
+          }
+
+
+
+          // ****************************
+          // if (hasFinalSummary) {
+          //   const fetchSummaryWithDelay = async () => {
+          //     try {
+          //       await new Promise(res => setTimeout(res, 10000)); // 5 second delay
+          //       const data = await fetchTenderSummary();
+          //       console.log('fetchTenderSummary output:', data);
+          //       if (Array.isArray(data.data) && data.data.length > 0) {
+          //         const lastSummary = data.data[data.data.length - 1].summary;
+          //         if (lastSummary) {
+
+
+          //           setUploadResponse(lastSummary);
+
+          //         }
+          //       }
+          //     } catch (err) {
+          //       console.error('fetchTenderSummary error:', err);
+          //     }
+          //   };
+          //   fetchSummaryWithDelay();
+          // }
         } catch (error) {
           console.error("Tender upload error:", error);
           setUploadResponse("Upload failed");
-        } finally {
+        }
+        finally {
           setIsUploading(false);
+          // Wait 2 seconds after streaming completes, then log uploadResponse
+          setTimeout(async () => {
+            console.log('Upload response after 2s:', uploadResponse);
+            try {
+              const data = await fetchTenderSummary();
+              if (Array.isArray(data.data) && data.data.length > 0) {
+                const lastSummary = data.data[data.data.length - 1].summary;
+                if (lastSummary) {
+                  setUploadResponse(lastSummary);
+                }
+              }
+            } catch (err) {
+              console.error('fetchTenderSummary error:', err);
+            }
+          }, 2000);
         }
       };
       doUpload();
@@ -96,7 +165,11 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
 
   useEffect(() => {
     const tenderId = location.state?.id;
+    const tenderFile = location.state?.filename;
+    const tenderTitle = location.state?.title;
+
     if (tenderId) {
+      // Fetch summary
       const fetchSummary = async () => {
         try {
           const response = await fetchTenderSummary();
@@ -111,8 +184,33 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
         }
       };
       fetchSummary();
+
+      // Prevent double fetch for the same tenderId and filename
+      const reportKey = `${tenderId}_${tenderFile}`;
+      if (lastReportKey.current === reportKey) return;
+      lastReportKey.current = reportKey;
+
+      // Fetch report
+      const fetchReport = async () => {
+        try {
+          const companyId = getCompanyIdFromUser(user);
+          const filename = tenderFile;
+          if (filename && companyId) {
+            const fetchedReport = await fetchTenderReport({
+              filename,
+              company_id: companyId
+            });
+            setReport(fetchedReport);
+            localStorage.setItem('tenderReport', JSON.stringify(fetchedReport));
+            console.log('fetchTenderReport output (from fetchReport):', fetchedReport);
+          }
+        } catch (err) {
+          console.error('fetchTenderReport error (from fetchReport):', err);
+        }
+      };
+      fetchReport();
     }
-  }, [location.state]);
+  }, [location.state, user]);
 
   // Optional: Scroll to the element when activeHash changes, if needed
   // useEffect(() => {
@@ -139,7 +237,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
             <div className="flex flex-1 bg-gray-24">
               {/* Left Sidebar - Navigation */}
               <LeftSidebar
-                isLoading={isLoading || isUploading}
+                isLoading={isLoading || isUploading || !report}
                 navigationItems={navigationItems}
                 activeHash={activeHash}
                 collapsed={leftSidebarCollapsed}
@@ -155,7 +253,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                   <div className="flex items-center">
                     <button
                       onClick={() => {
-                        setProjectsVisibility(true);
+
                         navigate("/dashboard");
                       }}
                       className="flex items-center justify-center p-3 rounded-md bg-gray-2d  hover:bg-gray-37 transition-colors border border-gray-4f"
@@ -166,8 +264,10 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                       {/* <span className="text-2xl">
                         <img src="/images/chat-head-icon.png" alt="Expona" />
                       </span> */}
-                      <h1 className="text-lg font-medium flex items-center cursor-pointer pl-3 ">
-                        {chatContent.title} {" "}
+                      <h1 className="text-lg font-medium flex items-center cursor-pointer pl-3 " title={tenderTitle}>
+                        {tenderTitle && tenderTitle.length > 90
+                          ? `${tenderTitle.slice(0, 90)}...`
+                          : tenderTitle}
                         <img
                           src="/images/edit-icon.svg"
                           alt="Edit Title"
@@ -207,6 +307,8 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                         uploadResponse={uploadResponse}
                         hasFinalSummary={hasFinalSummary}
                         storedSummary={storedSummary}
+                        setStoredSummary={setStoredSummary}
+                        report={report}
                       />
                     </div>
                     {/* Message Input Section */}
@@ -261,5 +363,24 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
     </div >
   );
 };
+
+
+// Helper function to poll for tender report
+async function pollForTenderReport({ filename, company_id }, maxAttempts = 20, delayMs = 30000) {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const report = await fetchTenderReport({ filename, company_id });
+      return report; // Success!
+    } catch (err) {
+      if (err.response && err.response.status === 404 && attempt < maxAttempts) {
+        // Wait and retry
+        await new Promise(res => setTimeout(res, delayMs));
+      } else {
+        throw err; // Other errors or max attempts reached
+      }
+    }
+  }
+  throw new Error('Report not available after multiple attempts');
+}
 
 export default Chat;

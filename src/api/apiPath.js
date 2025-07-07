@@ -8,6 +8,8 @@ export const API_ENDPOINTS = {
     TENDER_LIST: `${BASE_URL}/tender/tender_list`,
     TENDER_DELETE: `${BASE_URL}/tender/delete_tender`,
     FETCH_TENDER_SUMMARY: `${BASE_URL}/tender/tender_summary`,
+    FETCH_SUPPORTING_DOCS: `${BASE_URL}/company/fetch_supporting_docs`,
+    FETCH_TENDER_REPORT: `${BASE_URL}/report/detailed_report`,
     STORE_COMPANY_DETAIL: `${BASE_URL}/company/fetch-from-web`,
     FETCH_COMPANY_PROFILE: `${BASE_URL}/company/details`,
     UPLOAD_COMPANY_DOC: `${BASE_URL}/company/upload`,

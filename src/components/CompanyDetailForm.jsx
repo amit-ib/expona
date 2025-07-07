@@ -22,7 +22,7 @@ const CompanyDetailForm = () => {
       // Using a hardcoded token, consistent with other tender-related API calls
       const token = { AUTH_TOKEN };
       await storeCompanyDetail({ name: companyName, url: websiteUrl }, token);
-      navigate('/chat');
+      navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'An error occurred while saving details.');
       console.error("Failed to store company details:", err);

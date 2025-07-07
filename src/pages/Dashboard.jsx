@@ -2,11 +2,13 @@ import React, { useEffect, useState } from "react";
 import Header from "../components/layout/Header";
 import UploadAction from "../components/dashboard/UploadAction";
 import ProjectList from "../components/dashboard/ProjectList";
-import { fetchGoogleSessionData } from "../api/apiHelper";
+import { fetchGoogleSessionData, fetchTenderList } from "../api/apiHelper";
 // import DashboardCard from "../components/dashboard/DashboardCard";
 
-const Dashboard = ({ projectsVisibility }) => {
+const Dashboard = () => {
   const [sessionData, setSessionData] = useState(null);
+  const [projectsVisibility, setProjectsVisibility] = useState(false);
+  const [tenderList, setTenderList] = useState([]);
 
   useEffect(() => {
     // Get token from URL query string ('scope' param)
@@ -22,9 +24,17 @@ const Dashboard = ({ projectsVisibility }) => {
           console.error("Failed to fetch Google session data:", err);
         });
     }
+    // Fetch tender list
+    fetchTenderList({})
+      .then(data => {
+        const list = data.data || [];
+        setTenderList(list);
+        setProjectsVisibility(list.length > 0);
+      })
+      .catch(() => setTenderList([]));
   }, []);
 
-  console.log(projectsVisibility, "projectsVisibility")
+
   return (
     <div className="min-h-screen bg-gray-2d text-white">
       {/* Using the Header component */}
@@ -38,9 +48,9 @@ const Dashboard = ({ projectsVisibility }) => {
           <UploadAction projectsVisibility={projectsVisibility} />
 
           {/* Right Card: Project Listing */}
-
-          <ProjectList projectsVisibility={projectsVisibility} />
-
+          {projectsVisibility && (
+            <ProjectList tenderList={tenderList} />
+          )}
         </div>
       </main>
     </div>

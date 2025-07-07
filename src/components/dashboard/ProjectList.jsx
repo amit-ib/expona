@@ -1,24 +1,10 @@
 import React, { useState, useEffect } from "react";
 import ProjectCard from "./ProjectCard";
 import { projects as initialProjects } from "../../data/projects";
-import { fetchTenderSummary } from "../../api/apiHelper";
-import { fetchTenderList } from '../../api/apiHelper';
-const ProjectList = ({ projectsVisibility = true }) => {
+import { fetchTenderSummary, fetchTenderReport } from "../../api/apiHelper";
+
+const ProjectList = ({ tenderList }) => {
   const [projects] = useState(initialProjects);
-  const [tenderList, setTenderList] = useState([]);
-  useEffect(() => {
-    fetchTenderList({})
-      .then(data => {
-        console.log("Tender list API response:", data);
-        setTenderList(data.data || []);
-      })
-      .catch(() => setTenderList([]));
-  }, []);
-
-  if (!projectsVisibility) return null;
-
-
-
 
   // Handler to fetch summary for a project by id
   const handleProjectClick = async (projectId) => {
@@ -38,6 +24,22 @@ const ProjectList = ({ projectsVisibility = true }) => {
       console.log("Failed to fetch tender summary.", err);
     }
   };
+
+  // useEffect(() => {
+  //   // TEMP: Call fetchTenderReport on mount for testing
+  //   const getReport = async () => {
+  //     try {
+  //       const report = await fetchTenderReport({
+  //         filename: "NIELIT Tender Rate Contract for PrintingScanningDesigning Services",
+  //         company_id: "82"
+  //       });
+  //       console.log('fetchTenderReport output (ProjectList):', report);
+  //     } catch (err) {
+  //       console.error('fetchTenderReport error (ProjectList):', err);
+  //     }
+  //   };
+  //   getReport();
+  // }, []);
 
   return (
     <div className="w-full flex-1  px-0 bg-gray-32 border border-gray-4f rounded-lg">

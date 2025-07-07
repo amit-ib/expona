@@ -30,7 +30,7 @@ const CompanyProfile = () => {
     };
 
     useEffect(() => {
-        loadCompanyProfile(26); // Call once on page load
+        loadCompanyProfile(82); // Call once on page load
     }, []);
 
     // Destructure message for easier access to fields
@@ -82,7 +82,7 @@ const CompanyProfile = () => {
         if (action === 'add') {
             try {
                 // Use company_id = 26 for now
-                await uploadCompanyDocument({ file, company_id: 26 });
+                await uploadCompanyDocument({ file, company_id: 82 });
                 setUploadedFiles(prev => [...prev, { name: file.name, date: new Date().toLocaleDateString() }]);
             } catch (err) {
                 alert('Failed to upload document');

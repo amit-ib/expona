@@ -7,6 +7,7 @@ const UploadAction = ({ projectsVisibility, fullHeight, onFileSelect }) => {
 
   const onDrop = useCallback((acceptedFiles) => {
     localStorage.removeItem('tenderReport');
+    localStorage.removeItem('tenderTitle');
     if (acceptedFiles.length > 0) {
       const file = acceptedFiles[0];
       navigate("/chat", { state: { fileToUpload: file } });

@@ -45,7 +45,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
     return saved ? JSON.parse(saved) : null;
   });
   const lastReportKey = useRef(null);
-  const tenderTitle = location.state?.title;
+  const [tenderTitle, setTenderTitle] = useState(location.state?.title || localStorage.getItem('tenderTitle') || 'Untitled Tender');
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -76,10 +76,22 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                 finalSummaryFlag.current = true;
                 setHasFinalSummary(true);
                 // Remove everything before and including the summary marker
+
                 return newContent.substring(markerIndex + summaryMarker.length);
               } else {
+                // Extract text after <---METADATA--->
+                const metaMarker = "<---METADATA--->";
+                const metaIndex = newContent.indexOf(metaMarker);
+                if (metaIndex !== -1) {
+                  const afterMeta = newContent.substring(metaIndex + metaMarker.length);
+                  // Grab text before <br
+                  const brIndex = afterMeta.indexOf("<br");
+                  const extractedTitle = brIndex !== -1 ? afterMeta.substring(0, brIndex) : afterMeta;
+                  localStorage.setItem("tenderTitle", extractedTitle.trim());
+                  setTenderTitle(extractedTitle.trim());
+                }
+
                 return newContent;
-                // console.log("AAAAAA:", newContent)
               }
             });
           });
@@ -167,7 +179,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
   useEffect(() => {
     const tenderId = location.state?.id;
     const tenderFile = location.state?.filename;
-    const tenderTitle = location.state?.title;
+
 
     if (tenderId) {
       // Fetch summary

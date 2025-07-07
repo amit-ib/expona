@@ -60,6 +60,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("securedToken");
     localStorage.removeItem('tenderReport');
     localStorage.removeItem('company_id');
+    localStorage.removeItem('tenderTitle');
   };
 
   useEffect(() => {

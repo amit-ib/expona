@@ -84,8 +84,10 @@ const CompanyProfile = () => {
     const handleFileUpload = async (file, action) => {
         if (action === 'add') {
             try {
-                // Use company_id = 26 for now
-                await uploadCompanyDocument({ file, company_id: 82 });
+                // Use company_id and tender_id from localStorage
+                const company_id = localStorage.getItem('company_id');
+                const tender_id = localStorage.getItem('tender_id');
+                await uploadCompanyDocument({ file, company_id, tender_id });
                 setUploadedFiles(prev => [...prev, { name: file.name, date: new Date().toLocaleDateString() }]);
             } catch (err) {
                 alert('Failed to upload document');

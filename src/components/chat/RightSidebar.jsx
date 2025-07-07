@@ -42,8 +42,7 @@ const RightSidebar = ({
   }, [openMenuIndex]);
 
   useEffect(() => {
-    // TODO: Replace 'company_id' with actual value from props/context
-    const company_id = "82";
+    const company_id = localStorage.getItem('company_id');
     fetchSupportingDocs(company_id)
       .then(data => {
         console.log("Supporting docs API response:", data);
@@ -154,8 +153,9 @@ const RightSidebar = ({
           </button>
           <div className='border-t border-gray-42 mt-5'>
             {!collapsed && (
-              sources.length > 0 ? (
+              supportingDocList.length > 0 ? (
                 <h3 className="flex items-center justify-between text-xs font-normal text-white  mt-6">
+
                   <span>Uploaded documents</span>
                   {/* <input
                   type="checkbox"
@@ -170,6 +170,7 @@ const RightSidebar = ({
               )
             )}
             {tenderLoading ? <Loader /> : Array.isArray(supportingDocList) && supportingDocList.map((tender, idx) => (
+
               <div key={idx} className={`flex relative items-center justify-center py-3 rounded group ${collapsed ? 'justify-center' : 'justify-between'}`}>
                 <div className="flex items-center gap-2.5 cursor-pointer group">
                   <div className="w-6 h-6 flex items-center justify-center group cursor-pointer ">
@@ -198,7 +199,7 @@ const RightSidebar = ({
                           transform: 'translate(-100%, -50%)'
                         }}
                       >
-                        {tender.filename || `Tender ${idx + 1}`}
+                        {tender.doc_name}
                       </div>
                     )}
                     <img src="/images/3dots-icon.svg" alt="Show Options" className={`hidden  cursor-pointer ${!collapsed ? 'group-hover:inline-flex' : ''}`} onClick={e => { e.stopPropagation(); setOpenMenuIndex(openMenuIndex === idx ? null : idx); }} />
@@ -211,12 +212,13 @@ const RightSidebar = ({
                   </div>
                   {!collapsed &&
                     <div>
-                      <button className="text-sm font-normal text-white" onClick={() => setShowPdf(true)}>{tender.filename}</button>
+                      <button className="text-sm font-normal text-white" onClick={() => setShowPdf(true)}>{tender.doc_name}</button>
 
                     </div>}
                 </div>
 
               </div>
+
             ))}
           </div>
         </div>

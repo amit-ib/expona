@@ -12,7 +12,7 @@ export const API_ENDPOINTS = {
     FETCH_TENDER_REPORT: `${BASE_URL}/report/detailed_report`,
     STORE_COMPANY_DETAIL: `${BASE_URL}/company/fetch-from-web`,
     FETCH_COMPANY_PROFILE: `${BASE_URL}/company/details`,
-    UPLOAD_COMPANY_DOC: `${BASE_URL}/company/upload`,
+    UPLOAD_COMPANY_DOC: `${BASE_URL}/company/upload_supporting_docs`,
 
     // Add more endpoints here as needed
 };

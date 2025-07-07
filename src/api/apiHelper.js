@@ -149,17 +149,18 @@ export async function fetchCompanyProfile(company_id) {
 }
 
 // ####### POST request to UPLOAD_COMPANY_DOC endpoint #######
-export async function uploadCompanyDocument({ file, company_id }, token = AUTH_TOKEN) {
+export async function uploadCompanyDocument({ file, company_id, tender_id }, token = AUTH_TOKEN) {
     const formData = new FormData();
     formData.append('Certificate_of_Incorporation', file);
-    const url = `${API_ENDPOINTS.UPLOAD_COMPANY_DOC}?company_id=${encodeURIComponent(company_id)}`;
+    let url = `${API_ENDPOINTS.UPLOAD_COMPANY_DOC}?company_id=${encodeURIComponent(company_id)}`;
+    if (tender_id) {
+        url += `&tender_id=${encodeURIComponent(tender_id)}`;
+    }
     try {
         const response = await fetch(url, {
             method: 'POST',
             body: formData,
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
+            headers: getAuthHeaders()
         });
         if (!response.ok) {
             throw new Error('Failed to upload company document');

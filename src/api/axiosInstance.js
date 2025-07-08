@@ -20,6 +20,7 @@ axiosInstance.interceptors.response.use(
             localStorage.removeItem('tenderReport');
             localStorage.removeItem('company_id');
             localStorage.removeItem('tenderTitle');
+            localStorage.removeItem('tenderId');
             window.location.href = "/signin";
             window.location.reload();
         }

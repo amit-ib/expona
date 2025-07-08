@@ -1,52 +1,41 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import EditableInput from '../components/ui/EditableInput';
-import { fetchCompanyProfile, uploadCompanyDocument } from '../api/apiHelper';
+import EditableTextarea from '../components/ui/EditableTextarea';
+import { fetchCompanyProfile, uploadCompanyDocument, fetchSupportingDocs } from '../api/apiHelper';
 import CompanyDocumentsUpload from '../components/CompanyDocumentsUpload';
 import CompanyFileList from '../components/CompanyFileList';
+import { formatArrayStringForDisplay } from '../utils';
+import { extractFileName, getSupportingFiles, documentSections } from '../utils/companyProfileUtils';
+import { useCompanyProfile } from '../hooks/useCompanyProfile';
 
 const CompanyProfile = () => {
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState('company-info');
-    const [editingSection, setEditingSection] = useState(null);
-    const [editingField, setEditingField] = useState(null);
-    const [companyProfile, setCompanyProfile] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-    const [uploadedFiles, setUploadedFiles] = useState([]);
+    // UI state for tab and editing
+    const [activeTab, setActiveTab] = React.useState('company-info');
+    const [editingSection, setEditingSection] = React.useState(null);
+    const [editingField, setEditingField] = React.useState(null);
 
-    const loadCompanyProfile = async (companyId) => {
-        setLoading(true);
-        try {
-            const data = await fetchCompanyProfile(companyId);
-            setCompanyProfile(data);
-            setError('');
-        } catch (err) {
-            setError('Failed to fetch company profile');
-            setCompanyProfile(null);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        const companyId = localStorage.getItem('company_id');
-        if (companyId) {
-            loadCompanyProfile(Number(companyId));
-        }
-    }, []);
+    // Use custom hook for all company profile data and logic
+    const {
+        companyProfile,
+        loading,
+        error,
+        uploadedFiles,
+        supportingDocs,
+        handleFileUpload,
+        setUploadedFiles,
+        setCompanyProfile,
+        setSupportingDocs,
+        setError,
+        setLoading
+    } = useCompanyProfile();
 
     // Destructure message for easier access to fields
     const message = companyProfile?.message || {};
 
-    // Utility to extract file name from URL
-    const extractFileName = (url) => {
-        if (!url) return '';
-        const path = url.split('?')[0];
-        return path.substring(path.lastIndexOf('/') + 1);
-    };
-
     const profileFiles = [];
+    console.log("SUPPORTING DOC:", message)
     if (message.Certificate_of_Incorporation) {
         profileFiles.push({
             name: extractFileName(message.Certificate_of_Incorporation),
@@ -80,23 +69,47 @@ const CompanyProfile = () => {
         // Add save logic here
     };
 
-    // Handler for file upload/remove
-    const handleFileUpload = async (file, action) => {
-        if (action === 'add') {
-            try {
-                // Use company_id and tender_id from localStorage
-                const company_id = localStorage.getItem('company_id');
-                const tender_id = localStorage.getItem('tender_id');
-                await uploadCompanyDocument({ file, company_id, tender_id });
-                setUploadedFiles(prev => [...prev, { name: file.name, date: new Date().toLocaleDateString() }]);
-            } catch (err) {
-                alert('Failed to upload document');
-            }
-        } else if (action === 'remove') {
-            setUploadedFiles(prev => prev.filter(f => f.name !== file.name));
-            // Optionally: call API to delete the file
-        }
-    };
+    // Section field keys for completeness check
+    const basicInfoFields = [
+        'Company_Name',
+        'Website_URL',
+        'Type_of_Business',
+        'Date_of_Incorporation',
+        'Years_in_Operation',
+        'Number_of_Directors',
+        'Total_Employees',
+        'Company_Registration_Number',
+        'Industries_Served',
+        'Key_Partnerships',
+    ];
+    const taxInfoFields = [
+        'GST_VAT_Number',
+        'PAN_Number',
+        'Tax_Residency',
+        'Annual_Turnover_Revenue',
+    ];
+    const legalInfoFields = [
+        'Legal_Entity_Type',
+        'Net_Worth',
+        'Authorized_Capital',
+    ];
+
+    function isSectionIncomplete(fields) {
+        return fields.some(key => !message[key] || message[key].toString().trim() === '');
+    }
+
+    // Count of incomplete sections
+    const incompleteSectionsCount = [
+        isSectionIncomplete(basicInfoFields),
+        isSectionIncomplete(taxInfoFields),
+        isSectionIncomplete(legalInfoFields),
+        profileFiles.length === 0
+    ].filter(Boolean).length;
+
+    // Helper to determine if there are files for a given doc section
+    function hasFilesForSection(docName) {
+        return getSupportingFiles(supportingDocs, docName).length > 0;
+    }
 
     return (
         <div className="bg-gray-24 min-h-screen overflow-y-auto">
@@ -147,7 +160,7 @@ const CompanyProfile = () => {
                                     {tab.label}
                                     {tab.key === 'company-info' && activeTab === tab.key && (
                                         <div className="bg-expona-red bg-opacity-20 rounded-[17px] w-6 h-6 flex items-center justify-center">
-                                            <span className="text-xs font-light  text-red-83">2</span>
+                                            <span className="text-xs font-light  text-red-83">{incompleteSectionsCount}</span>
                                         </div>
                                     )}
                                 </button>
@@ -162,11 +175,38 @@ const CompanyProfile = () => {
                                 {/* Basic Information Section */}
                                 <div className="flex gap-8 pt-6 w-full">
                                     <div className="flex flex-col gap-0.5 w-[270px] flex-shrink-0">
-                                        <h3 className="text-white font-lexend text-base font-medium">Basic Information</h3>
+                                        <div className="flex items-center gap-2.5">
+                                            <h3 className="text-white font-lexend text-base font-medium">Basic Information</h3>
+                                            {isSectionIncomplete(basicInfoFields) && (
+                                                <div className="bg-expona-red bg-opacity-20 rounded-md px-2 py-0.5 h-5 flex items-center">
+                                                    <span className="text-xs font-light  text-red-83">In-Complete</span>
+                                                </div>
+                                            )}
+                                        </div>
                                         <p className="text-gray-ae font-lexend text-sm font-light">Core details about your company</p>
                                     </div>
                                     <div className="bg-gray-32 rounded-md flex-1 p-6">
                                         <div className="grid grid-cols-2 gap-6">
+                                            <EditableInput
+                                                label="Company Name"
+                                                placeholder=""
+                                                defaultValue={message.Company_Name || ''}
+                                                fieldId="companyName"
+                                                sectionId="basicInfo"
+                                                editingSection={editingSection}
+                                                editingField={editingField}
+                                                onEditClick={handleEditClick}
+                                            />
+                                            <EditableInput
+                                                label="Website URL"
+                                                placeholder=""
+                                                defaultValue={message.Website_URL || ''}
+                                                fieldId="websiteUrl"
+                                                sectionId="basicInfo"
+                                                editingSection={editingSection}
+                                                editingField={editingField}
+                                                onEditClick={handleEditClick}
+                                            />
                                             <EditableInput
                                                 label="Type of Business"
                                                 placeholder=""
@@ -190,6 +230,41 @@ const CompanyProfile = () => {
                                             />
 
                                             <EditableInput
+                                                label="Years in Operation"
+                                                placeholder=""
+                                                defaultValue={message.Years_in_Operation || ''}
+                                                fieldId="yearsInOperation"
+                                                sectionId="basicInfo"
+                                                editingSection={editingSection}
+                                                editingField={editingField}
+                                                onEditClick={handleEditClick}
+                                            />
+
+                                            <EditableInput
+                                                label="Number of Directors"
+                                                placeholder=""
+                                                defaultValue={message.Number_of_Directors || ''}
+                                                fieldId="numberOfDirectors"
+                                                sectionId="basicInfo"
+                                                editingSection={editingSection}
+                                                editingField={editingField}
+                                                onEditClick={handleEditClick}
+                                            />
+
+
+
+                                            <EditableInput
+                                                label="Total Employees"
+                                                placeholder=""
+                                                defaultValue={message.Total_Employees || ''}
+                                                fieldId="totalEmployees"
+                                                sectionId="basicInfo"
+                                                editingSection={editingSection}
+                                                editingField={editingField}
+                                                onEditClick={handleEditClick}
+                                            />
+
+                                            <EditableInput
                                                 label="Company Registration Number"
                                                 placeholder=""
                                                 defaultValue=""
@@ -199,17 +274,28 @@ const CompanyProfile = () => {
                                                 editingField={editingField}
                                                 onEditClick={handleEditClick}
                                             />
-
-                                            <EditableInput
-                                                label="Business Category"
-                                                placeholder="Steel Exporter"
-                                                defaultValue=""
-                                                fieldId="businessCategory"
+                                            <EditableTextarea
+                                                label="Industries Served"
+                                                placeholder=""
+                                                defaultValue={formatArrayStringForDisplay(message.Industries_Served || '')}
+                                                fieldId="industriesServed"
                                                 sectionId="basicInfo"
                                                 editingSection={editingSection}
                                                 editingField={editingField}
                                                 onEditClick={handleEditClick}
                                             />
+                                            <EditableTextarea
+                                                label="Key Partnerships"
+                                                placeholder=""
+                                                defaultValue={formatArrayStringForDisplay(message.Key_Partnerships || '')}
+                                                fieldId="keyPartnerships"
+                                                sectionId="basicInfo"
+                                                editingSection={editingSection}
+                                                editingField={editingField}
+                                                onEditClick={handleEditClick}
+                                            />
+
+
                                         </div>
 
                                         {/* Section Edit Buttons */}
@@ -235,7 +321,14 @@ const CompanyProfile = () => {
                                 {/* Tax Information Section */}
                                 <div className="flex gap-8 w-full">
                                     <div className="flex flex-col gap-0.5 w-[270px] flex-shrink-0">
-                                        <h3 className="text-white font-lexend text-base font-medium">Tax Information</h3>
+                                        <div className="flex items-center gap-2.5">
+                                            <h3 className="text-white font-lexend text-base font-medium">Tax Information</h3>
+                                            {isSectionIncomplete(taxInfoFields) && (
+                                                <div className="bg-expona-red bg-opacity-20 rounded-md px-2 py-0.5 h-5 flex items-center">
+                                                    <span className="text-xs font-light  text-red-83">In-Complete</span>
+                                                </div>
+                                            )}
+                                        </div>
                                         <p className="text-gray-ae font-lexend text-sm font-light">Tax registration and compliance detailsny</p>
                                     </div>
                                     <div className="bg-gray-32 rounded-md flex-1 p-6">
@@ -272,6 +365,17 @@ const CompanyProfile = () => {
                                                 editingField={editingField}
                                                 onEditClick={handleEditClick}
                                             />
+
+                                            <EditableInput
+                                                label="Annual Turnover Revenue"
+                                                placeholder=""
+                                                defaultValue={message.Annual_Turnover_Revenue || ''}
+                                                fieldId="annualTurnoverRevenue"
+                                                sectionId="taxInfo"
+                                                editingSection={editingSection}
+                                                editingField={editingField}
+                                                onEditClick={handleEditClick}
+                                            />
                                         </div>
 
                                         {/* Section Edit Buttons */}
@@ -297,7 +401,14 @@ const CompanyProfile = () => {
                                 {/* Legal Information Section */}
                                 <div className="flex gap-8 w-full">
                                     <div className="flex flex-col gap-0.5 w-[270px] flex-shrink-0">
-                                        <h3 className="text-white font-lexend text-base font-medium">Legal Information</h3>
+                                        <div className="flex items-center gap-2.5">
+                                            <h3 className="text-white font-lexend text-base font-medium">Legal Information</h3>
+                                            {isSectionIncomplete(legalInfoFields) && (
+                                                <div className="bg-expona-red bg-opacity-20 rounded-md px-2 py-0.5 h-5 flex items-center">
+                                                    <span className="text-xs font-light  text-red-83">In-Complete</span>
+                                                </div>
+                                            )}
+                                        </div>
                                         <p className="text-gray-ae font-lexend text-sm font-light">Legal structure and regulatory information</p>
                                     </div>
                                     <div className="bg-gray-32 rounded-md flex-1 p-6">
@@ -314,10 +425,10 @@ const CompanyProfile = () => {
                                             />
 
                                             <EditableInput
-                                                label="Number of Directors"
+                                                label="Net Worth"
                                                 placeholder=""
-                                                defaultValue={message.Number_of_Directors || ''}
-                                                fieldId="numberOfDirectors"
+                                                defaultValue={message.Net_Worth || ''}
+                                                fieldId="netWorth"
                                                 sectionId="legalInfo"
                                                 editingSection={editingSection}
                                                 editingField={editingField}
@@ -361,53 +472,39 @@ const CompanyProfile = () => {
                                     <div className="flex flex-col gap-0.5 w-[270px] flex-shrink-0">
                                         <div className="flex items-center gap-2.5">
                                             <h3 className="text-white font-lexend text-base font-medium">Required Documents</h3>
-                                            <div className="bg-expona-red bg-opacity-20 rounded-md px-2 py-0.5 h-5 flex items-center">
-                                                <span className="text-xs font-light  text-red-83">In-Complete</span>
-                                            </div>
+                                            {profileFiles.length === 0 && (
+                                                <div className="bg-expona-red bg-opacity-20 rounded-md px-2 py-0.5 h-5 flex items-center">
+                                                    <span className="text-xs font-light  text-red-83">In-Complete</span>
+                                                </div>
+                                            )}
                                         </div>
                                         <p className="text-gray-ae font-lexend text-sm font-light">Attach supporting documents</p>
                                     </div>
                                     <div className="bg-gray-32 rounded-md flex-1 p-8 flex flex-col gap-12">
-                                        {/* Document Upload Cards */}
-                                        <div className="bg-gray-32 rounded-xl flex flex-col gap-4 w-full">
-                                            <div className="flex gap-3 px-6 py-0">
-                                                <div className="flex-1">
-                                                    <h4 className="text-white font-medium mb-1">Certificate of Incorporation</h4>
-                                                    <p className="text-gray-ae text-xs">Official document proving your company's legal existence</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex flex-col gap-6 px-6">
-                                                {/* Company Requirement Documents Upload */}
-                                                <CompanyDocumentsUpload uploadedFiles={uploadedFiles} onFileUpload={handleFileUpload} />
-                                                {/* After editable inputs for company info */}
-                                                <CompanyFileList uploadedFiles={profileFiles} onFileUpload={() => { }} />
-
-                                            </div>
-                                        </div>
-
-
-                                        <div className="bg-gray-32 rounded-xl flex flex-col gap-4 w-full">
-                                            <div className="flex gap-3 px-6 py-0">
-                                                <div className="flex-1">
-                                                    <h4 className="text-white font-medium mb-1">GST Registration Certificate</h4>
-                                                    <p className="text-gray-ae text-xs">Document with GST Details</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex flex-col gap-2.5 px-6">
-                                                <div className="border border-gray-4f rounded-lg p-4 flex items-center gap-3">
-                                                    <img src="/images/file-icon.svg" className='h-6' alt="upload-icon" />
+                                        {/* Document Upload Cards (Refactored) */}
+                                        {documentSections.map(section => (
+                                            <div key={section.docName} className="bg-gray-32 rounded-xl flex flex-col gap-4 w-full">
+                                                <div className="flex gap-3 px-6 py-0">
                                                     <div className="flex-1">
-                                                        <h5 className="text-white font-medium text-sm">Company registration.pdf</h5>
-                                                        <p className="text-gray-ae text-xs">22 May 2025</p>
+                                                        <h4 className="text-white font-medium mb-1">{section.label}</h4>
+                                                        <p className="text-gray-ae text-xs">{section.description}</p>
                                                     </div>
-                                                    <button className="text-gray-ae hover:text-white transition-colors">
-                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                                        </svg>
-                                                    </button>
+                                                </div>
+                                                <div className="flex flex-col gap-6 px-6">
+                                                    {/* Only show upload if no files exist for this section */}
+                                                    {!hasFilesForSection(section.docName) && (
+                                                        <CompanyDocumentsUpload
+                                                            uploadedFiles={uploadedFiles}
+                                                            onFileUpload={(file, action) => handleFileUpload(file, action, section.docName)}
+                                                        />
+                                                    )}
+                                                    <CompanyFileList
+                                                        uploadedFiles={getSupportingFiles(supportingDocs, section.docName)}
+                                                        onFileUpload={() => { }}
+                                                    />
                                                 </div>
                                             </div>
-                                        </div>
+                                        ))}
                                     </div>
                                 </div>
 

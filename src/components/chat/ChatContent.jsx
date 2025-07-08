@@ -257,21 +257,21 @@ const ChatContent = ({
         {/* {sources.length > 0 ? ( */}
         <>
           {/* Overview */}
-          {/* {!report && ( */}
-          <div className={`mb-8 summary text-sm ${hasFinalSummary || storedSummary ? "" : "text-gray-ae"}`}>
-            {/* Show fetched summary if available, only if no report */}
-            {/* {!report && storedSummary && ( */}
-            <>
-              <Markdown components={markdownComponents}>{storedSummary}</Markdown>
-            </>
-            {/* )} */}
-            {/* Tender Summary */}
-            <Markdown components={markdownComponents}>
-              {uploadResponse}
-            </Markdown>
+          {!report && (
+            <div className={`mb-8 summary text-sm ${hasFinalSummary || storedSummary ? "" : "text-gray-ae"}`}>
+              {/* Show fetched summary if available, only if no report */}
+              {/* {!report && storedSummary && (
+                <>
+                  <Markdown components={markdownComponents}>{storedSummary}</Markdown>
+                </>
+              )} */}
+              {/* Tender Summary */}
+              <Markdown components={markdownComponents}>
+                {uploadResponse}
+              </Markdown>
 
-          </div>
-          {/* )} */}
+            </div>
+          )}
           {/* Show Report Section */}
 
 

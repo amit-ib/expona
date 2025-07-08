@@ -149,9 +149,9 @@ export async function fetchCompanyProfile(company_id) {
 }
 
 // ####### POST request to UPLOAD_COMPANY_DOC endpoint #######
-export async function uploadCompanyDocument({ file, company_id, tender_id }, token = AUTH_TOKEN) {
+export async function uploadCompanyDocument({ file, company_id, tender_id, documentType }, token = AUTH_TOKEN) {
     const formData = new FormData();
-    formData.append('Certificate_of_Incorporation', file);
+    formData.append(documentType, file);
     let url = `${API_ENDPOINTS.UPLOAD_COMPANY_DOC}?company_id=${encodeURIComponent(company_id)}`;
     if (tender_id) {
         url += `&tender_id=${encodeURIComponent(tender_id)}`;

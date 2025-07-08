@@ -38,4 +38,38 @@ export const markdownComponents = {
     a: ({ node, ...props }) => (
         <a className="text-white underline" {...props} />
     ),
-}; 
+};
+
+// Utility to format array-like strings for display in textboxes
+export function formatArrayStringForDisplay(value) {
+    if (typeof value !== 'string') return value;
+    try {
+        // Try to parse as JSON array
+        const arr = JSON.parse(value);
+        if (Array.isArray(arr)) {
+            return arr.join(', ');
+        }
+    } catch (e) {
+        // Not a JSON array, fallback: remove brackets and quotes
+        return value.replace(/\[|\]|"/g, '');
+    }
+    return value;
+}
+
+// Converts a comma-separated display string back to a JSON array string for API submission
+export function formatDisplayStringToArrayString(value) {
+    if (typeof value !== 'string') return value;
+    const arr = value
+        .split(',')
+        .map(item => item.trim())
+        .filter(Boolean);
+    return JSON.stringify(arr);
+}
+
+// Truncate a string to a maximum number of words, adding ellipsis if exceeded
+export function truncateWords(text, maxWords) {
+    if (!text) return '';
+    const words = text.split(/\s+/);
+    if (words.length <= maxWords) return text;
+    return words.slice(0, maxWords).join(' ') + '...';
+} 

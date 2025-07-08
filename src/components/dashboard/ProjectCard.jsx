@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { truncateWords } from '../../utils';
 
 const ProjectCard = ({ tender, onProjectClick }) => {
   const navigate = useNavigate();
@@ -10,8 +11,8 @@ const ProjectCard = ({ tender, onProjectClick }) => {
     if (onProjectClick) {
       localStorage.removeItem('tenderReport');
       localStorage.removeItem('tenderTitle');
-      localStorage.removeItem('tender_id');
-      localStorage.setItem('tender_id', id);
+      localStorage.removeItem('tenderId');
+      localStorage.setItem('tenderId', id);
       navigate("/chat", { state: { id, filename, title } });
     }
   };
@@ -25,7 +26,7 @@ const ProjectCard = ({ tender, onProjectClick }) => {
         <div className="text-[32px] leading-[1.21]"><img src="/images/file-icon.svg" alt="" className="w-10" /></div>
         <div className="flex flex-col gap-[7px]">
           <h3 className="font-lexend  text-[16px] leading-[1.25] text-white max-w-xl truncate" title={title}>{title}</h3>
-          <p className="font-lexend  font-light text-[14px] leading-[1.25] text-white/80">{issuer}</p>
+          <p className="font-lexend  font-light text-[14px] leading-[1.25] text-white/80" title={issuer}>{truncateWords(issuer, 10)}</p>
         </div>
       </div>
       <div className="flex items-center gap-4">

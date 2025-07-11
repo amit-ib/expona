@@ -11,7 +11,7 @@ import RightSideDrawer from "../components/layout/RightSideDrawer";
 import Modal from '../components/common/Modal';
 import UploadAction from '../components/dashboard/UploadAction';
 import { Link } from 'react-router-dom';
-import { uploadTenderFile, fetchTenderSummary, fetchTenderReport } from "../api/apiHelper";
+import { uploadTenderFile, fetchTenderSummary, fetchTenderReport, fetchEligibility } from "../api/apiHelper";
 import { useAuth } from "../contexts/AuthContext";
 import { getCompanyIdFromUser } from "../utils";
 
@@ -46,6 +46,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
   });
   const lastReportKey = useRef(null);
   const [tenderTitle, setTenderTitle] = useState(location.state?.title || localStorage.getItem('tenderTitle') || 'Untitled Tender');
+  const [eligibilityData, setEligibilityData] = useState(null);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -139,7 +140,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
         }
         finally {
           setIsUploading(false);
-          // Wait 2 seconds after streaming completes, then log uploadResponse
+          // Wait 1 seconds after streaming completes, then log uploadResponse
           setTimeout(async () => {
             console.log('Upload response after 2s:', uploadResponse);
             try {
@@ -151,10 +152,17 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                   setUploadResponse(lastSummary);
                 }
               }
+              // Fetch eligibility after summary
+              const companyId = localStorage.getItem('company_id');
+              if (file && companyId) {
+                const eligibility = await fetchEligibility({ filename: file.name, company_id: companyId });
+                setEligibilityData(eligibility);
+                console.log('Eligibility data after upload:', eligibility);
+              }
             } catch (err) {
-              console.error('fetchTenderSummary error:', err);
+              console.error('fetchTenderSummary or fetchEligibility error:', err);
             }
-          }, 2000);
+          }, 1000);
         }
       };
       doUpload();
@@ -203,25 +211,35 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
       if (lastReportKey.current === reportKey) return;
       lastReportKey.current = reportKey;
 
-      // Fetch report
-      const fetchReport = async () => {
+      // Fetch report and then eligibility after a delay
+      const fetchReportThenEligibility = async () => {
         try {
           const companyId = localStorage.getItem('company_id');
           const filename = tenderFile;
           if (filename && companyId) {
-            const fetchedReport = await fetchTenderReport({
-              filename,
-              company_id: companyId
-            });
+            // Fetch and display report first
+            const fetchedReport = await fetchTenderReport({ filename, company_id: companyId });
             setReport(fetchedReport);
             localStorage.setItem('tenderReport', JSON.stringify(fetchedReport));
             console.log('fetchTenderReport output (from fetchReport):', fetchedReport);
+
+            // After a short delay, fetch eligibility in the background
+            setTimeout(() => {
+              fetchEligibility({ filename, company_id: companyId })
+                .then(eligibilityData => {
+                  console.log('Eligibility data:', eligibilityData.data);
+                  setEligibilityData(eligibilityData);
+                })
+                .catch(eligErr => {
+                  console.error('fetchEligibility error:', eligErr);
+                });
+            }, 1000); // 1 second delay
           }
         } catch (err) {
           console.error('fetchTenderReport error (from fetchReport):', err);
         }
       };
-      fetchReport();
+      fetchReportThenEligibility();
     }
   }, [location.state, user]);
 
@@ -278,8 +296,8 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                         <img src="/images/chat-head-icon.png" alt="Expona" />
                       </span> */}
                       <h1 className="text-lg font-medium flex items-center cursor-pointer pl-3 " title={tenderTitle}>
-                        {tenderTitle && tenderTitle.length > 90
-                          ? `${tenderTitle.slice(0, 90)}...`
+                        {tenderTitle && tenderTitle.length > 80
+                          ? `${tenderTitle.slice(0, 80)}...`
                           : tenderTitle}
                         <img
                           src="/images/edit-icon.svg"
@@ -362,7 +380,11 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
         ></div>
       )}
 
-      <RightSideDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)}>
+      <RightSideDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)}
+        company_id={localStorage.getItem('company_id')}
+        filename={location.state?.filename}
+        eligibilityData={eligibilityData}
+      >
         {/* Content for the drawer goes here */}
         <h2 className="text-white text-lg">Check Your Eligibility Content</h2>
         <p className="text-gray-400">More information will go here.</p>
@@ -394,6 +416,16 @@ async function pollForTenderReport({ filename, company_id }, maxAttempts = 20, d
     }
   }
   throw new Error('Report not available after multiple attempts');
+}
+
+// Standalone function to fetch and log eligibility
+async function fetchAndLogEligibility({ filename, company_id }) {
+  try {
+    const eligibilityData = await fetchEligibility({ filename, company_id });
+    console.log('Eligibility data:', eligibilityData);
+  } catch (eligErr) {
+    console.error('fetchEligibility error:', eligErr);
+  }
 }
 
 export default Chat;

@@ -1,20 +1,53 @@
 import React, { useState } from 'react';
+import CompanyDocumentsUpload from '../CompanyDocumentsUpload';
+import { uploadCompanyDocument } from '../../api/apiHelper';
 
 const AccordionComponent = ({
     title,
     requirement,
-    reason,
+    justification,
     suggestion,
-    question,
+    importance,
+    actionType,
+    actionDescription,
     isOpen,
     onToggle,
     statusColorClass,
-    iconColorClass = 'text-white'
+    iconColorClass = 'text-white',
 }) => {
     const [selectedOption, setSelectedOption] = useState(null);
+    const [uploadedFiles, setUploadedFiles] = useState([]);
 
     const handleRadioChange = (event) => {
         setSelectedOption(event.target.value);
+    };
+
+    const handleFileUpload = (file, action) => {
+        if (action === 'add') {
+            setUploadedFiles(prev => [...prev, file]);
+        } else if (action === 'remove') {
+            setUploadedFiles(prev => prev.filter(f => f.name !== file.name));
+        }
+    };
+
+    const handleReEvaluateEligibility = async () => {
+        const company_id = localStorage.getItem('company_id');
+        const tender_id = localStorage.getItem('tenderId');
+        console.log('tender_id', tender_id);
+        const criteria_name = title; // assuming title is the criteria name
+        // Use the first uploaded file for demonstration; adjust as needed
+        const file = uploadedFiles[0];
+        const documentType = actionDescription; // hardcoded as requested
+        if (!file) {
+            console.error('No file uploaded');
+            return;
+        }
+        try {
+            const result = await uploadCompanyDocument({ file, company_id, tender_id, documentType, criteria_name });
+            console.log('Document uploaded and eligibility re-evaluated:', result);
+        } catch (err) {
+            console.error('Error uploading document and re-evaluating eligibility:', err);
+        }
     };
 
     return (
@@ -44,32 +77,46 @@ const AccordionComponent = ({
                         {requirement && (
                             <>
                                 <div className='text-xs text-gray-ae mb-1'>Requirement</div>
-                                <div className='text-gray-ec mb-7'>
+                                <div className='text-gray-ec text-sm'>
                                     {requirement}
                                 </div>
                             </>
                         )}
-                        {reason && (
+                        {justification && (
                             <>
-                                <div className='text-xs text-gray-ae mb-1'>Reason</div>
-                                <div className='text-gray-ec mb-7'>
-                                    {reason}
+                                <div className='text-xs text-gray-ae mt-7 mb-1'>Justification</div>
+                                <div className='text-gray-ec text-sm'>
+                                    {justification}
+                                </div>
+                            </>
+                        )}
+                        {importance && (
+                            <>
+                                <div className='text-xs text-gray-ae mt-7 mb-1'>Importance</div>
+                                <div className='text-gray-ec  text-sm'>
+                                    {importance}
                                 </div>
                             </>
                         )}
                         {suggestion && (
                             <>
-                                <div className='text-xs text-gray-ae mb-1'>suggestion</div>
-                                <div className='text-gray-ec mb-7'>
+                                <div className='text-xs text-gray-ae mt-7 mb-1'>suggestion</div>
+                                <div className='text-gray-ec text-sm'>
                                     {suggestion}
                                 </div>
                             </>
                         )}
-                        {question && (
+                        {(actionType) && (
                             <>
-                                <div className='text-xs text-gray-ae'>{question}</div>
+                                {actionDescription && (
+                                    <div className='text-xs text-gray-ae mt-7'>{actionDescription}</div>
+                                )}
 
-                                <div className='flex gap-4 mt-2 mb-5'>
+                                <div className='flex gap-4 mt-2 '>
+                                    <CompanyDocumentsUpload style="compact" uploadedFiles={uploadedFiles} onFileUpload={handleFileUpload} />
+                                </div>
+
+                                {/* <div className='flex gap-4 mt-2 mb-5'>
                                     <label className="inline-flex items-center">
                                         <input
                                             type="radio"
@@ -92,9 +139,17 @@ const AccordionComponent = ({
                                         />
                                         <span className="ml-2 text-gray-ec text-sm">No</span>
                                     </label>
-                                </div>
-                                {selectedOption === 'yes' && (
-                                    <button className='bg-expona-red rounded-md p-2 text-white w-full'>Re-evaluate Eligibility</button>
+                                </div> */}
+                                {(selectedOption === 'yes' || uploadedFiles.length > 0) && (
+                                    <>
+                                        <div className='text-xs text-gray-ae mt-8'>Note: These information will be saved in the company profile for future use.</div>
+                                        <button
+                                            className='bg-expona-red rounded-md mt-2 p-2 text-white w-full'
+                                            onClick={handleReEvaluateEligibility}
+                                        >
+                                            Re-evaluate Eligibility
+                                        </button>
+                                    </>
                                 )}
                             </>
                         )}

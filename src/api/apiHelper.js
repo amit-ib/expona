@@ -149,12 +149,15 @@ export async function fetchCompanyProfile(company_id) {
 }
 
 // ####### POST request to UPLOAD_COMPANY_DOC endpoint #######
-export async function uploadCompanyDocument({ file, company_id, tender_id, documentType }, token = AUTH_TOKEN) {
+export async function uploadCompanyDocument({ file, company_id, tender_id, documentType, criteria_name }, token = AUTH_TOKEN) {
     const formData = new FormData();
     formData.append(documentType, file);
     let url = `${API_ENDPOINTS.UPLOAD_COMPANY_DOC}?company_id=${encodeURIComponent(company_id)}`;
     if (tender_id) {
         url += `&tender_id=${encodeURIComponent(tender_id)}`;
+    }
+    if (criteria_name) {
+        url += `&criteria_name=${encodeURIComponent(criteria_name)}`;
     }
     try {
         const response = await fetch(url, {
@@ -213,6 +216,34 @@ export async function fetchTenderReport({ filename, company_id }) {
         return response.data;
     } catch (error) {
         console.error('Error fetching tender report:', error);
+        throw error;
+    }
+}
+
+// ####### GET request to FETCH_ELIGIBILITY endpoint with filename and company_id as query params #######
+export async function fetchEligibility({ filename, company_id }) {
+    try {
+        const url = `${API_ENDPOINTS.FETCH_ELIGIBILITY}?filename=${encodeURIComponent(filename)}&company_id=${encodeURIComponent(company_id)}`;
+        const response = await axiosInstance.get(url, {
+            headers: getAuthHeaders()
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching eligibility:', error);
+        throw error;
+    }
+}
+
+// ####### DELETE request to DELETE_SUPPORTING_DOCS endpoint with company_id and document_id as query params #######
+export async function deleteSupportingDoc({ company_id, document_id }) {
+    try {
+        const url = `${API_ENDPOINTS.DELETE_SUPPORTING_DOCS}?company_id=${encodeURIComponent(company_id)}&document_id=${encodeURIComponent(document_id)}`;
+        const response = await axiosInstance.get(url, {
+            headers: getAuthHeaders()
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error deleting supporting document:', error);
         throw error;
     }
 }

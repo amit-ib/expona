@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TabsComponent from '../ui/TabsComponent';
 import AccordionComponent from '../ui/AccordionComponent';
-import { ELIGIBILITY_TABS, MISSED_ACCORDIONS, MATCHED_ACCORDIONS } from '../../data/eligibilityData';
+import { ELIGIBILITY_TABS, MATCHED_ACCORDIONS } from '../../data/eligibilityData';
+import SkeletonLoader from '../ui/SkeletonLoader .jsx';
 
-const RightSideDrawer = ({ isOpen, onClose }) => {
+const RightSideDrawer = ({ isOpen, onClose, company_id, filename, eligibilityData }) => {
     const [activeTab, setActiveTab] = useState('missed');
     const [openAccordion, setOpenAccordion] = useState(-1);
 
@@ -58,18 +59,23 @@ const RightSideDrawer = ({ isOpen, onClose }) => {
 
             {/* Tab Content */}
             <div className="flex-1 overflow-y-auto px-4 pb-4 mt-5">
-                {activeTab === 'missed' ? (
+                {!eligibilityData ? (
+                    <SkeletonLoader />
+                ) : activeTab === 'missed' ? (
                     // Missed Criteria
                     <div>
                         {/* Accordions */}
                         <div className="space-y-3">
-                            {MISSED_ACCORDIONS.map((acc, idx) => (
+                            {(eligibilityData?.data.MissedCriteria || []).map((acc, idx) => (
                                 <AccordionComponent
-                                    key={acc.title}
-                                    title={acc.title}
-                                    requirement={acc.requirement}
+                                    key={acc.criteriaName}
+                                    title={acc.criteriaName}
+                                    justification={acc.justification}
+                                    requirement={acc.criteriaDescription}
+                                    importance={acc.importance}
                                     suggestion={acc.suggestion}
-                                    question={acc.question}
+                                    actionType={Array.isArray(acc.actions) && acc.actions.length > 0 ? acc.actions[0].action : acc.action}
+                                    actionDescription={Array.isArray(acc.actions) && acc.actions.length > 0 ? acc.actions[0].actionDescription : ''}
                                     isOpen={activeTab === 'missed' && openAccordion === idx}
                                     onToggle={() => setOpenAccordion(activeTab === 'missed' && openAccordion === idx ? -1 : idx)}
                                     statusColorClass="text-red-400 bg-red-500/10"
@@ -81,12 +87,13 @@ const RightSideDrawer = ({ isOpen, onClose }) => {
                     // Matched Criteria
                     <div>
                         <div className="space-y-3">
-                            {MATCHED_ACCORDIONS.map((acc, idx) => (
+                            {(eligibilityData?.data.MatchedCriteria || []).map((acc, idx) => (
                                 <AccordionComponent
-                                    key={acc.title}
-                                    title={acc.title}
-                                    requirement={acc.requirement}
-                                    reason={acc.reason}
+                                    key={acc.criteriaName}
+                                    title={acc.criteriaName}
+                                    requirement={acc.criteriaDescription}
+                                    // importance={acc.importance}
+                                    justification={acc.justification}
                                     isOpen={activeTab === 'matched' && openAccordion === idx}
                                     onToggle={() => setOpenAccordion(activeTab === 'matched' && openAccordion === idx ? -1 : idx)}
                                     statusText="Matched"

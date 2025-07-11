@@ -21,6 +21,8 @@ axiosInstance.interceptors.response.use(
             localStorage.removeItem('company_id');
             localStorage.removeItem('tenderTitle');
             localStorage.removeItem('tenderId');
+            localStorage.removeItem('tenderList');
+
             window.location.href = "/signin";
             window.location.reload();
         }

@@ -1,6 +1,6 @@
 // Extracts the file name from a URL
 export function extractFileName(url) {
-    if (!url) return '';
+    if (!url || typeof url !== 'string') return '';
     const path = url.split('?')[0];
     return path.substring(path.lastIndexOf('/') + 1);
 }

@@ -139,9 +139,9 @@ const CompanyProfile = () => {
                     {/* Loading/Error/Debug Info */}
                     {loading && <div className="text-white mb-4">Loading company profile...</div>}
                     {error && <div className="text-red-500 mb-4">{error}</div>}
-                    {companyProfile && (
+                    {/* {companyProfile && (
                         <pre className="text-white bg-gray-32 rounded p-4 mb-4 overflow-x-auto text-xs">{JSON.stringify(companyProfile, null, 2)}</pre>
-                    )}
+                    )} */}
 
                     {/* Tab Group */}
                     <div className="border-b border-gray-4f mb-6">

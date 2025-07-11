@@ -3,7 +3,7 @@ import Tooltip from '../common/Tooltip';
 import PdfViewerModal from "../common/PdfViewerModal";
 import InfoTooltip from '../common/InfoTooltip';
 import Loader from '../common/Loader';
-import { fetchSupportingDocs, deleteTenderById } from '../../api/apiHelper';
+import { fetchSupportingDocs, deleteTenderById, deleteSupportingDoc } from '../../api/apiHelper';
 
 const RightSidebar = ({
   isLoading,
@@ -81,20 +81,25 @@ const RightSidebar = ({
   //   );
   // }
 
-  const handleDeleteTender = async () => {
+  const handleDeleteSupportingDoc = async () => {
+
     if (deleteIndex === null) return;
-    const tender = supportingDocList[deleteIndex];
-    if (!tender || !tender.id) {
+    const doc = supportingDocList[deleteIndex];
+
+    if (!doc || !doc.doc_id) {
+
       setDeleteIndex(null);
       return;
     }
     setDeleting(true);
     try {
-      await deleteTenderById(tender.id);
+      const company_id = localStorage.getItem('company_id');
+      console.log(doc.doc_id)
+      await deleteSupportingDoc({ company_id, document_id: doc.doc_id });
       setSupportingDocList(prev => prev.filter((_, i) => i !== deleteIndex));
     } catch (err) {
       // Optionally show error to user
-      console.error('Failed to delete tender', err);
+      console.error('Failed to delete supporting document', err);
     } finally {
       setDeleting(false);
       setDeleteIndex(null);
@@ -245,7 +250,7 @@ const RightSidebar = ({
                 </button>
                 <button
                   className="flex-1 py-2 rounded bg-expona-red text-white hover:bg-red-700"
-                  onClick={handleDeleteTender}
+                  onClick={handleDeleteSupportingDoc}
                   disabled={deleting}
                 >
                   {deleting ? 'Deleting...' : 'Delete'}

@@ -8,6 +8,7 @@ const UploadAction = ({ projectsVisibility, fullHeight, onFileSelect }) => {
   const onDrop = useCallback((acceptedFiles) => {
     localStorage.removeItem('tenderReport');
     localStorage.removeItem('tenderTitle');
+    localStorage.removeItem('tenderId');
     if (acceptedFiles.length > 0) {
       const file = acceptedFiles[0];
       navigate("/chat", { state: { fileToUpload: file } });
@@ -34,7 +35,7 @@ const UploadAction = ({ projectsVisibility, fullHeight, onFileSelect }) => {
         </div>)}
       <div
         {...getRootProps()}
-        className={`w-full flex-1 bg-gray-32 border  border-dashed border-gray-ae rounded-lg flex flex-col items-center justify-center py-10 px-6  transition-shadow hover:shadow-lg  ${projectsVisibility ? '' : 'max-h-[calc(100vh-280px)]'} ${isDragActive ? 'border-ib-red' : ''}  `}
+        className={`w-full flex-1 min-h-48 bg-gray-32 border  border-dashed border-gray-ae rounded-lg flex flex-col items-center justify-center py-10 px-6  transition-shadow hover:shadow-lg  ${projectsVisibility ? '' : 'max-h-[calc(100vh-280px)]'} ${isDragActive ? 'border-ib-red' : ''}  `}
         tabIndex={0}
         aria-label="Upload file"
       >

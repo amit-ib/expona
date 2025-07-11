@@ -62,6 +62,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('company_id');
     localStorage.removeItem('tenderId');
     localStorage.removeItem('tenderTitle');
+    localStorage.removeItem('tenderList');
   };
 
   useEffect(() => {

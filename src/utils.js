@@ -72,4 +72,9 @@ export function truncateWords(text, maxWords) {
     const words = text.split(/\s+/);
     if (words.length <= maxWords) return text;
     return words.slice(0, maxWords).join(' ') + '...';
+}
+
+// Truncate a string to a given word limit, adding ellipsis if exceeded
+export function truncateWordsLimit(text, wordLimit) {
+    return truncateWords(text, wordLimit);
 } 

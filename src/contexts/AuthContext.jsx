@@ -66,7 +66,30 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
+
     const storedUserDetail = localStorage.getItem("userDetail");
+    const token = localStorage.getItem("securedToken");
+
+    if (token) {
+
+      try {
+        const decoded = jwtDecode(token);
+        const now = Date.now() / 1000; // in seconds
+        if (decoded.exp && decoded.exp < now) {
+
+          // Token expired
+          logout();
+          setAuthLoading(false);
+          return;
+        }
+      } catch (e) {
+        // Invalid token, clear everything
+        logout();
+        setAuthLoading(false);
+        return;
+      }
+    }
+
     if (storedUserDetail) {
       setUser(JSON.parse(storedUserDetail));
     }

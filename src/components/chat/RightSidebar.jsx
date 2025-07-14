@@ -4,6 +4,7 @@ import PdfViewerModal from "../common/PdfViewerModal";
 import InfoTooltip from '../common/InfoTooltip';
 import Loader from '../common/Loader';
 import { fetchSupportingDocs, deleteTenderById, deleteSupportingDoc } from '../../api/apiHelper';
+import { truncateWordsLimit } from '../../utils';
 
 const RightSidebar = ({
   isLoading,
@@ -204,7 +205,7 @@ const RightSidebar = ({
                           transform: 'translate(-100%, -50%)'
                         }}
                       >
-                        {tender.doc_name}
+                        {truncateWordsLimit(tender.doc_name, 2)}
                       </div>
                     )}
                     <img src="/images/3dots-icon.svg" alt="Show Options" className={`hidden  cursor-pointer ${!collapsed ? 'group-hover:inline-flex' : ''}`} onClick={e => { e.stopPropagation(); setOpenMenuIndex(openMenuIndex === idx ? null : idx); }} />
@@ -217,7 +218,7 @@ const RightSidebar = ({
                   </div>
                   {!collapsed &&
                     <div>
-                      <button className="text-sm font-normal text-white" onClick={() => setShowPdf(true)}>{tender.doc_name}</button>
+                      <button className="text-sm font-normal text-white" title={tender.doc_name} onClick={() => setShowPdf(true)}>{truncateWordsLimit(tender.doc_name, 2)}</button>
 
                     </div>}
                 </div>

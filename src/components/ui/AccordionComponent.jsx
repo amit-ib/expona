@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import CompanyDocumentsUpload from '../CompanyDocumentsUpload';
-import { uploadCompanyDocument } from '../../api/apiHelper';
+import { uploadCompanyDocument, fetchEligibility } from '../../api/apiHelper';
+import SkeletonLoader from '../ui/SkeletonLoader .jsx';
 
 const AccordionComponent = ({
     title,
@@ -14,9 +15,12 @@ const AccordionComponent = ({
     onToggle,
     statusColorClass,
     iconColorClass = 'text-white',
+    filename,
+    onEligibilityUpdate,
 }) => {
     const [selectedOption, setSelectedOption] = useState(null);
     const [uploadedFiles, setUploadedFiles] = useState([]);
+    const [eligibilityLoading, setEligibilityLoading] = useState(false);
 
     const handleRadioChange = (event) => {
         setSelectedOption(event.target.value);
@@ -33,7 +37,7 @@ const AccordionComponent = ({
     const handleReEvaluateEligibility = async () => {
         const company_id = localStorage.getItem('company_id');
         const tender_id = localStorage.getItem('tenderId');
-        console.log('tender_id', tender_id);
+        // console.log('tender_id', tender_id);
         const criteria_name = title; // assuming title is the criteria name
         // Use the first uploaded file for demonstration; adjust as needed
         const file = uploadedFiles[0];
@@ -45,8 +49,18 @@ const AccordionComponent = ({
         try {
             const result = await uploadCompanyDocument({ file, company_id, tender_id, documentType, criteria_name });
             console.log('Document uploaded and eligibility re-evaluated:', result);
+            // Fetch eligibility after upload
+            if (file.name && company_id) {
+                setEligibilityLoading(true);
+                const eligibility = await fetchEligibility({ filename, company_id });
+                if (onEligibilityUpdate) {
+                    onEligibilityUpdate(eligibility);
+                }
+                setEligibilityLoading(false);
+            }
         } catch (err) {
             console.error('Error uploading document and re-evaluating eligibility:', err);
+            setEligibilityLoading(false);
         }
     };
 
@@ -72,6 +86,11 @@ const AccordionComponent = ({
                 </div>
             </button>
             {isOpen && (
+                // eligibilityLoading ? (
+                //     <div className="px-6 py-6 border-t border-gray-4f pt-3 bg-gray-2d">
+                //         <SkeletonLoader />
+                //     </div>
+                // ) : (
                 <div className="px-6 py-6 border-t border-gray-4f pt-3 bg-gray-2d">
                     <div className="pt-3">
                         {requirement && (
@@ -144,10 +163,11 @@ const AccordionComponent = ({
                                     <>
                                         <div className='text-xs text-gray-ae mt-8'>Note: These information will be saved in the company profile for future use.</div>
                                         <button
-                                            className='bg-expona-red rounded-md mt-2 p-2 text-white w-full'
+                                            className='bg-expona-red rounded-md mt-2 p-2 text-white w-full disabled:opacity-60 disabled:cursor-not-allowed'
                                             onClick={handleReEvaluateEligibility}
+                                            disabled={eligibilityLoading}
                                         >
-                                            Re-evaluate Eligibility
+                                            {eligibilityLoading ? 'Re-evaluating...' : 'Re-evaluate Eligibility'}
                                         </button>
                                     </>
                                 )}
@@ -155,6 +175,7 @@ const AccordionComponent = ({
                         )}
                     </div>
                 </div>
+                // )
             )}
         </div>
     );

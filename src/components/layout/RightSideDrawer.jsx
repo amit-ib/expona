@@ -46,13 +46,16 @@ const RightSideDrawer = ({ isOpen, onClose, company_id, filename, eligibilityDat
                 />
                 <div className="relative z-10 px-4 pt-[214px] pb-11  text-center">
                     <p className="text-white text-2xl font-bold drop-shadow">You're almost there</p>
-                    <p className="text-gray-ae text-sm mt-1">You meet 7 out of 9 criteria. Add turnover details and certifications to improve your chances.</p>
+                    <p className="text-gray-ae text-sm mt-1">You meet {eligibilityData?.data?.matched_criteria ?? 0} out of {eligibilityData?.data?.total_criteria ?? 0} criteria. Add turnover details and certifications to improve your chances.</p>
                 </div>
             </div>
 
             {/* Tabs */}
             <TabsComponent
-                tabs={ELIGIBILITY_TABS}
+                tabs={[
+                    { label: 'Missed Criteria', key: 'missed', count: eligibilityData?.data?.missed_criteria ?? 0 },
+                    { label: 'Matched Criteria', key: 'matched', count: eligibilityData?.data?.matched_criteria ?? 0 }
+                ]}
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
             />
@@ -66,7 +69,7 @@ const RightSideDrawer = ({ isOpen, onClose, company_id, filename, eligibilityDat
                     <div>
                         {/* Accordions */}
                         <div className="space-y-3">
-                            {(eligibilityData?.data.MissedCriteria || []).map((acc, idx) => (
+                            {(eligibilityData?.data.report.MissedCriteria || []).map((acc, idx) => (
                                 <AccordionComponent
                                     key={acc.criteriaName}
                                     title={acc.criteriaName}
@@ -87,7 +90,7 @@ const RightSideDrawer = ({ isOpen, onClose, company_id, filename, eligibilityDat
                     // Matched Criteria
                     <div>
                         <div className="space-y-3">
-                            {(eligibilityData?.data.MatchedCriteria || []).map((acc, idx) => (
+                            {(eligibilityData?.data.report.MatchedCriteria || []).map((acc, idx) => (
                                 <AccordionComponent
                                     key={acc.criteriaName}
                                     title={acc.criteriaName}

@@ -6,7 +6,7 @@ import { fetchCompanyProfile, uploadCompanyDocument, fetchSupportingDocs } from 
 import CompanyDocumentsUpload from '../components/CompanyDocumentsUpload';
 import CompanyFileList from '../components/CompanyFileList';
 import { formatArrayStringForDisplay } from '../utils';
-import { extractFileName, getSupportingFiles, documentSections } from '../utils/companyProfileUtils';
+import { extractFileName, getSupportingFiles, documentSections, filterFilesByText } from '../utils/companyProfileUtils';
 import { useCompanyProfile } from '../hooks/useCompanyProfile';
 
 const CompanyProfile = () => {
@@ -143,9 +143,9 @@ const CompanyProfile = () => {
                     {/* Loading/Error/Debug Info */}
                     {loading && <div className="text-white mb-4">Loading company profile...</div>}
                     {error && <div className="text-red-500 mb-4">{error}</div>}
-                    {companyProfile && (
+                    {/* {companyProfile && (
                         <pre className="text-white bg-gray-32 rounded p-4 mb-4 overflow-x-auto text-xs">{JSON.stringify(companyProfile, null, 2)}</pre>
-                    )}
+                    )} */}
 
                     {/* Tab Group */}
                     <div className="border-b border-gray-4f mb-6">
@@ -511,17 +511,32 @@ const CompanyProfile = () => {
                                             </div>
 
                                         ))}
-                                        <div className="bg-gray-32 rounded-xl flex flex-col gap-4 w-full">
-                                            <div className="flex gap-3 px-6 py-0">
-                                                <div className="flex-1">
-                                                    <h4 className="text-white font-medium mb-1">Other documents</h4>
-                                                    <p className="text-gray-ae text-xs">Other documents</p>
+
+
+                                    </div>
+                                </div>
+
+                                {/* Supporting Document Section */}
+                                <div className="flex gap-8 w-full">
+                                    <div className="flex flex-col gap-0.5 w-[270px] flex-shrink-0">
+                                        <div className="flex items-center gap-2.5">
+                                            <h3 className="text-white font-lexend text-base font-medium">Supporting Documents</h3>
+                                            {/* {profileFiles.length === 0 && (
+                                                <div className="bg-expona-red bg-opacity-20 rounded-md px-2 py-0.5 h-5 flex items-center">
+                                                    <span className="text-xs font-light  text-red-83">In-Complete</span>
                                                 </div>
-                                            </div>
+                                            )} */}
+                                        </div>
+                                        <p className="text-gray-ae font-lexend text-sm font-light">Documents uploaded via eligibility</p>
+                                    </div>
+                                    <div className="bg-gray-32 rounded-md flex-1 p-8 flex flex-col gap-12">
+
+                                        <div className="bg-gray-32 rounded-xl flex flex-col gap-4 w-full">
+
                                             <div className="flex flex-col gap-6 px-6">
 
                                                 <CompanyFileList
-                                                    uploadedFiles={getSupportingFiles(supportingDocs)}
+                                                    uploadedFiles={filterFilesByText(getSupportingFiles(supportingDocs), 'docTitle', ['Certificate_of_Incorporation', 'GST_Registration_Certificate'])}
                                                     onFileUpload={handleFileUpload}
                                                 />
 

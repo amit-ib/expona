@@ -20,6 +20,17 @@ export function getSupportingFiles(supportingDocs, docName) {
     }));
 }
 
+// Utility to filter out files with specified text in a given property
+export function filterFilesByText(files, property, textsToExclude) {
+    if (!Array.isArray(files)) return [];
+    const excludeArr = Array.isArray(textsToExclude) ? textsToExclude : [textsToExclude];
+    return files.filter(file => {
+        const value = file[property];
+        if (typeof value !== 'string') return true;
+        return !excludeArr.some(text => value.includes(text));
+    });
+}
+
 // Document section definitions for DRY rendering
 export const documentSections = [
     {

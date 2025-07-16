@@ -178,8 +178,8 @@ const RightSidebar = ({
             {tenderLoading ? <Loader /> : Array.isArray(supportingDocList) && supportingDocList.map((tender, idx) => (
 
               <div key={idx} className={`flex relative items-center justify-center py-3 rounded group ${collapsed ? 'justify-center' : 'justify-between'}`}>
-                <div className="flex items-center gap-2.5 cursor-pointer group">
-                  <div className="w-6 h-6 flex items-center justify-center group cursor-pointer ">
+                <div className="hidden flex items-center gap-2.5 cursor-pointer group">
+                  <div className="w-6 h-6 flex items-center justify-center group cursor-pointer">
                     <img
                       src="/images/file2-icon.svg"
                       alt="Files"

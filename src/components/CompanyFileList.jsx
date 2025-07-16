@@ -2,6 +2,7 @@ import React from 'react';
 
 const CompanyFileList = ({ uploadedFiles = [], onFileUpload }) => {
     if (!uploadedFiles.length) return null;
+    // console.log("Files:", uploadedFiles)
     return (
         <>
             {uploadedFiles.map((file, idx) => (
@@ -9,13 +10,13 @@ const CompanyFileList = ({ uploadedFiles = [], onFileUpload }) => {
                     <img src="/images/file-icon.svg" className='h-6' alt="upload-icon" />
                     <div className="flex-1">
                         <h5 className="text-white font-medium text-sm">
-                            {file.url ? (
-                                <a href={file.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-expona-red">{file.name}</a>
+                            {file.url || file.path ? (
+                                <a href={file.url || file.path} target="_blank" rel="noopener noreferrer" className="underline hover:text-expona-red">{file.name || file.title}</a>
                             ) : (
-                                file.name
+                                file.name || file.title
                             )}
                         </h5>
-                        <p className="text-gray-ae text-xs">{file.date || ''}</p>
+                        <p className="text-gray-ae text-xs">{file.date || ''}{file.docTitle}</p>
                     </div>
                     <button className="text-gray-ae hover:text-white transition-colors" onClick={() => onFileUpload && onFileUpload(file, 'remove')}>
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

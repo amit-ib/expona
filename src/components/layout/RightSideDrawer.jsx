@@ -7,6 +7,25 @@ import SkeletonLoader from '../ui/SkeletonLoader .jsx';
 const RightSideDrawer = ({ isOpen, onClose, company_id, filename, eligibilityData }) => {
     const [activeTab, setActiveTab] = useState('missed');
     const [openAccordion, setOpenAccordion] = useState(-1);
+    const [reevaluatedMissedCriteria, setReevaluatedMissedCriteria] = useState(null);
+    const [reevaluatedMatchedCriteria, setReevaluatedMatchedCriteria] = useState(null);
+
+    // Handler to receive updated eligibility from AccordionComponent
+    const handleEligibilityUpdate = (result) => {
+        if (result && result.data && result.data.reevaluated_eligibility) {
+            setReevaluatedMissedCriteria(result.data.reevaluated_eligibility.MissedCriteria || null);
+            setReevaluatedMatchedCriteria(result.data.reevaluated_eligibility.MatchedCriteria || null);
+        }
+    };
+    // console.log("SSS:", Array.isArray(reevaluatedMissedCriteria) ? reevaluatedMissedCriteria.length : 0, reevaluatedMissedCriteria)
+
+    // Calculate tab counts for cleaner code
+    const missedCriteriaCount = Array.isArray(reevaluatedMissedCriteria)
+        ? reevaluatedMissedCriteria.length
+        : (eligibilityData?.data?.missed_criteria ?? 0);
+    const matchedCriteriaCount = Array.isArray(reevaluatedMatchedCriteria)
+        ? reevaluatedMatchedCriteria.length
+        : (eligibilityData?.data?.matched_criteria ?? 0);
 
     return (
         <div
@@ -46,15 +65,15 @@ const RightSideDrawer = ({ isOpen, onClose, company_id, filename, eligibilityDat
                 />
                 <div className="relative z-10 px-4 pt-[214px] pb-11  text-center">
                     <p className="text-white text-2xl font-bold drop-shadow">You're almost there</p>
-                    <p className="text-gray-ae text-sm mt-1">You meet {eligibilityData?.data?.matched_criteria ?? 0} out of {eligibilityData?.data?.total_criteria ?? 0} criteria. Add turnover details and certifications to improve your chances.</p>
+                    <p className="text-gray-ae text-sm mt-1">You meet {matchedCriteriaCount ?? 0} out of {eligibilityData?.data?.total_criteria ?? 0} criteria. Add turnover details and certifications to improve your chances.</p>
                 </div>
             </div>
 
             {/* Tabs */}
             <TabsComponent
                 tabs={[
-                    { label: 'Missed Criteria', key: 'missed', count: eligibilityData?.data?.missed_criteria ?? 0 },
-                    { label: 'Matched Criteria', key: 'matched', count: eligibilityData?.data?.matched_criteria ?? 0 }
+                    { label: 'Missed Criteria', key: 'missed', count: missedCriteriaCount },
+                    { label: 'Matched Criteria', key: 'matched', count: matchedCriteriaCount }
                 ]}
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
@@ -69,7 +88,7 @@ const RightSideDrawer = ({ isOpen, onClose, company_id, filename, eligibilityDat
                     <div>
                         {/* Accordions */}
                         <div className="space-y-3">
-                            {(eligibilityData?.data.report.MissedCriteria || []).map((acc, idx) => (
+                            {(reevaluatedMissedCriteria || eligibilityData?.data.report.MissedCriteria || []).map((acc, idx) => (
                                 <AccordionComponent
                                     key={acc.criteriaName}
                                     title={acc.criteriaName}
@@ -82,6 +101,8 @@ const RightSideDrawer = ({ isOpen, onClose, company_id, filename, eligibilityDat
                                     isOpen={activeTab === 'missed' && openAccordion === idx}
                                     onToggle={() => setOpenAccordion(activeTab === 'missed' && openAccordion === idx ? -1 : idx)}
                                     statusColorClass="text-red-400 bg-red-500/10"
+                                    filename={filename}
+                                    onEligibilityUpdate={handleEligibilityUpdate}
                                 />
                             ))}
                         </div>
@@ -90,7 +111,7 @@ const RightSideDrawer = ({ isOpen, onClose, company_id, filename, eligibilityDat
                     // Matched Criteria
                     <div>
                         <div className="space-y-3">
-                            {(eligibilityData?.data.report.MatchedCriteria || []).map((acc, idx) => (
+                            {(reevaluatedMatchedCriteria || eligibilityData?.data.report.MatchedCriteria || []).map((acc, idx) => (
                                 <AccordionComponent
                                     key={acc.criteriaName}
                                     title={acc.criteriaName}
@@ -101,6 +122,8 @@ const RightSideDrawer = ({ isOpen, onClose, company_id, filename, eligibilityDat
                                     onToggle={() => setOpenAccordion(activeTab === 'matched' && openAccordion === idx ? -1 : idx)}
                                     statusText="Matched"
                                     statusColorClass="text-green-400 bg-green-500/10"
+                                    filename={filename}
+                                    onEligibilityUpdate={handleEligibilityUpdate}
                                 />
                             ))}
                         </div>

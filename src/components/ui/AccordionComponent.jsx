@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import CompanyDocumentsUpload from '../CompanyDocumentsUpload';
-import { uploadCompanyDocument, fetchEligibility } from '../../api/apiHelper';
+import { fetchReviseEligibility, fetchEligibility } from '../../api/apiHelper';
 import SkeletonLoader from '../ui/SkeletonLoader .jsx';
 
 const AccordionComponent = ({
@@ -38,26 +38,31 @@ const AccordionComponent = ({
         const company_id = localStorage.getItem('company_id');
         const tender_id = localStorage.getItem('tenderId');
         // console.log('tender_id', tender_id);
-        const criteria_name = title; // assuming title is the criteria name
+        const criteria_name = title; // will be sent as query param
+        const criteria_type = actionType;
         // Use the first uploaded file for demonstration; adjust as needed
         const file = uploadedFiles[0];
-        const documentType = actionDescription; // hardcoded as requested
+        // actionDescription will be sent as form-data (file or text)
         if (!file) {
             console.error('No file uploaded');
             return;
         }
         try {
-            const result = await uploadCompanyDocument({ file, company_id, tender_id, documentType, criteria_name });
-            console.log('Document uploaded and eligibility re-evaluated:', result);
-            // Fetch eligibility after upload
-            if (file.name && company_id) {
-                setEligibilityLoading(true);
-                const eligibility = await fetchEligibility({ filename, company_id });
-                if (onEligibilityUpdate) {
-                    onEligibilityUpdate(eligibility);
-                }
-                setEligibilityLoading(false);
+            setEligibilityLoading(true);
+            const result = await fetchReviseEligibility({
+                company_id,
+                tender_id,
+                criteria_name, // sent as query param
+                criteria_type,
+                actionDescription, // sent as form-data
+                file
+            });
+            setEligibilityLoading(false);
+            // console.log('Revise eligibility result:', result);
+            if (onEligibilityUpdate) {
+                onEligibilityUpdate(result);
             }
+            // Optionally, fetch eligibility after upload if needed
         } catch (err) {
             console.error('Error uploading document and re-evaluating eligibility:', err);
             setEligibilityLoading(false);

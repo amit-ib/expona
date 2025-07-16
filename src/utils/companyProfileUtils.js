@@ -8,13 +8,16 @@ export function extractFileName(url) {
 // Returns supporting files for a given docName from supportingDocs
 export function getSupportingFiles(supportingDocs, docName) {
     if (!supportingDocs || !Array.isArray(supportingDocs.data)) return [];
-    return supportingDocs.data
-        .filter(doc => doc.doc_name === docName)
-        .map(doc => ({
-            name: extractFileName(doc.doc_path),
-            url: doc.doc_path,
-            date: doc.uploaded_date ? new Date(doc.uploaded_date).toLocaleDateString() : ''
-        }));
+    const docs = docName
+        ? supportingDocs.data.filter(doc => doc.doc_name === docName)
+        : supportingDocs.data;
+    return docs.map(doc => ({
+        name: extractFileName(doc.doc_path),
+        url: doc.doc_path,
+        docID: doc.doc_id,
+        docTitle: doc.doc_name,
+        date: doc.uploaded_date ? new Date(doc.uploaded_date).toLocaleDateString() : ''
+    }));
 }
 
 // Document section definitions for DRY rendering

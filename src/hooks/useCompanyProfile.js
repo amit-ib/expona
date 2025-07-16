@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchCompanyProfile, uploadCompanyDocument, fetchSupportingDocs } from '../api/apiHelper';
+import { fetchCompanyProfile, uploadCompanyDocument, fetchSupportingDocs, deleteSupportingDoc } from '../api/apiHelper';
 
 /**
  * Custom hook to manage company profile data, supporting documents, and file uploads.
@@ -50,6 +50,7 @@ export function useCompanyProfile() {
      */
     const handleFileUpload = async (file, action, documentType) => {
         const company_id = localStorage.getItem('company_id');
+
         if (action === 'add') {
             try {
                 const tender_id = localStorage.getItem('tenderId');
@@ -61,9 +62,20 @@ export function useCompanyProfile() {
                 alert('Failed to upload document');
             }
         } else if (action === 'remove') {
-            setUploadedFiles(prev => prev.filter(f => f.name !== file.name));
-            await loadCompanyProfile(Number(company_id));
-            await fetchSupportingDocuments(Number(company_id));
+
+            try {
+                // Attempt to delete supporting doc if file has an id or doc_id
+                console.log("FID", file)
+                if (file && (file.docID)) {
+                    // console.log("FID", file.docID)
+                    await deleteSupportingDoc({ company_id, document_id: file.docID });
+                }
+                setUploadedFiles(prev => prev.filter(f => f.name !== file.name));
+                await loadCompanyProfile(Number(company_id));
+                await fetchSupportingDocuments(Number(company_id));
+            } catch (err) {
+                alert('Failed to delete document');
+            }
         }
     };
 

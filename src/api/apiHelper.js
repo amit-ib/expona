@@ -247,3 +247,35 @@ export async function deleteSupportingDoc({ company_id, document_id }) {
         throw error;
     }
 }
+
+// ####### POST request to FETCH_REVISE_ELIGIBILITY endpoint with company_id, tender_id, criteria_name, criteria_type as query params, and criteria_name as form-data #######
+export async function fetchReviseEligibility({ company_id, tender_id, criteria_name, criteria_type, actionDescription, file }) {
+    try {
+        let url = `${API_ENDPOINTS.FETCH_REVISE_ELIGIBILITY}?company_id=${encodeURIComponent(company_id)}&tender_id=${encodeURIComponent(tender_id)}&criteria_type=${encodeURIComponent(criteria_type)}`;
+        url += `&criteria_name=${encodeURIComponent(criteria_name)}`;
+        if (actionDescription) {
+            url += `&actionDescription=${encodeURIComponent(actionDescription)}`;
+        }
+        const formData = new FormData();
+        if (actionDescription instanceof File) {
+            formData.append('actionDescription', actionDescription, actionDescription.name);
+        } else if (actionDescription) {
+            formData.append('actionDescription', actionDescription);
+        }
+        if (file && actionDescription) {
+            formData.append(actionDescription, file);
+        }
+        const response = await fetch(url, {
+            method: 'POST',
+            body: formData,
+            headers: getAuthHeaders()
+        });
+        if (!response.ok) {
+            throw new Error('Failed to fetch revise eligibility');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching revise eligibility:', error);
+        throw error;
+    }
+}

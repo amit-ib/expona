@@ -35,7 +35,7 @@ const CompanyProfile = () => {
     const message = companyProfile?.message || {};
 
     const profileFiles = [];
-    console.log("SUPPORTING DOC:", message)
+
     if (message.Certificate_of_Incorporation) {
         profileFiles.push({
             name: extractFileName(message.Certificate_of_Incorporation),
@@ -110,6 +110,10 @@ const CompanyProfile = () => {
     function hasFilesForSection(docName) {
         return getSupportingFiles(supportingDocs, docName).length > 0;
     }
+
+    // Prepare files for Other documents section
+    // const otherDocsFiles = getSupportingFiles(supportingDocs);
+    // console.log("Other documents uploadedFiles:", supportingDocs);
 
     return (
         <div className="bg-gray-24 min-h-screen overflow-y-auto">
@@ -482,29 +486,48 @@ const CompanyProfile = () => {
                                     </div>
                                     <div className="bg-gray-32 rounded-md flex-1 p-8 flex flex-col gap-12">
                                         {/* Document Upload Cards (Refactored) */}
-                                        {documentSections.map(section => (
-                                            <div key={section.docName} className="bg-gray-32 rounded-xl flex flex-col gap-4 w-full">
+                                        {documentSections.map(document => (
+                                            <div key={document.docName} className="bg-gray-32 rounded-xl flex flex-col gap-4 w-full">
                                                 <div className="flex gap-3 px-6 py-0">
                                                     <div className="flex-1">
-                                                        <h4 className="text-white font-medium mb-1">{section.label}</h4>
-                                                        <p className="text-gray-ae text-xs">{section.description}</p>
+                                                        <h4 className="text-white font-medium mb-1">{document.label}</h4>
+                                                        <p className="text-gray-ae text-xs">{document.description}</p>
+
                                                     </div>
                                                 </div>
                                                 <div className="flex flex-col gap-6 px-6">
                                                     {/* Only show upload if no files exist for this section */}
-                                                    {!hasFilesForSection(section.docName) && (
+                                                    {!hasFilesForSection(document.docName) && (
                                                         <CompanyDocumentsUpload
                                                             uploadedFiles={uploadedFiles}
-                                                            onFileUpload={(file, action) => handleFileUpload(file, action, section.docName)}
+                                                            onFileUpload={(file, action) => handleFileUpload(file, action, document.docName)}
                                                         />
                                                     )}
                                                     <CompanyFileList
-                                                        uploadedFiles={getSupportingFiles(supportingDocs, section.docName)}
+                                                        uploadedFiles={getSupportingFiles(supportingDocs, document.docName)}
                                                         onFileUpload={() => { }}
                                                     />
                                                 </div>
                                             </div>
+
                                         ))}
+                                        <div className="bg-gray-32 rounded-xl flex flex-col gap-4 w-full">
+                                            <div className="flex gap-3 px-6 py-0">
+                                                <div className="flex-1">
+                                                    <h4 className="text-white font-medium mb-1">Other documents</h4>
+                                                    <p className="text-gray-ae text-xs">Other documents</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col gap-6 px-6">
+
+                                                <CompanyFileList
+                                                    uploadedFiles={getSupportingFiles(supportingDocs)}
+                                                    onFileUpload={handleFileUpload}
+                                                />
+
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </div>
 

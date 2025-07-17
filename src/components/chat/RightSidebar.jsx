@@ -12,7 +12,8 @@ const RightSidebar = ({
   setSources,
   collapsed,
   setCollapsed,
-  onCheckedChange
+  onCheckedChange,
+  isTenderListLoading
 }) => {
   // State to track which checkboxes are checked
   const [checkedItems, setCheckedItems] = useState([]);
@@ -21,13 +22,37 @@ const RightSidebar = ({
   const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
   const [deleteIndex, setDeleteIndex] = useState(null);
   // Add state for upload tooltip visibility
-  // const [showUploadTooltip, setShowUploadTooltip] = useState(false);
+  const [showUploadTooltip, setShowUploadTooltip] = useState(false);
+  const [tenderLoading, setTenderLoading] = useState(false);
   const [showPdf, setShowPdf] = useState(false);
   const pdfUrl = "/A_Brief_Introduction_To_AI.pdf"; // File in public folder
-  const [supportingDocList, setSupportingDocList] = useState([]);
-  const [tenderLoading, setTenderLoading] = useState(false);
-  const [deleting, setDeleting] = useState(false);
 
+  // Supporting doc list from localStorage tenderList/tenderId
+  const [supportingDocList, setSupportingDocList] = useState([]);
+
+  useEffect(() => {
+    // Step 1: Get tenderList and tenderId from localStorage
+    const tenderListRaw = localStorage.getItem('tenderList');
+    const tenderId = localStorage.getItem('tenderId');
+    if (tenderListRaw && tenderId) {
+      try {
+        const tenderList = JSON.parse(tenderListRaw);
+        // Step 2: Search for tenderId in tenderList by id
+        const found = tenderList.find(tender => String(tender.id) === String(tenderId));
+        if (found && found.filename) {
+          // Step 3: Grab filename, store in setSupportingDocList, and console it
+          setSupportingDocList([found.filename]);
+
+        } else {
+          setSupportingDocList([]);
+        }
+      } catch (e) {
+        setSupportingDocList([]);
+      }
+    } else {
+      setSupportingDocList([]);
+    }
+  }, [isTenderListLoading]);
 
   // Update checkedItems if sources change
   useEffect(() => {
@@ -41,16 +66,6 @@ const RightSidebar = ({
       return () => document.removeEventListener('click', handleClick);
     }
   }, [openMenuIndex]);
-
-  useEffect(() => {
-    const company_id = localStorage.getItem('company_id');
-    fetchSupportingDocs(company_id)
-      .then(data => {
-        console.log("Supporting docs API response:", data);
-        setSupportingDocList(data.data || []);
-      })
-      .catch(() => setSupportingDocList([]));
-  }, []);
 
   // Handler for individual checkbox
   // const handleCheckboxChange = (index) => {
@@ -82,30 +97,30 @@ const RightSidebar = ({
   //   );
   // }
 
-  const handleDeleteSupportingDoc = async () => {
+  // const handleDeleteSupportingDoc = async () => {
 
-    if (deleteIndex === null) return;
-    const doc = supportingDocList[deleteIndex];
+  //   if (deleteIndex === null) return;
+  //   const doc = supportingDocList[deleteIndex];
 
-    if (!doc || !doc.doc_id) {
+  //   if (!doc || !doc.doc_id) {
 
-      setDeleteIndex(null);
-      return;
-    }
-    setDeleting(true);
-    try {
-      const company_id = localStorage.getItem('company_id');
-      console.log(doc.doc_id)
-      await deleteSupportingDoc({ company_id, document_id: doc.doc_id });
-      setSupportingDocList(prev => prev.filter((_, i) => i !== deleteIndex));
-    } catch (err) {
-      // Optionally show error to user
-      console.error('Failed to delete supporting document', err);
-    } finally {
-      setDeleting(false);
-      setDeleteIndex(null);
-    }
-  };
+  //     setDeleteIndex(null);
+  //     return;
+  //   }
+  //   setDeleting(true);
+  //   try {
+  //     const company_id = localStorage.getItem('company_id');
+  //     console.log(doc.doc_id)
+  //     await deleteSupportingDoc({ company_id, document_id: doc.doc_id });
+  //     setSupportingDocList(prev => prev.filter((_, i) => i !== deleteIndex));
+  //   } catch (err) {
+  //     // Optionally show error to user
+  //     console.error('Failed to delete supporting document', err);
+  //   } finally {
+  //     setDeleting(false);
+  //     setDeleteIndex(null);
+  //   }
+  // };
 
   return (
     <div
@@ -162,7 +177,7 @@ const RightSidebar = ({
               supportingDocList.length > 0 ? (
                 <h3 className="flex items-center justify-between text-xs font-normal text-white  mt-6">
 
-                  <span>Uploaded documents</span>
+                  <span>Uploaded tenders</span>
                   {/* <input
                   type="checkbox"
                   className='p-1 custom-checkbox'
@@ -175,11 +190,11 @@ const RightSidebar = ({
                 <span className='text-xs text-gray-ae mt-6 block'>Uploaded documents will appear here. Upload a file to continue.</span>
               )
             )}
-            {tenderLoading ? <Loader /> : Array.isArray(supportingDocList) && supportingDocList.map((tender, idx) => (
+            {tenderLoading ? <Loader /> : Array.isArray(supportingDocList) && supportingDocList.map((filename, index) => (
 
-              <div key={idx} className={`flex relative items-center justify-center py-3 rounded group ${collapsed ? 'justify-center' : 'justify-between'}`}>
-                <div className="hidden flex items-center gap-2.5 cursor-pointer group">
-                  <div className="w-6 h-6 flex items-center justify-center group cursor-pointer">
+              <div key={index} className={`flex relative items-center justify-center py-3 rounded group ${collapsed ? 'justify-center' : 'justify-between'}`}>
+                <div className="flex items-center gap-2.5 cursor-pointer group">
+                  <div className="w-6 h-6 flex items-center justify-center group cursor-pointer ">
                     <img
                       src="/images/file2-icon.svg"
                       alt="Files"
@@ -187,7 +202,7 @@ const RightSidebar = ({
                       onMouseEnter={e => {
                         if (collapsed) {
                           const rect = e.currentTarget.getBoundingClientRect();
-                          setHoveredIndex(idx);
+                          setHoveredIndex(index);
                           setPopupPosition({
                             top: rect.top + rect.height / 2,
                             left: rect.left - 8 // 8px gap to the left of the icon
@@ -196,7 +211,7 @@ const RightSidebar = ({
                       }}
                       onMouseLeave={() => collapsed && setHoveredIndex(null)}
                     />
-                    {collapsed && hoveredIndex === idx && (
+                    {collapsed && hoveredIndex === index && (
                       <div
                         className="fixed z-50 bg-gray-32  text-sm rounded px-3 py-2 shadow-lg whitespace-nowrap"
                         style={{
@@ -205,21 +220,21 @@ const RightSidebar = ({
                           transform: 'translate(-100%, -50%)'
                         }}
                       >
-                        {truncateWordsLimit(tender.doc_name, 2)}
+                        {filename}
                       </div>
                     )}
-                    <img src="/images/3dots-icon.svg" alt="Show Options" className={`hidden  cursor-pointer ${!collapsed ? 'group-hover:inline-flex' : ''}`} onClick={e => { e.stopPropagation(); setOpenMenuIndex(openMenuIndex === idx ? null : idx); }} />
-                    {openMenuIndex === idx && (
+                    <img src="/images/3dots-icon.svg" alt="Show Options" className={`hidden  cursor-pointer ${!collapsed ? 'group-hover:inline-flex' : ''}`} onClick={e => { e.stopPropagation(); setOpenMenuIndex(openMenuIndex === index ? null : index); }} />
+                    {openMenuIndex === index && (
                       <div className="absolute z-50 mt-36 text-xs left-1 w-40 bg-gray-2d rounded shadow-xl flex flex-col p-2">
                         <button className="px-4 py-3 text-left hover:bg-gray-24 rounded-lg">Rename Document</button>
-                        <button className="px-4 py-3 text-left hover:bg-gray-24 rounded-lg" onClick={() => setDeleteIndex(idx)}>Delete Document</button>
+                        <button className="px-4 py-3 text-left hover:bg-gray-24 rounded-lg" onClick={() => setDeleteIndex(index)}>Delete Document</button>
                       </div>
                     )}
                   </div>
                   {!collapsed &&
                     <div>
-                      <button className="text-sm font-normal text-white" title={tender.doc_name} onClick={() => setShowPdf(true)}>{truncateWordsLimit(tender.doc_name, 2)}</button>
-
+                      <button className="text-sm font-normal text-white" title={filename} onClick={() => setShowPdf(true)}>{truncateWordsLimit(filename, 2)}</button>
+                      {/* <p className="text-xs text-gray-ae">{source.date}</p> */}
                     </div>}
                 </div>
 
@@ -245,16 +260,16 @@ const RightSidebar = ({
               <div className="flex w-full gap-4 mt-4">
                 <button
                   className="flex-1 py-2 rounded bg-gray-2d text-white hover:bg-gray-37"
-                  onClick={() => setDeleteIndex(null)}
+                // onClick={() => setDeleteIndex(null)}
                 >
                   Cancel
                 </button>
                 <button
                   className="flex-1 py-2 rounded bg-expona-red text-white hover:bg-red-700"
-                  onClick={handleDeleteSupportingDoc}
-                  disabled={deleting}
+                // onClick={handleDeleteSupportingDoc}
+                // disabled={deleting}
                 >
-                  {deleting ? 'Deleting...' : 'Delete'}
+                  {/* {deleting ? 'Deleting...' : 'Delete'} */}
                 </button>
               </div>
             </div>

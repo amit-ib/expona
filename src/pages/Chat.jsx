@@ -11,9 +11,10 @@ import RightSideDrawer from "../components/layout/RightSideDrawer";
 import Modal from '../components/common/Modal';
 import UploadAction from '../components/dashboard/UploadAction';
 import { Link } from 'react-router-dom';
-import { uploadTenderFile, fetchTenderSummary, fetchTenderReport, fetchEligibility } from "../api/apiHelper";
+import { uploadTenderFile, fetchTenderSummary, fetchTenderReport, fetchEligibility, fetchTenderList } from "../api/apiHelper";
 import { useAuth } from "../contexts/AuthContext";
 import { getCompanyIdFromUser } from "../utils";
+
 
 // import Loader from "../components/common/Loader";
 
@@ -47,6 +48,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
   const lastReportKey = useRef(null);
   const [tenderTitle, setTenderTitle] = useState(location.state?.title || localStorage.getItem('tenderTitle') || 'Untitled Tender');
   const [eligibilityData, setEligibilityData] = useState(null);
+  const [isTenderListLoading, setIsTenderListLoading] = useState(false); // NEW STATE
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -59,6 +61,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
       hasUploaded.current = true;
       finalSummaryFlag.current = false; // Reset flag on new upload
       setHasFinalSummary(false); // Reset summary flag
+      setReport("")
       const doUpload = async () => {
         setIsUploading(true);
         setUploadResponse(""); // Reset response state
@@ -98,13 +101,33 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
           });
           // Fetch Final Tender Report 
           try {
+            setIsLoading(false)
             const companyId = localStorage.getItem('company_id');
             const fetchedReport = await fetchTenderReport({
               filename: file.name,
               company_id: companyId
             });
+
             setReport(fetchedReport);
             localStorage.setItem('tenderReport', JSON.stringify(fetchedReport));
+            // Set tenderId in localStorage from fetchedReport.tender_id
+            console.log("NEW TENDER ID:", fetchedReport)
+            if (fetchedReport && fetchedReport.data.tender_id) {
+              localStorage.setItem('tenderId', fetchedReport.data.tender_id);
+            }
+            // Fetch tender list and store in localStorage
+            try {
+              setIsTenderListLoading(true); // START LOADING
+              const tenderListResponse = await fetchTenderList({});
+              if (tenderListResponse && tenderListResponse.data) {
+                localStorage.setItem('tenderList', JSON.stringify(tenderListResponse.data));
+                // setIsLoading(true) // REMOVE THIS LINE
+              }
+            } catch (err) {
+              console.error('Failed to fetch tender list:', err);
+            } finally {
+              setIsTenderListLoading(false); // END LOADING
+            }
 
           } catch (err) {
             console.error('fetchTenderReport error:', err);
@@ -140,15 +163,16 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
         }
         finally {
           setIsUploading(false);
+
           // Wait 1 seconds after streaming completes, then log uploadResponse
           setTimeout(async () => {
-            console.log('Upload response after 2s:', uploadResponse);
+            // console.log('Upload response after 2s:', uploadResponse);
             try {
               const data = await fetchTenderSummary();
               if (Array.isArray(data.data) && data.data.length > 0) {
                 const lastSummary = data.data[data.data.length - 1].summary;
                 if (lastSummary) {
-                  console.log('lastSummary:', lastSummary);
+                  // console.log('lastSummary:', lastSummary);
                   setUploadResponse(lastSummary);
                 }
               }
@@ -353,12 +377,13 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                   </div>
                   {/* Right Sidebar - Documents/Notes */}
                   <RightSidebar
-                    isLoading={isLoading || isUploading}
+                    isLoading={isLoading || isUploading || isTenderListLoading}
                     sources={sources}
                     setSources={setSources}
                     collapsed={rightSidebarCollapsed}
                     setCollapsed={setRightSidebarCollapsed}
                     onCheckedChange={setIsAnyDocumentChecked}
+                    isTenderListLoading={isTenderListLoading}
                   />
                 </div>
               </div>

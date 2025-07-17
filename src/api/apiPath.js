@@ -15,6 +15,7 @@ export const API_ENDPOINTS = {
     FETCH_REVISE_ELIGIBILITY: `${BASE_URL}/report/revise_eligibility`,
     STORE_COMPANY_DETAIL: `${BASE_URL}/company/fetch-from-web`,
     FETCH_COMPANY_PROFILE: `${BASE_URL}/company/details`,
+    UPDATE_COMPANY_PROFILE: `${BASE_URL}/company/update`,
     UPLOAD_COMPANY_DOC: `${BASE_URL}/company/upload_supporting_docs`,
 
 

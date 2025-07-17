@@ -21,6 +21,7 @@ const AccordionComponent = ({
   const [selectedOption, setSelectedOption] = useState(null);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [eligibilityLoading, setEligibilityLoading] = useState(false);
+  const [fileError, setFileError] = useState(false);
 
   const handleRadioChange = (event) => {
     setSelectedOption(event.target.value);
@@ -35,6 +36,7 @@ const AccordionComponent = ({
   };
 
   const handleReEvaluateEligibility = async () => {
+    setFileError(false);
     const company_id = localStorage.getItem("company_id");
     const tender_id = localStorage.getItem("tenderId");
     const criteria_name = title;
@@ -66,6 +68,11 @@ const AccordionComponent = ({
       setEligibilityLoading(true);
       const result = await fetchReviseEligibility(payload);
       setEligibilityLoading(false);
+      if (actionType === "file_upload" && result?.data?.success === false) {
+        setFileError(true);
+      } else {
+        setFileError(false);
+      }
       if (onEligibilityUpdate) {
         onEligibilityUpdate(result);
       }
@@ -183,7 +190,12 @@ const AccordionComponent = ({
                     </label>
                   </div>
                 )}
-
+                {/* File related Error Message */}
+                {fileError && (
+                  <div className="text-sm text-red-600 mt-4 text-center">
+                    File uploaded is not able to fulfill the requirements.
+                  </div>
+                )}
                 {(selectedOption === "yes" || uploadedFiles.length > 0) && (
                   <>
                     <div className="text-xs text-gray-ae mt-8">

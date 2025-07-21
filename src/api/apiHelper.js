@@ -321,14 +321,15 @@ export async function fetchReviseEligibility({
   }
 }
 
-// ####### GET request to UPDATE_COMPANY_PROFILE endpoint with company_id as query param and profile data in body #######
+// ####### POST request to UPDATE_COMPANY_PROFILE endpoint with company_id as query param and profile data in body #######
 export async function updateCompanyProfile(company_id, profileData) {
   try {
+    console.log("PROFILE", profileData);
     const url = `${
       API_ENDPOINTS.UPDATE_COMPANY_PROFILE
     }?company_id=${encodeURIComponent(company_id)}`;
-    const response = await axiosInstance.get(url, {
-      data: profileData,
+
+    const response = await axiosInstance.post(url, profileData, {
       headers: getAuthHeaders(),
     });
     return response.data;

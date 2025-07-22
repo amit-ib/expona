@@ -288,6 +288,7 @@ const ChatContent = ({
                 </>
               )} */}
               {/* Tender Summary */}
+
               <Markdown components={markdownComponents}>
                 {uploadResponse}
               </Markdown>

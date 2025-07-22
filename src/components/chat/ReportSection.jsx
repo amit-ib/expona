@@ -1,6 +1,6 @@
 import React from "react";
 import Markdown from "react-markdown";
-import { copyToClipboard } from "../../utils/utils";
+import { copyToClipboard } from "../../utils.js";
 
 const ReportSection = ({
   report,

@@ -3,12 +3,13 @@ import Tooltip from "../common/Tooltip";
 import PdfViewerModal from "../common/PdfViewerModal";
 import InfoTooltip from "../common/InfoTooltip";
 import Loader from "../common/Loader";
+import ConfirmationModal from "../common/ConfirmationModal";
 import {
   fetchSupportingDocs,
   deleteTenderById,
   deleteSupportingDoc,
 } from "../../api/apiHelper";
-import { truncateWordsLimit } from "../../utils";
+import { truncateString, truncateWordsLimit } from "../../utils";
 
 const RightSidebar = ({
   isLoading,
@@ -308,7 +309,7 @@ const RightSidebar = ({
                           title={filename}
                           onClick={() => setShowPdf(true)}
                         >
-                          {truncateWordsLimit(filename, 2)}
+                          {truncateString(filename, 27)}
                         </button>
                         {/* <p className="text-xs text-gray-ae">{source.date}</p> */}
                       </div>
@@ -320,45 +321,24 @@ const RightSidebar = ({
           </div>
         </div>
       )}
-      {deleteIndex !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-gray-24 rounded-lg p-8 shadow-lg w-[400px] max-w-full">
-            <div className="flex flex-col items-center justify-center">
-              <div className="mb-4 text-center flex flex-col justify-center items-center">
-                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-42 mb-2">
-                  <span className="bg-white p-1 inline-block rounded-full">
-                    <span className="flex rounded-full p-1 inline-block">
-                      <img src="images/alert-circle.svg" alt="Alert" />
-                    </span>
-                  </span>
-                </div>
-                <h2 className="text-lg font-semibold text-white mb-2">
-                  Delete this file?
-                </h2>
-                <p className="text-gray-ae font-light text-center">
-                  Are you sure you want to delete this file? This action cannot
-                  be undone and you will lose access to the entire conversation.
-                </p>
-              </div>
-              <div className="flex w-full gap-4 mt-4">
-                <button
-                  className="flex-1 py-2 rounded bg-gray-2d text-white hover:bg-gray-37"
-                  // onClick={() => setDeleteIndex(null)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="flex-1 py-2 rounded bg-expona-red text-white hover:bg-red-700"
-                  // onClick={handleDeleteSupportingDoc}
-                  // disabled={deleting}
-                >
-                  {/* {deleting ? 'Deleting...' : 'Delete'} */}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmationModal
+        isOpen={deleteIndex !== null}
+        onClose={() => setDeleteIndex(null)}
+        onConfirm={() => {
+          // handleDeleteSupportingDoc();
+          setDeleteIndex(null);
+        }}
+        heading="Delete this file?"
+        message="Are you sure you want to delete this file? This action cannot be undone and you will lose access to the entire conversation."
+        confirmButtonText="Delete"
+        cancelButtonText="Cancel"
+        confirmButtonClass="bg-expona-red hover:bg-red-700"
+        cancelButtonClass="bg-gray-2d hover:bg-gray-37"
+        iconSrc="images/alert-circle.svg"
+        iconAlt="Alert"
+        // isLoading={deleting}
+        // loadingText="Deleting..."
+      />
       <PdfViewerModal
         isOpen={showPdf}
         onClose={() => setShowPdf(false)}

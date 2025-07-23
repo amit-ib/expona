@@ -54,14 +54,18 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
   const [tenderTitle, setTenderTitle] = useState(
     location.state?.title ||
       localStorage.getItem("tenderTitle") ||
+      localStorage.getItem("tender-title") ||
       "Untitled Tender"
   );
   const [eligibilityData, setEligibilityData] = useState(null);
   const [isTenderListLoading, setIsTenderListLoading] = useState(false); // NEW STATE
-
+  const [showErrorModal, setShowErrorModal] = useState(null);
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
+  /* # 
+ ####### After Uploading New Tender  ######
+# */
   useEffect(() => {
     const file = location.state?.fileToUpload;
 
@@ -71,6 +75,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
       finalSummaryFlag.current = false; // Reset flag on new upload
       setHasFinalSummary(false); // Reset summary flag
       setReport("");
+      setTenderTitle("Untitled Tender");
       const doUpload = async () => {
         setIsUploading(true);
         setUploadResponse(""); // Reset response state
@@ -80,6 +85,23 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
               const summaryMarker = "<---FINAL_SUMMARY--->## TENDER SUMMARY";
               const analyzingMarker = "<---ANALYZE_PDF--->";
               let newContent = prev + chunk;
+
+              // Check for database error in the chunk
+              try {
+                const parsed = JSON.parse(newContent);
+                if (parsed.detail && parsed.detail.error === "Database Error") {
+                  setShowErrorModal({
+                    heading: "Oops! Not allowed",
+                    message:
+                      parsed.detail.message ||
+                      "An error occurred while processing your request.",
+                  });
+                  // setIsUploading(false);
+                  return ""; // Clear the response
+                }
+              } catch (e) {
+                // Not JSON, continue processing
+              }
 
               // Remove all occurrences of the analyzing marker
               newContent = newContent.split(analyzingMarker).join("");
@@ -113,19 +135,22 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
               }
             });
           });
-          // Fetch Final Tender Report
+          // ================== Fetch Final Tender Report ==================
           try {
-            setIsLoading(false);
+            // setIsLoading(false);
             const companyId = localStorage.getItem("company_id");
             const fetchedReport = await fetchTenderReport({
               filename: file.name,
               company_id: companyId,
             });
-
+            setIsUploading(false);
             setReport(fetchedReport);
             localStorage.setItem("tenderReport", JSON.stringify(fetchedReport));
+            console.log("NEW TENDER REPORT:", fetchedReport.data.title);
+            setTenderTitle(fetchedReport.data.title || tenderTitle);
+            console.log("TENERTITLE", tenderTitle);
             // Set tenderId in localStorage from fetchedReport.tender_id
-            console.log("NEW TENDER ID:", fetchedReport);
+            // console.log("NEW TENDER ID:", fetchedReport);
             if (fetchedReport && fetchedReport.data.tender_id) {
               localStorage.setItem("tenderId", fetchedReport.data.tender_id);
             }
@@ -148,28 +173,6 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
           } catch (err) {
             console.error("fetchTenderReport error:", err);
           }
-
-          // ****************************
-          // if (hasFinalSummary) {
-          //   const fetchSummaryWithDelay = async () => {
-          //     try {
-          //       await new Promise(res => setTimeout(res, 10000)); // 5 second delay
-          //       const data = await fetchTenderSummary();
-          //       console.log('fetchTenderSummary output:', data);
-          //       if (Array.isArray(data.data) && data.data.length > 0) {
-          //         const lastSummary = data.data[data.data.length - 1].summary;
-          //         if (lastSummary) {
-
-          //           setUploadResponse(lastSummary);
-
-          //         }
-          //       }
-          //     } catch (err) {
-          //       console.error('fetchTenderSummary error:', err);
-          //     }
-          //   };
-          //   fetchSummaryWithDelay();
-          // }
         } catch (error) {
           console.error("Tender upload error:", error);
           setUploadResponse("Upload failed");
@@ -215,6 +218,9 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
       });
     }
   }, [location, navigate]);
+  /* # 
+ ####### After Uploading New Tender Closed ######
+# */
 
   useEffect(() => {
     // Update activeHash when location.hash changes
@@ -229,6 +235,9 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
     }
   }, []); // Empty dependency array ensures this runs only once on mount
 
+  /* # 
+ ####### After Clicking Tender from Tender Listing ######
+ # */
   useEffect(() => {
     const tenderId = location.state?.id;
     const tenderFile = location.state?.filename;
@@ -302,7 +311,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
   //     }
   //   }
   // }, [activeHash]);
-
+  // console.log("IsUploading", isLoading);
   return (
     <div className="min-h-screen bg-gray-2d text-white flex flex-col">
       {/* Header */}
@@ -318,7 +327,8 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
             <div className="flex flex-1 bg-gray-24">
               {/* Left Sidebar - Navigation */}
               <LeftSidebar
-                isLoading={isLoading || isUploading || !report}
+                // isLoading={isLoading || isUploading || !report}
+                isLoading={!report}
                 navigationItems={navigationItems}
                 activeHash={activeHash}
                 collapsed={leftSidebarCollapsed}
@@ -400,6 +410,8 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                         storedSummary={storedSummary}
                         setStoredSummary={setStoredSummary}
                         report={report}
+                        errorModal={showErrorModal}
+                        setErrorModal={setShowErrorModal}
                       />
                     </div>
                     {/* Message Input Section */}
@@ -413,7 +425,8 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                   </div>
                   {/* Right Sidebar - Documents/Notes */}
                   <RightSidebar
-                    isLoading={isLoading || isUploading || isTenderListLoading}
+                    // isLoading={isLoading || isUploading || isTenderListLoading}
+                    isLoading={isTenderListLoading || isUploading}
                     sources={sources}
                     setSources={setSources}
                     collapsed={rightSidebarCollapsed}

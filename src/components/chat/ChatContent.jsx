@@ -8,6 +8,7 @@ import { markdownComponents } from "../../utils";
 import Lottie from "lottie-react";
 import animationData from "./chat-loader.json";
 import ReportSection from "./ReportSection";
+import ConfirmationModal from "../common/ConfirmationModal";
 
 const ChatContent = ({
   isLoading,
@@ -23,6 +24,8 @@ const ChatContent = ({
   storedSummary,
   setStoredSummary,
   report,
+  errorModal,
+  setErrorModal,
 }) => {
   const [popup, setPopup] = React.useState({
     visible: false,
@@ -47,6 +50,26 @@ const ChatContent = ({
 
   // Ref for otherPrompts div
   const otherPromptsRef = React.useRef(null);
+
+  // Function to close error modal
+  const closeErrorModal = () => {
+    if (setErrorModal) {
+      setErrorModal(null);
+    }
+  };
+
+  // Use errorModal from props for error display
+  const showMessageModal = (heading, message) => {
+    if (setErrorModal) {
+      setErrorModal({ heading, message });
+    }
+  };
+
+  const closeMessageModal = () => {
+    if (setErrorModal) {
+      setErrorModal(null);
+    }
+  };
 
   // Callback to set refs for sections
   const setSectionRef = (id) => (element) => {
@@ -289,9 +312,34 @@ const ChatContent = ({
               )} */}
               {/* Tender Summary */}
 
-              <Markdown components={markdownComponents}>
-                {uploadResponse}
-              </Markdown>
+              {(() => {
+                // Check if uploadResponse contains error object
+                try {
+                  const parsed = JSON.parse(uploadResponse);
+                  if (
+                    parsed.detail &&
+                    parsed.detail.error === "Database Error"
+                  ) {
+                    // Show error modal immediately
+                    setTimeout(() => {
+                      showMessageModal(
+                        "Oops! Not allowed",
+                        parsed.detail.message ||
+                          "An error occurred while processing your request."
+                      );
+                    }, 0);
+                    return null; // Don't render anything
+                  }
+                } catch (e) {
+                  // Not JSON, proceed normally
+                }
+
+                return (
+                  <Markdown components={markdownComponents}>
+                    {uploadResponse}
+                  </Markdown>
+                );
+              })()}
             </div>
           )}
           {/* Show Report Section */}
@@ -447,6 +495,20 @@ const ChatContent = ({
           </div>
         )}
       </div>
+
+      {/* Message Modal */}
+      <ConfirmationModal
+        isOpen={!!errorModal}
+        onClose={closeMessageModal}
+        onConfirm={closeMessageModal}
+        heading={errorModal?.heading || ""}
+        message={errorModal?.message || ""}
+        confirmButtonText="Ok"
+        cancelButtonText=""
+        confirmButtonClass="bg-expona-red hover:bg-red-700"
+        iconSrc="images/alert-circle.svg"
+        iconAlt="Info"
+      />
     </div>
   );
 };

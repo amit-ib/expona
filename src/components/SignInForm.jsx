@@ -33,7 +33,9 @@ const SignInForm = () => {
     if (userDetailStr) {
       try {
         const userDetail = JSON.parse(userDetailStr);
-        newUser = userDetail.new_user !== false ? true : false;
+        const isNewUser = userDetail.new_user !== false;
+        const isCompanyProfileEmpty = Array.isArray(userDetail.company_profile) && userDetail.company_profile.length === 0;
+        newUser = isNewUser || isCompanyProfileEmpty;
       } catch (e) {
         newUser = true;
       }

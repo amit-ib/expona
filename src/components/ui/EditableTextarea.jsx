@@ -5,7 +5,7 @@ import React, {
   useImperativeHandle,
 } from "react";
 
-const EditableInput = forwardRef(
+const EditableTextarea = forwardRef(
   (
     {
       label,
@@ -17,8 +17,8 @@ const EditableInput = forwardRef(
       editingSection,
       editingField,
       onEditClick,
-      type = "text",
       className = "",
+      rows = 3,
     },
     ref
   ) => {
@@ -27,7 +27,6 @@ const EditableInput = forwardRef(
 
     const [value, setValue] = useState(defaultValue || "");
 
-    // Reset value to defaultValue when editing starts
     // useEffect(() => {
     //   if (isCurrentlyEditing) {
     //     setValue(defaultValue || "");
@@ -39,13 +38,13 @@ const EditableInput = forwardRef(
     useEffect(() => {
       setValue(defaultValue || "");
     }, [defaultValue]);
+
     const handleChange = (e) => {
       if (isCurrentlyEditing) {
         setValue(e.target.value);
       }
     };
 
-    // Expose getValue to parent via ref
     useImperativeHandle(
       ref,
       () => ({
@@ -60,21 +59,17 @@ const EditableInput = forwardRef(
           {label}
         </label>
         <div className="bg-gray-2d border border-gray-4f rounded-lg shadow-sm relative group">
-          <input
-            type={type}
-            className={`w-full bg-transparent font-inter text-base p-3.5 outline-none transition-colors rounded-lg pr-12 ${
-              isCurrentlyEditing
-                ? "text-white border-blue-500 focus:border-blue-400"
-                : "text-gray-ae focus:border-white"
-            }`}
+          <textarea
+            className="w-full bg-transparent text-gray-ae font-inter text-base p-3.5 outline-none focus:border-white transition-colors rounded-lg pr-12 resize-none"
             placeholder={placeholder}
             value={value}
             onChange={handleChange}
             readOnly={!isCurrentlyEditing}
+            rows={rows}
           />
           <button
             onClick={() => onEditClick(fieldId, sectionId)}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-gray-ae hover:text-white"
+            className="absolute right-3 top-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-gray-ae hover:text-white"
             aria-label={`Edit ${label}`}
           >
             <img src="/images/edit-icon.svg" alt="edit" />
@@ -86,4 +81,4 @@ const EditableInput = forwardRef(
   }
 );
 
-export default EditableInput;
+export default EditableTextarea;

@@ -2,13 +2,28 @@ import React, { useEffect, useState } from "react";
 import Header from "../components/layout/Header";
 import UploadAction from "../components/dashboard/UploadAction";
 import ProjectList from "../components/dashboard/ProjectList";
-import { fetchGoogleSessionData } from "../api/apiHelper";
+import { fetchGoogleSessionData, fetchTenderList } from "../api/apiHelper";
 // import DashboardCard from "../components/dashboard/DashboardCard";
 
-const Dashboard = ({ projectsVisibility }) => {
+const Dashboard = () => {
   const [sessionData, setSessionData] = useState(null);
+  const [projectsVisibility, setProjectsVisibility] = useState(false);
+  const [tenderList, setTenderList] = useState([]);
 
   useEffect(() => {
+    // Check localStorage for tenderList
+    const storedTenderList = localStorage.getItem('tenderList');
+    if (storedTenderList) {
+      try {
+        const parsedList = JSON.parse(storedTenderList);
+        setTenderList(parsedList);
+        setProjectsVisibility(parsedList.length > 0);
+      } catch (e) {
+        // If parsing fails, clear the corrupted data
+        localStorage.removeItem('tenderList');
+      }
+    }
+
     // Get token from URL query string ('scope' param)
     const params = new URLSearchParams(window.location.search);
     const token = params.get("scope");
@@ -22,9 +37,25 @@ const Dashboard = ({ projectsVisibility }) => {
           console.error("Failed to fetch Google session data:", err);
         });
     }
+    // Fetch tender list (will update state and localStorage)
+    const fetchAndUpdateTenderList = () => {
+      fetchTenderList({})
+        .then(data => {
+          const list = data.data || [];
+          setTenderList(list);
+          setProjectsVisibility(list.length > 0);
+          localStorage.setItem('tenderList', JSON.stringify(list));
+        })
+        .catch(() => setTenderList([]));
+    };
+    fetchAndUpdateTenderList();
+
+    // Polling for updates every 30 seconds
+    const interval = setInterval(fetchAndUpdateTenderList, 10000);
+    return () => clearInterval(interval); // Cleanup on unmount
   }, []);
 
-  console.log(projectsVisibility, "projectsVisibility")
+
   return (
     <div className="min-h-screen bg-gray-2d text-white">
       {/* Using the Header component */}
@@ -38,9 +69,9 @@ const Dashboard = ({ projectsVisibility }) => {
           <UploadAction projectsVisibility={projectsVisibility} />
 
           {/* Right Card: Project Listing */}
-
-          <ProjectList projectsVisibility={projectsVisibility} />
-
+          {projectsVisibility && (
+            <ProjectList tenderList={tenderList} />
+          )}
         </div>
       </main>
     </div>

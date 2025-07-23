@@ -1,39 +1,14 @@
-import React from 'react';
-import ChatActions from './ChatActions';
+import React from "react";
+import ChatActions from "./ChatActions";
 import Markdown from "react-markdown";
 import UploadAction from "../dashboard/UploadAction";
+import { fetchTenderSummary } from "../../api/apiHelper";
+import { markdownComponents } from "../../utils";
 
 import Lottie from "lottie-react";
 import animationData from "./chat-loader.json";
-const markdownComponents = {
-  p: ({ node, ...props }) => (
-    <p className="mb-5" {...props} />
-  ),
-  ul: ({ node, ...props }) => {
-    const depth = node?.position?.start?.column || 0;
-    const isNested = depth > 2;
-
-    return (
-      <ul
-        className={
-          isNested
-            ? "list-disc ml-8 mb-4 text-sm mt-3 space-y-1"
-            : "list-disc ml-5 mb-5 text-sm space-y-1"
-        }
-        {...props}
-      />
-    );
-  },
-  ol: ({ node, ...props }) => (
-    <ul className="list-decimal" {...props} />
-  ),
-  h1: ({ node, ...props }) => (
-    <h1 className="text-2xl font-bold" {...props} />
-  ),
-  a: ({ node, ...props }) => (
-    <a className="text-white underline" {...props} />
-  ),
-};
+import ReportSection from "./ReportSection";
+import ConfirmationModal from "../common/ConfirmationModal";
 
 const ChatContent = ({
   isLoading,
@@ -46,11 +21,15 @@ const ChatContent = ({
   projectsVisibility,
   uploadResponse,
   hasFinalSummary,
-  storedSummary
+  storedSummary,
+  setStoredSummary,
+  report,
+  errorModal,
+  setErrorModal,
 }) => {
   const [popup, setPopup] = React.useState({
     visible: false,
-    content: '',
+    content: "",
     index: null,
     position: { top: 0, left: 0 },
   });
@@ -60,7 +39,7 @@ const ChatContent = ({
   // Export popup state
   const [exportPopup, setExportPopup] = React.useState({
     visible: false,
-    position: { top: 0, left: 0 }
+    position: { top: 0, left: 0 },
   });
 
   // Ref for section elements
@@ -71,6 +50,26 @@ const ChatContent = ({
 
   // Ref for otherPrompts div
   const otherPromptsRef = React.useRef(null);
+
+  // Function to close error modal
+  const closeErrorModal = () => {
+    if (setErrorModal) {
+      setErrorModal(null);
+    }
+  };
+
+  // Use errorModal from props for error display
+  const showMessageModal = (heading, message) => {
+    if (setErrorModal) {
+      setErrorModal({ heading, message });
+    }
+  };
+
+  const closeMessageModal = () => {
+    if (setErrorModal) {
+      setErrorModal(null);
+    }
+  };
 
   // Callback to set refs for sections
   const setSectionRef = (id) => (element) => {
@@ -85,25 +84,28 @@ const ChatContent = ({
   const scrollToSection = (id) => {
     const element = sectionRefs.current[id];
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      element.scrollIntoView({ behavior: "smooth" });
     }
   };
 
   // Function to scroll to otherPrompts
   const scrollToOtherPrompts = () => {
-    otherPromptsRef.current.scrollIntoView({ behavior: 'smooth' });
+    otherPromptsRef.current.scrollIntoView({ behavior: "smooth" });
   };
 
   // Close export popup on outside click
   React.useEffect(() => {
     if (!exportPopup.visible) return;
     function handleClickOutside(event) {
-      if (exportPopupRef.current && !exportPopupRef.current.contains(event.target)) {
+      if (
+        exportPopupRef.current &&
+        !exportPopupRef.current.contains(event.target)
+      ) {
         closeExportPopup();
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [exportPopup.visible]);
 
   // Scroll to otherPrompts when it becomes visible
@@ -119,10 +121,58 @@ const ChatContent = ({
   //   }
   // }, [uploadResponse]);
 
+  // React.useEffect(() => {
+  //   if (hasFinalSummary) {
+  //     const fetchSummaryWithDelay = async () => {
+  //       try {
+  //         await new Promise(res => setTimeout(res, 10000)); // 5 second delay
+  //         const data = await fetchTenderSummary();
+  //         console.log('fetchTenderSummary output:', data);
+  //         if (Array.isArray(data.data) && data.data.length > 0) {
+  //           const lastSummary = data.data[data.data.length - 1].summary;
+  //           if (lastSummary) {
+  //             // Store in storedSummary state
+  //             if (typeof setStoredSummary === 'function') {
+  //               setStoredSummary(lastSummary);
+  //             }
+  //           }
+  //         }
+  //       } catch (err) {
+  //         console.error('fetchTenderSummary error:', err);
+  //       }
+  //     };
+  //     fetchSummaryWithDelay();
+  //   }
+  // }, [hasFinalSummary, setStoredSummary]);
+
+  // Timeline parsing logic at the top level
+  let headers = [];
+  let dataRows = [];
+  let timelineValue = "";
+  if (report && report.data && report.data.Timeline) {
+    timelineValue = report.data.Timeline;
+    const rows = timelineValue
+      .trim()
+      .split("\n")
+      .filter((row, idx) => idx !== 1) // remove separator
+      .map((line) =>
+        line
+          .split("|")
+          .map((cell) => cell.trim())
+          .filter(Boolean)
+      );
+    headers = rows[0] || [];
+    dataRows = rows.slice(1);
+  }
+
   if (isLoading && !uploadResponse) {
     return (
       <div className="flex h-[calc(100vh-150px)] items-center justify-center">
-        <Lottie animationData={animationData} loop={true} style={{ height: 220 }} />
+        <Lottie
+          animationData={animationData}
+          loop={true}
+          style={{ height: 220 }}
+        />
       </div>
     );
   }
@@ -132,10 +182,16 @@ const ChatContent = ({
   // const bidInfoHeader = bidInfoParts[0].replace(/\*\*/g, ''); // Remove markdown bold syntax
   // const bidInfoListItems = bidInfoParts.length > 1 ? bidInfoParts[1] : '';
 
-  const handleCitationClick = (event, citationContent, index, clientX, clientY) => {
+  const handleCitationClick = (
+    event,
+    citationContent,
+    index,
+    clientX,
+    clientY
+  ) => {
     // const popupWidth = 560; // Corresponds to w-[560px]
     // const viewportWidth = window.innerWidth;
-    const scrollableContainer = document.querySelector('.chat-scrollbar'); // Get the scrollable container
+    const scrollableContainer = document.querySelector(".chat-scrollbar"); // Get the scrollable container
     const containerRect = scrollableContainer.getBoundingClientRect();
     const scrollTop = scrollableContainer.scrollTop;
 
@@ -157,7 +213,7 @@ const ChatContent = ({
   };
 
   const closePopup = () => {
-    setPopup(prevState => ({ ...prevState, visible: false, index: null }));
+    setPopup((prevState) => ({ ...prevState, visible: false, index: null }));
   };
 
   // Handler for export icon click
@@ -168,251 +224,292 @@ const ChatContent = ({
       visible: true,
       position: {
         top: rect.bottom + window.scrollY + 8, // 8px below the icon
-        left: rect.left + window.scrollX
-      }
+        left: rect.left + window.scrollX,
+      },
     });
   };
 
-  const closeExportPopup = () => setExportPopup({ ...exportPopup, visible: false });
+  const closeExportPopup = () =>
+    setExportPopup({ ...exportPopup, visible: false });
+
+  // Show Report section (updated for new report structure)
+  // const renderReportSection = () => {
+  //   if (!report || !report.data) return null;
+  //   const { Summary, Timeline, Todos, Checklist, Eligibility } = report.data || {};
+
+  //   return (
+  //     <div className="mb-8 p-4 bg-gray-800 rounded-lg">
+  //       <h2 className="text-lg font-semibold mb-2">Show Report</h2>
+  //       {Summary && (
+  //         <div className="mb-4">
+  //           <h3 className="font-semibold mb-1">Summary</h3>
+  //           <Markdown components={markdownComponents}>{Summary}</Markdown>
+  //         </div>
+  //       )}
+  //       {Timeline && Timeline.trim() !== "" && (
+  //         <div className="mb-4">
+  //           <h3 className="font-semibold mb-1">Timeline</h3>
+  //           <Markdown components={markdownComponents}>{Timeline}</Markdown>
+  //         </div>
+  //       )}
+  //       {Todos && Todos.trim() !== "" && (
+  //         <div className="mb-4">
+  //           <h3 className="font-semibold mb-1">Todos</h3>
+  //           <Markdown components={markdownComponents}>{Todos}</Markdown>
+  //         </div>
+  //       )}
+  //       {Checklist && Checklist.trim() !== "" && (
+  //         <div className="mb-4">
+  //           <h3 className="font-semibold mb-1">Checklist</h3>
+  //           <Markdown components={markdownComponents}>{Checklist}</Markdown>
+  //         </div>
+  //       )}
+  //       {Eligibility && Eligibility.trim() !== "" && (
+  //         <div className="mb-4">
+  //           <h3 className="font-semibold mb-1">Eligibility</h3>
+  //           <Markdown components={markdownComponents}>{Eligibility}</Markdown>
+  //         </div>
+  //       )}
+  //     </div>
+  //   );
+  // };
 
   return (
     <div id="chat-content" className="flex-1 flex flex-col relative">
-
+      {/* {renderReportSection()} */}
 
       {/* Scrollable Chat Content */}
-      <div className="flex items-start pt-6 overflow-y-auto max-h-[calc(100vh-230px)] chat-scrollbar scrollbar-hide relative" style={{ scrollBehavior: 'smooth' }}>
+      <div
+        className="flex flex-col items-start pt-6 overflow-y-auto max-h-[calc(100vh-230px)] chat-scrollbar scrollbar-hide relative"
+        style={{ scrollBehavior: "smooth" }}
+      >
+        {report === null && !uploadResponse && (
+          <div className="py-8 mx-auto w-full text-center">
+            <Lottie
+              animationData={animationData}
+              loop={true}
+              style={{ height: 220 }}
+            />
+          </div>
+        )}
+
         {/* <img src="/images/expona-logo-sm.svg" alt="Expona" className='mr-2' /> */}
 
-        {sources.length > 0 ? (
-          <div >
-            {/* Overview */}
-            <div className={`mb-8 summary text-sm ${hasFinalSummary || storedSummary ? "" : "text-gray-ae"}`}>
-              {/* Show fetched summary if available */}
-              {storedSummary && (
+        {/* {sources.length > 0 ? ( */}
+        <>
+          {/* Overview */}
+          {!report && (
+            <div
+              className={`mb-8 summary text-sm ${
+                hasFinalSummary || storedSummary ? "" : "text-gray-ae"
+              }`}
+            >
+              {/* Show fetched summary if available, only if no report */}
+              {/* {!report && storedSummary && (
                 <>
                   <Markdown components={markdownComponents}>{storedSummary}</Markdown>
                 </>
-              )}
+              )} */}
               {/* Tender Summary */}
-              <Markdown components={markdownComponents}>
-                {uploadResponse}
-              </Markdown>
+
+              {(() => {
+                // Check if uploadResponse contains error object
+                try {
+                  const parsed = JSON.parse(uploadResponse);
+                  if (
+                    parsed.detail &&
+                    parsed.detail.error === "Database Error"
+                  ) {
+                    // Show error modal immediately
+                    setTimeout(() => {
+                      showMessageModal(
+                        "Oops! Not allowed",
+                        parsed.detail.message ||
+                          "An error occurred while processing your request."
+                      );
+                    }, 0);
+                    return null; // Don't render anything
+                  }
+                } catch (e) {
+                  // Not JSON, proceed normally
+                }
+
+                return (
+                  <Markdown components={markdownComponents}>
+                    {uploadResponse}
+                  </Markdown>
+                );
+              })()}
             </div>
+          )}
+          {/* Show Report Section */}
 
-            <div className='hidden'>
-              {/* Separator */}
-              <div className="w-full h-px bg-gray-42 my-5"></div>
-              <div className='group' id="datetime">
-                <div className='flex mb-6 mt-6 items-center relative'><strong className='block py-2'>Important Dates & Timelines</strong>
-                  <div className={`ml-3 flex space-x-3 group-hover:block ${exportPopup.visible ? '' : 'hidden group-hover:block'}`}>
-                    <button className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/copy-icon.svg' alt="Copy" title="Copy"></img></button>
-                    <button onClick={handleExportClick} className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/export-icon.svg' alt="Export" title="Export" /></button>
-                  </div>
-                  {/* Export Popup */}
-                  {exportPopup.visible && (
-                    <div
-                      ref={exportPopupRef}
-                      className="absolute z-50 bg-gray-2d rounded shadow-lg p-2"
-                      style={{ top: 40, left: 290 }}
-                    >
-                      <button
-                        className="block w-full text-left py-2 px-4 hover:bg-gray-24 rounded-lg text-xs"
-                        onClick={() => { /* Export as CSV logic here */ closeExportPopup(); }}
-                      >
-                        Export as CSV
-                      </button>
-                      <button
-                        className="block w-full text-left py-2 pl-4 pr-8 hover:bg-gray-24 rounded-lg text-xs"
-                        onClick={() => { /* Export as Image logic here */ closeExportPopup(); }}
-                      >
-                        Export as Image
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Table */}
-                <div className="rw-full mb-8 mt-0 border border-gray-42 rounded-md  boder-gray-5c">
-
-
-                  <table className="w-full border-collapse  ">
-                    <thead>
-                      <tr className="border-b border-b-gray-42 bg-gray-2d ">
-                        <th className="py-3.5 px-3 text-left  rounded-tl-md border-r border-gray-5c" >Timeline</th>
-                        <th className="py-3.5 px-3 text-left  rounded-tr-md">Important Date</th>
-
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {chatContent.tableData.map((row, index) => (
-                        <tr key={index} className={`text-sm ${index !== chatContent.tableData.length - 1 ? 'border-b border-b-gray-5c' : ''}  `}>
-                          <td className="py-2.5 px-3  relative border-r border-gray-5c rounded">{row.feature}</td>
-                          <td className="py-2.5 px-3  relative  rounded">
-                            {row.value}
-                            {row.citation && (
-                              <span
-                                className="px-2 py-1 bg-gray-4f text-xs rounded-full w-6 h-6 ml-2 cursor-pointer"
-                                onClick={(event) => handleCitationClick(event, row.citation, index, event.clientX, event.clientY)}
-                              >
-                                {row.citation}
-                              </span>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              {/* Separator */}
-              <div className="w-full h-px bg-gray-42 my-5"></div>
-
-              {/* Bid Information */}
-              <div id="todo" className='group'>
-                <div className='flex mb-4 mt-6 items-center'><strong className='py-2'>List of To-Do's</strong>
-                  <div className='hidden ml-3 group-hover:inline-block flex space-x-3'>
-                    <button className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/copy-icon.svg' alt="Copy" title="Copy" />
+          <div className="">
+            <ReportSection
+              report={report}
+              markdownComponents={markdownComponents}
+              headers={headers}
+              dataRows={dataRows}
+              exportPopup={exportPopup}
+              handleExportClick={handleExportClick}
+              exportPopupRef={exportPopupRef}
+              closeExportPopup={closeExportPopup}
+              chatContent={chatContent}
+              handleCitationClick={handleCitationClick}
+            />
+            {report !== null && (
+              <>
+                {/* Suggested Categories Section */}
+                <div className="mt-6 hidden">
+                  <p className="text-base  mb-4">
+                    Would you like details on any specific category?
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    <button className="px-4 py-2 border border-gray-5c rounded-md text-sm hover:bg-gray-4f transition-colors">
+                      Payment milestones for the project?
                     </button>
-                  </div></div>
-                {/* <p className="whitespace-pre-line text-base leading-relaxed font-bold">
-            {bidInfoHeader}
-          </p>
-          <p className="whitespace-pre-line text-sm leading-relaxed font-light mt-2">
-            {bidInfoListItems}
-          </p> */}
-                <Markdown
-                  components={markdownComponents}
-                >
-                  {chatContent.bidInfo}
-                </Markdown>
-              </div>
-
-              {/* Separator */}
-              <div className="w-full h-px bg-gray-42 mt-8 mb-4"></div>
-
-              {/* Pre-Submission */}
-              <div className="mb-8 relative group" id="presubmisssion">
-                <div className='flex mb-4 mt-6 items-center'>
-                  <strong className='py-2'> Pre-submission Checklist</strong><div className='hidden ml-3 group-hover:inline-block flex space-x-3'><button className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/copy-icon.svg' alt="Copy" title="Copy" /></button> </div></div>
-                <ul className='mt-4 font-light text-sm space-y-1'>
-                  <li>✅ Upload duly filled tender form</li>
-                  <li>✅ Submit EMD in specified format</li>
-                  <li>✅ Financial bid in BOQ format</li>
-                  <li>✅ Signed and scanned copies of all pages of tender document</li>
-                  <li>✅ Relevant licenses and registration certificates</li>
-                  <li>✅ GST registration and PAN copy</li>
-                  <li>✅ Power of attorney/authorization letter (if applicable)</li>
-                  <li>✅ Affidavit of not being blacklisted</li>
-                  <li>✅ Attend pre-bid meeting (optional but recommended)</li></ul>
-                {/* <Markdown
-                          components={markdownComponents}
-                        >
-                           {chatContent.preSubmission}
-                        </Markdown> */}
-              </div>
-              {/* Separator */}
-              <div className="w-full h-px bg-gray-42 mt-8 mb-4"></div>
-
-              {/* Evaluation Criteria */}
-              <div className="mb-8 relative group" id="eval">
-                <div className='flex mb-4 mt-6 items-center'>
-                  <strong className='py-2'> Evaluation Criteria</strong><div className='hidden ml-3 group-hover:inline-block flex space-x-3'><button className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/copy-icon.svg' alt="Copy" title="Copy"></img></button> </div></div>
-                <Markdown
-                  components={markdownComponents}
-                >
-                  {chatContent.evaluationCriteria}
-                </Markdown>
-              </div>
-              {/* Separator */}
-              <div className="w-full h-px bg-gray-42 my-4"></div>
-              {/* Suggested Categories Section */}
-              <div className="mt-6">
-                <p className="text-base  mb-4">Would you like details on any specific category?</p>
-                <div className="flex flex-wrap gap-3">
-                  <button className="px-4 py-2 border border-gray-5c rounded-md text-sm hover:bg-gray-4f transition-colors">
-                    Payment milestones for the project?
-                  </button>
-                  <button className="px-4 py-2 border border-gray-5c rounded-md text-sm hover:bg-gray-4f transition-colors">
-                    Penalties for project delays?
-                  </button>
-                  <button className="px-4 py-2 border border-gray-5c rounded-md text-sm hover:bg-gray-4f transition-colors"
-                    onClick={() => {
-                      setShowOtherPrompts(!showOtherPrompts);
-                      // Scroll only if showing, otherwise it might scroll before hiding
-                      if (!showOtherPrompts) { // Check the state *before* it toggles
-                        // Use a timeout to allow state update and rendering
-                        setTimeout(() => scrollToSection('otherPrompts'), 0);
-                      }
-                    }}
-                  >
-                    Process for bid evaluation
-                  </button>
-                </div>
-              </div>
-              {/* Actions Section */}
-              <ChatActions setShowSavedNote={setShowSavedNote} />
-            </div>
-            {/* Other Prompts */}
-            {showOtherPrompts && (
-              <div className='w-full my-10' id="otherPrompts" ref={setSectionRef('otherPrompts')}>
-                <div className='text-sm font-light flex flex-col'><div className='self-end max-w-xl bg-gray-4f px-4 py-2 rounded-md'>Process for bid evaluation</div></div>
-                <div className='group'>
-                  <div className='flex mb-4 mt-6 items-center'>
-                    <strong className='py-2'> Pre-submission Checklist</strong><div className='hidden ml-3 group-hover:inline-block flex space-x-3'><button className='p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f'><img src='/images/copy-icon.svg' alt="Copy" title="Copy"></img></button> </div></div>
-                  <ul className='mt-6 list-disc ml-5 text-sm font-light space-y-1'>
-                    <li>Upload duly filled tender form</li>
-                    <li>Submit EMD in specified format</li>
-                    <li>Financial bid in BOQ format</li>
-                    <li>Signed and scanned copies of all pages of tender document</li>
-                    <li>Relevant licenses and registration certificates</li>
-                    <li>GST registration and PAN copy</li>
-                    <li>Power of attorney/authorization letter (if applicable)</li>
-                    <li>Affidavit of not being blacklisted</li>
-                    <li>Attend pre-bid meeting (optional but recommended)</li>
-                  </ul>
+                    <button className="px-4 py-2 border border-gray-5c rounded-md text-sm hover:bg-gray-4f transition-colors">
+                      Penalties for project delays?
+                    </button>
+                    <button
+                      className="px-4 py-2 border border-gray-5c rounded-md text-sm hover:bg-gray-4f transition-colors"
+                      onClick={() => {
+                        setShowOtherPrompts(!showOtherPrompts);
+                        // Scroll only if showing, otherwise it might scroll before hiding
+                        if (!showOtherPrompts) {
+                          // Check the state *before* it toggles
+                          // Use a timeout to allow state update and rendering
+                          setTimeout(() => scrollToSection("otherPrompts"), 0);
+                        }
+                      }}
+                    >
+                      Process for bid evaluation
+                    </button>
+                  </div>
                 </div>
                 {/* Actions Section */}
-                <ChatActions setShowSavedNote={setShowSavedNote} showOtherPrompts={showOtherPrompts} saved={saved} setSaved={setSaved} />
-              </div>
+                {/* <ChatActions setShowSavedNote={setShowSavedNote} /> */}
+              </>
             )}
-
-
           </div>
-        ) : (
-          <div className='flex flex-col justify-center items-center w-full h-full'>
-
-            <div className='mb-8 mt-[10%]'>Your conversation has been cleared. Upload a tender to continue.</div>
-            <UploadAction projectsVisibility={true} /></div>
-        )}
-        {/* Citation Popup */}
-        {
-          popup.visible && (
+          {/* Other Prompts */}
+          {showOtherPrompts && (
             <div
-              className="absolute z-50 w-[397px] rounded shadow-lg border border-gray-42 bg-gray-24"
-              style={{ top: popup.position.top, left: popup.position.left - 700 }}
-
+              className="w-full my-10"
+              id="otherPrompts"
+              ref={setSectionRef("otherPrompts")}
             >
-              {/* {popup.content} */}
-              <div className='flex items-center border-b border-gray-42 px-5 py-4 '>
-                <div className='flex'><img src="/images/file-icon.svg" alt="File" width="20" height="20" /> <div className='ml-2'><strong className='text-base'> Source: BMIP Volume 1.pdf</strong><span className='block text-gray-ae text-xs'>Page 2</span></div></div>
-                <img src="/images/close2-icon.svg" alt="Close" onClick={closePopup} className='ml-auto cursor-pointer ' />
+              <div className="text-sm font-light flex flex-col">
+                <div className="self-end max-w-xl bg-gray-4f px-4 py-2 rounded-md">
+                  Process for bid evaluation
+                </div>
               </div>
-              <div className='py-6 px-10 text-sm font-light'>
-                <ul className='list-disc space-y-2'>
-                  <li>Office of the Chief Engineer, Water Resources Department, Bhopal</li>
-                  <li>e-Procurement Notice for Lifting Irrigation Scheme</li>
-                  <li>Online percentage rate bids are invited for the construction of lift irrigation scheme</li>
-
+              <div className="group">
+                <div className="flex mb-4 mt-6 items-center">
+                  <strong className="py-2"> Pre-submission Checklist</strong>
+                  <div className="hidden ml-3 group-hover:inline-block flex space-x-3">
+                    <button className="p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f">
+                      <img
+                        src="/images/copy-icon.svg"
+                        alt="Copy"
+                        title="Copy"
+                      ></img>
+                    </button>{" "}
+                  </div>
+                </div>
+                <ul className="mt-6 list-disc ml-5 text-sm font-light space-y-1">
+                  <li>Upload duly filled tender form</li>
+                  <li>Submit EMD in specified format</li>
+                  <li>Financial bid in BOQ format</li>
+                  <li>
+                    Signed and scanned copies of all pages of tender document
+                  </li>
+                  <li>Relevant licenses and registration certificates</li>
+                  <li>GST registration and PAN copy</li>
+                  <li>
+                    Power of attorney/authorization letter (if applicable)
+                  </li>
+                  <li>Affidavit of not being blacklisted</li>
+                  <li>Attend pre-bid meeting (optional but recommended)</li>
                 </ul>
               </div>
+              {/* Actions Section */}
+              <ChatActions
+                setShowSavedNote={setShowSavedNote}
+                showOtherPrompts={showOtherPrompts}
+                saved={saved}
+                setSaved={setSaved}
+              />
             </div>
-          )
-        }
+          )}
+        </>
+        {/*  ) : (
+           <div className='flex flex-col justify-center items-center w-full h-full'>
+
+             <div className='mb-8 mt-[10%]'>Your conversation has been cleared. Upload a tender to continue.</div>
+             <UploadAction projectsVisibility={true} /></div>
+         )} */}
+        {/* Citation Popup */}
+        {popup.visible && (
+          <div
+            className="absolute z-50 w-[397px] rounded shadow-lg border border-gray-42 bg-gray-24"
+            style={{ top: popup.position.top, left: popup.position.left - 700 }}
+          >
+            {/* {popup.content} */}
+            <div className="flex items-center border-b border-gray-42 px-5 py-4 ">
+              <div className="flex">
+                <img
+                  src="/images/file-icon.svg"
+                  alt="File"
+                  width="20"
+                  height="20"
+                />{" "}
+                <div className="ml-2">
+                  <strong className="text-base">
+                    {" "}
+                    Source: BMIP Volume 1.pdf
+                  </strong>
+                  <span className="block text-gray-ae text-xs">Page 2</span>
+                </div>
+              </div>
+              <img
+                src="/images/close2-icon.svg"
+                alt="Close"
+                onClick={closePopup}
+                className="ml-auto cursor-pointer "
+              />
+            </div>
+            <div className="py-6 px-10 text-sm font-light">
+              <ul className="list-disc space-y-2">
+                <li>
+                  Office of the Chief Engineer, Water Resources Department,
+                  Bhopal
+                </li>
+                <li>e-Procurement Notice for Lifting Irrigation Scheme</li>
+                <li>
+                  Online percentage rate bids are invited for the construction
+                  of lift irrigation scheme
+                </li>
+              </ul>
+            </div>
+          </div>
+        )}
       </div>
 
-
-
-    </div >
+      {/* Message Modal */}
+      <ConfirmationModal
+        isOpen={!!errorModal}
+        onClose={closeMessageModal}
+        onConfirm={closeMessageModal}
+        heading={errorModal?.heading || ""}
+        message={errorModal?.message || ""}
+        confirmButtonText="Ok"
+        cancelButtonText=""
+        confirmButtonClass="bg-expona-red hover:bg-red-700"
+        iconSrc="images/alert-circle.svg"
+        iconAlt="Info"
+      />
+    </div>
   );
 };
 

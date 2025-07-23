@@ -14,7 +14,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
 function App() {
-  const [projectsVisibility, setProjectsVisibility] = useState(true);
+  const [projectsVisibility, setProjectsVisibility] = useState(false);
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
@@ -36,7 +36,7 @@ function App() {
               path="/dashboard"
               element={
                 <ProtectedRoute>
-                  <Dashboard projectsVisibility={projectsVisibility} />
+                  <Dashboard projectsVisibility={projectsVisibility} setProjectsVisibility={setProjectsVisibility} />
                 </ProtectedRoute>
               }
             />

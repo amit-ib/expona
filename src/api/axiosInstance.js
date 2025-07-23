@@ -9,15 +9,26 @@ const axiosInstance = axios.create({
 // Add Axios interceptor for handling 401 errors
 axiosInstance.interceptors.response.use(
     (response) => response,
-    // (error) => {
-    //     if (error.response && error.response.status === 401) {
-    //         localStorage.removeItem("securedToken");
-    //         localStorage.removeItem("user");
-    //         window.location.href = "/login";
-    //         window.location.reload();
-    //     }
-    //     return Promise.reject(error);
-    // }
+    (error) => {
+        // console.log("ERROOOOR:", error.response.data.detail)
+        if (
+            error.response.status === 401 &&
+            error.response.data.detail === "JWT token has  Expired"
+        ) {
+            localStorage.removeItem("securedToken");
+            localStorage.removeItem("userDetail");
+            localStorage.removeItem('tenderReport');
+            localStorage.removeItem('company_id');
+            localStorage.removeItem('tenderTitle');
+            localStorage.removeItem('tenderId');
+            localStorage.removeItem('tenderList');
+
+            window.location.href = "/signin";
+            window.location.reload();
+        }
+        return Promise.reject(error);
+    }
+
 );
 
 export default axiosInstance;

@@ -19,10 +19,14 @@ const CompanyDetailForm = () => {
     setError('');
 
     try {
-      // Using a hardcoded token, consistent with other tender-related API calls
       const token = { AUTH_TOKEN };
-      await storeCompanyDetail({ name: companyName, url: websiteUrl }, token);
-      navigate('/chat');
+      const response = await storeCompanyDetail({ name: companyName, url: websiteUrl }, token);
+      // Extract company_id and store in localStorage
+      const companyId = response?.data?.profile?.company_id;
+      if (companyId) {
+        localStorage.setItem('company_id', companyId);
+      }
+      navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'An error occurred while saving details.');
       console.error("Failed to store company details:", err);

@@ -18,7 +18,6 @@ body {
 .home-bg {
   background: url(/public/images/grains-bg.png) repeat-x;
   background-size: cover;
-
 }
 
 code {
@@ -39,19 +38,18 @@ code {
 }
 
 .chat-scrollbar::-webkit-scrollbar-thumb {
-  background: #44444F;
+  background: #44444f;
   border-radius: 10px;
 }
 
 .chat-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #53545C;
+  background: #53545c;
 }
 
 /* Firefox scrollbar styling */
 .chat-scrollbar {
-
   scrollbar-width: none;
-  scrollbar-color: #44444F rgba(0, 0, 0, 0.2);
+  scrollbar-color: #44444f rgba(0, 0, 0, 0.2);
 }
 
 .summary hr {
@@ -71,7 +69,7 @@ code {
   width: 0;
   height: 0;
   border-top: 15px solid transparent;
-  border-right: 20px solid #F8F8F8;
+  border-right: 20px solid #f8f8f8;
   border-bottom: 15px solid transparent;
   position: absolute;
   left: -15px;
@@ -132,7 +130,7 @@ code {
 
 /* Create a custom tick mark using a pseudo-element */
 .custom-checkbox:checked::before {
-  content: '';
+  content: "";
   display: block;
   /* Clear previous styles */
   background-color: transparent;
@@ -155,4 +153,27 @@ code {
   /* Adjust translate values if needed based on width/height and border-width */
 }
 
-/* You might need to adjust the sizes, colors, and positioning to match your design */
+.list-decimal {
+  margin-left: 25px;
+}
+.list-decimal li {
+  margin-bottom: 5px;
+}
+/* Add to your CSS file or inside a styled component */
+@keyframes shimmer {
+  0% {
+    background-position: -500px 0;
+  }
+
+  100% {
+    background-position: 500px 0;
+  }
+}
+
+.shimmer-bar {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #2e2e2e 25%, #3a3a3a 50%, #2e2e2e 75%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+}

@@ -6,6 +6,7 @@ import Lottie from "lottie-react";
 import animationData from "./loader-left-bar.json";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { truncateString } from "../../utils";
 
 const LeftSidebar = ({
   isLoading,
@@ -63,16 +64,18 @@ const LeftSidebar = ({
   //     </div>
   //   );
   // }
-  console.log(user)
+
   return (
     <div
       id="left-sidebar"
-      className={`flex relative flex-col  bg-gray-2d  transition-all duration-500 ${collapsed ? "w-[70px] " : "w-[300px]  "
-        }`}
+      className={`flex relative flex-col  bg-gray-2d  transition-all duration-500 ${
+        collapsed ? "w-[70px] " : "w-[300px]  "
+      }`}
     >
       <button
-        className={` absolute transition-all duration-500 top-8 flex items-center justify-center z-10 hover:bg-gray-32 rounded-full ${collapsed ? "right-5" : "right-3"
-          }`}
+        className={` absolute transition-all duration-500 top-8 flex items-center justify-center z-10 hover:bg-gray-32 rounded-full ${
+          collapsed ? "right-5" : "right-3"
+        }`}
         style={{ minWidth: 35 }}
         onClick={() => setCollapsed(!collapsed)}
       >
@@ -90,8 +93,9 @@ const LeftSidebar = ({
         </Tooltip>
       </button>
       <div
-        className={`relative items-center transition-all duration-300  px-5 py-6  ${collapsed ? "-left-48  opacity-0" : "left-0"
-          }`}
+        className={`relative items-center transition-all duration-300  px-5 py-6  ${
+          collapsed ? "-left-48  opacity-0" : "left-0"
+        }`}
       >
         {/* ${collapsed ? 'justify-left px-0 py-3 ' : 'justify-between px-4 py-8  border-gray-42'} */}
         <img
@@ -109,12 +113,12 @@ const LeftSidebar = ({
           </div>
         )} */}{" "}
         {/* Search Box */}
-        <div className="my-8">
-          <input
+        <div className="my-14">
+          {/* <input
             type="text"
             placeholder="Search"
             className="w-full pl-9 pr-4 py-2  text-gray-ae bg-transparent border border-gray-4f rounded-md placeholder:text-gray-99 outline-none search-icon transition-opacity duration-300"
-          />
+          /> */}
         </div>
         {isLoading ? (
           <div className="flex flex-col">
@@ -122,7 +126,7 @@ const LeftSidebar = ({
           </div>
         ) : sources.length > 0 ? (
           // left Sidebar Content
-          <div className="py-3 flex flex-col transition-all duration-500 hidden">
+          <div className="py-3 flex flex-col transition-all duration-500">
             {/* {!collapsed && ( */}
             <div className="flex itemss-center transition-all duration-500 text-gray-99 mb-4 relative text-xs">
               Key Areas
@@ -142,11 +146,12 @@ const LeftSidebar = ({
               <a
                 key={index}
                 href={item.link}
-                className={`w-full text-left px-2 py-2 text-sm relative ${(activeHash === "" && index === 0) ||
+                className={`w-full text-left px-2 py-2 text-sm relative ${
+                  (activeHash === "" && index === 0) ||
                   item.link.substring(item.link.indexOf("#")) === activeHash
-                  ? "text-white font-medium before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[1.5px] before:bg-expona-red"
-                  : "text-gray-ae hover:text-white font-light"
-                  }`}
+                    ? "text-white font-medium before:absolute before:left-0 before:top-0 before:bottom-0 before:w-[1.5px] before:bg-expona-red"
+                    : "text-gray-ae hover:text-white font-light"
+                }`}
               >
                 {item.title}
               </a>
@@ -195,8 +200,9 @@ const LeftSidebar = ({
         ) : (
           // !collapsed && (
           <div
-            className={`text-xs py-6 px-4  transition-all duration-300 ${collapsed ? "opacity-0" : ""
-              }`}
+            className={`text-xs py-6 px-4  transition-all duration-300 ${
+              collapsed ? "opacity-0" : ""
+            }`}
           >
             It looks quiet here. Upload a tender to see key areas show up.
           </div>
@@ -204,20 +210,23 @@ const LeftSidebar = ({
         )}
       </div>
       <div
-        className={`absolute bottom-0 left-0 right-0 py-4  flex items-center justify-between transition-all duration-500 ${collapsed ? "px-3" : "px-5"
-          }`}
+        className={`absolute bottom-0 left-0 right-0 py-4  flex items-center justify-between transition-all duration-500 ${
+          collapsed ? "px-3" : "px-5"
+        }`}
       >
         <div className="relative w-full">
           <button
             id="new-tender-btn"
-            className={`border flex items-center justify-center  rounded-md ${collapsed ? "p-2" : "w-full p-3"
-              }`}
+            className={`border flex items-center justify-center  rounded-md ${
+              collapsed ? "p-2" : "w-full p-3"
+            }`}
             onClick={onNewTenderClick}
           >
             <img src="images/add-icon.svg" alt="New Tender" />
             <span
-              className={`transition-all duration-500 delay-200 ${collapsed ? "opacity-0 -left-48 absolute" : ""
-                }`}
+              className={`transition-all duration-500 delay-200 ${
+                collapsed ? "opacity-0 -left-48 absolute" : ""
+              }`}
             >
               New Tender
             </span>
@@ -234,14 +243,15 @@ const LeftSidebar = ({
             />
             {/* User Profile Card */}
             <div
-              className={`flex  ml-14 flex-col transition-all duration-800 ${collapsed ? "opacity-0 " : ""
-                }`}
+              className={`flex  ml-14 flex-col transition-all duration-800 ${
+                collapsed ? "opacity-0 " : ""
+              }`}
             >
               <span className="text-white text-base font-medium">
                 {user?.first_name || ""} {user?.last_name || ""}
               </span>
               <span className="text-gray-ae text-sm">
-                {user?.email || ""}
+                {truncateString(user?.email, 25) || ""}
               </span>
             </div>
           </div>
@@ -263,7 +273,10 @@ const LeftSidebar = ({
               </a>
               <button
                 className="flex items-center rounded px-4 py-2 text-white hover:bg-gray-42 w-full"
-                onClick={() => { logout(); navigate('/signin'); }}
+                onClick={() => {
+                  logout();
+                  navigate("/signin");
+                }}
               >
                 <img
                   src="/images/logout-icon.svg"

@@ -29,16 +29,16 @@ const ProjectCard = ({ tender, onProjectClick }) => {
         </div>
         <div className="flex flex-col gap-[7px]">
           <h3
-            className="font-lexend  text-[16px] leading-[1.25] text-white max-w-xl truncate"
+            className="leading-[1.25] text-white max-w-xl truncate"
             title={title}
           >
             {title}
           </h3>
           <p
-            className="font-lexend  font-light text-[14px] leading-[1.25] text-white/80"
+            className="font-light text-sm leading-[1.25] text-white/80"
             title={issuer}
           >
-            {truncateWords(issuer, 10)}
+            {truncateWords(issuer, 8)}
           </p>
         </div>
       </div>

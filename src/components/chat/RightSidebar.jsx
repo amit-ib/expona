@@ -17,7 +17,7 @@ const RightSidebar = ({
   setSources,
   collapsed,
   setCollapsed,
-  onCheckedChange,
+  // onCheckedChange,
   isTenderListLoading,
 }) => {
   // State to track which checkboxes are checked

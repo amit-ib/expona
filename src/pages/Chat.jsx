@@ -35,7 +35,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
   const [saved, setSaved] = useState(false); // Add saved state here
   const [isTourVisible, setIsTourVisible] = useState(false);
   // State to track if any document is checked
-  const [isAnyDocumentChecked, setIsAnyDocumentChecked] = useState(true); // Initialize to true
+  // const [isAnyDocumentChecked, setIsAnyDocumentChecked] = useState(true); // Initialize to true
   const [isDrawerOpen, setIsDrawerOpen] = useState(false); // New state for drawer visibility
   const [isModalOpen, setIsModalOpen] = useState(false); // State for New Tender modal
   const [isLoading, setIsLoading] = useState(false);
@@ -146,9 +146,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
             setIsUploading(false);
             setReport(fetchedReport);
             localStorage.setItem("tenderReport", JSON.stringify(fetchedReport));
-            console.log("NEW TENDER REPORT:", fetchedReport.data.title);
-            setTenderTitle(fetchedReport.data.title || tenderTitle);
-            console.log("TENERTITLE", tenderTitle);
+            setTenderTitle(fetchedReport?.data?.title || tenderTitle);
             // Set tenderId in localStorage from fetchedReport.tender_id
             // console.log("NEW TENDER ID:", fetchedReport);
             if (fetchedReport && fetchedReport.data.tender_id) {
@@ -199,7 +197,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                   company_id: companyId,
                 });
                 setEligibilityData(eligibility);
-                console.log("Eligibility data after upload:", eligibility);
+                // console.log("Eligibility data after upload:", eligibility);
               }
             } catch (err) {
               console.error(
@@ -216,6 +214,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
         replace: true,
         state: { ...location.state, fileToUpload: null },
       });
+      hasUploaded.current = false;
     }
   }, [location, navigate]);
   /* # 
@@ -286,7 +285,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
             setTimeout(() => {
               fetchEligibility({ filename, company_id: companyId })
                 .then((eligibilityData) => {
-                  console.log("Eligibility data:", eligibilityData.data);
+                  // console.log("Eligibility data:", eligibilityData.data);
                   setEligibilityData(eligibilityData);
                 })
                 .catch((eligErr) => {
@@ -383,7 +382,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                     onClick={() => setIsDrawerOpen(true)}
                   >
                     <img
-                      src="images/speedometer-icon.svg"
+                      src="/images/speedometer-icon.svg"
                       alt="Speedometer icon"
                       className="flex-shrink-0"
                     />
@@ -419,7 +418,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                       <MessageInput
                         message={message}
                         setMessage={setMessage}
-                        isAnyDocumentChecked={isAnyDocumentChecked}
+                        // isAnyDocumentChecked={isAnyDocumentChecked}
                       />
                     )}
                   </div>
@@ -431,7 +430,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                     setSources={setSources}
                     collapsed={rightSidebarCollapsed}
                     setCollapsed={setRightSidebarCollapsed}
-                    onCheckedChange={setIsAnyDocumentChecked}
+                    // onCheckedChange={setIsAnyDocumentChecked}
                     isTenderListLoading={isTenderListLoading}
                   />
                 </div>
@@ -484,40 +483,14 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
   );
 };
 
-// Helper function to poll for tender report
-async function pollForTenderReport(
-  { filename, company_id },
-  maxAttempts = 20,
-  delayMs = 30000
-) {
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
-      const report = await fetchTenderReport({ filename, company_id });
-      return report; // Success!
-    } catch (err) {
-      if (
-        err.response &&
-        err.response.status === 404 &&
-        attempt < maxAttempts
-      ) {
-        // Wait and retry
-        await new Promise((res) => setTimeout(res, delayMs));
-      } else {
-        throw err; // Other errors or max attempts reached
-      }
-    }
-  }
-  throw new Error("Report not available after multiple attempts");
-}
-
 // Standalone function to fetch and log eligibility
-async function fetchAndLogEligibility({ filename, company_id }) {
-  try {
-    const eligibilityData = await fetchEligibility({ filename, company_id });
-    console.log("Eligibility data:", eligibilityData);
-  } catch (eligErr) {
-    console.error("fetchEligibility error:", eligErr);
-  }
-}
+// async function fetchAndLogEligibility({ filename, company_id }) {
+//   try {
+//     const eligibilityData = await fetchEligibility({ filename, company_id });
+//     // console.log("Eligibility data:", eligibilityData);
+//   } catch (eligErr) {
+//     console.error("fetchEligibility error:", eligErr);
+//   }
+// }
 
 export default Chat;

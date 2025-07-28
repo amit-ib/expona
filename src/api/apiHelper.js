@@ -40,7 +40,7 @@ export async function fetchAuthStart() {
 // ####### POST request to TENDER_UPLOAD endpoint with streaming response #######
 export async function uploadTenderFile(file, onChunk, token = AUTH_TOKEN) {
   const formData = new FormData();
-  formData.append("file", file);
+  formData.append("files", file);
   const authHeaders = getAuthHeaders();
   const response = await fetch(API_ENDPOINTS.TENDER_UPLOAD, {
     method: "POST",
@@ -215,13 +215,13 @@ export async function fetchSupportingDocs(company_id) {
 }
 
 // ####### GET request to FETCH_TENDER_REPORT endpoint with filename and company_id as query params #######
-export async function fetchTenderReport({ filename, company_id }) {
+export async function fetchTenderReport({ tender_id, company_id }) {
   try {
     const url = `${
       API_ENDPOINTS.FETCH_TENDER_REPORT
-    }?filename=${encodeURIComponent(filename)}&company_id=${encodeURIComponent(
-      company_id
-    )}`;
+    }?tender_id=${encodeURIComponent(
+      tender_id
+    )}&company_id=${encodeURIComponent(company_id)}`;
     const response = await axiosInstance.get(url, {
       headers: getAuthHeaders(),
     });
@@ -233,13 +233,13 @@ export async function fetchTenderReport({ filename, company_id }) {
 }
 
 // ####### GET request to FETCH_ELIGIBILITY endpoint with filename and company_id as query params #######
-export async function fetchEligibility({ filename, company_id }) {
+export async function fetchEligibility({ tender_id, company_id }) {
   try {
     const url = `${
       API_ENDPOINTS.FETCH_ELIGIBILITY
-    }?filename=${encodeURIComponent(filename)}&company_id=${encodeURIComponent(
-      company_id
-    )}`;
+    }?tender_id=${encodeURIComponent(
+      tender_id
+    )}&company_id=${encodeURIComponent(company_id)}`;
     const response = await axiosInstance.get(url, {
       headers: getAuthHeaders(),
     });
@@ -324,7 +324,6 @@ export async function fetchReviseEligibility({
 // ####### POST request to UPDATE_COMPANY_PROFILE endpoint with company_id as query param and profile data in body #######
 export async function updateCompanyProfile(company_id, profileData) {
   try {
-    console.log("PROFILE", profileData);
     const url = `${
       API_ENDPOINTS.UPDATE_COMPANY_PROFILE
     }?company_id=${encodeURIComponent(company_id)}`;
@@ -335,6 +334,31 @@ export async function updateCompanyProfile(company_id, profileData) {
     return response.data;
   } catch (error) {
     console.error("Error updating company profile:", error);
+    throw error;
+  }
+}
+
+// ####### GET request for CHAT_CONVERSATION endpoint  #######
+export async function ChatConversation({
+  filename,
+  company_id,
+  query,
+  tender_id,
+}) {
+  try {
+    const url = `${
+      API_ENDPOINTS.CHAT_CONVERSATION
+    }?filename=${encodeURIComponent(filename)}&company_id=${encodeURIComponent(
+      company_id
+    )}&query=${encodeURIComponent(query)}&tender_id=${encodeURIComponent(
+      tender_id
+    )}`;
+    const response = await axiosInstance.get(url, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error storing chat conversation:", error);
     throw error;
   }
 }

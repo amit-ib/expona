@@ -124,7 +124,7 @@ const LeftSidebar = ({
           <div className="flex flex-col">
             <Lottie animationData={animationData} loop={true} />
           </div>
-        ) : sources.length > 0 ? (
+        ) : (
           // left Sidebar Content
           <div className="py-3 flex flex-col transition-all duration-500">
             {/* {!collapsed && ( */}
@@ -197,16 +197,17 @@ const LeftSidebar = ({
               </div>
             )}
           </div>
-        ) : (
-          // !collapsed && (
-          <div
-            className={`text-xs py-6 px-4  transition-all duration-300 ${
-              collapsed ? "opacity-0" : ""
-            }`}
-          >
-            It looks quiet here. Upload a tender to see key areas show up.
-          </div>
-          // )
+          //    ) : (
+          //   // !collapsed && (
+          //   <div
+          //     className={`text-xs py-6 px-4  transition-all duration-300 ${
+          //       collapsed ? "opacity-0" : ""
+          //     }`}
+          //   >
+          //     It looks quiet here. Upload a tender to see key areas show up.
+          //   </div>
+          //   // )
+          // )}
         )}
       </div>
       <div

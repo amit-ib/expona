@@ -12,7 +12,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     // Check localStorage for tenderList
-    const storedTenderList = localStorage.getItem('tenderList');
+    const storedTenderList = localStorage.getItem("tenderList");
     if (storedTenderList) {
       try {
         const parsedList = JSON.parse(storedTenderList);
@@ -20,7 +20,7 @@ const Dashboard = () => {
         setProjectsVisibility(parsedList.length > 0);
       } catch (e) {
         // If parsing fails, clear the corrupted data
-        localStorage.removeItem('tenderList');
+        localStorage.removeItem("tenderList");
       }
     }
 
@@ -29,22 +29,22 @@ const Dashboard = () => {
     const token = params.get("scope");
     if (token) {
       fetchGoogleSessionData(token)
-        .then(data => {
+        .then((data) => {
           setSessionData(data);
           console.log("Google session data:", data);
         })
-        .catch(err => {
+        .catch((err) => {
           console.error("Failed to fetch Google session data:", err);
         });
     }
     // Fetch tender list (will update state and localStorage)
     const fetchAndUpdateTenderList = () => {
       fetchTenderList({})
-        .then(data => {
+        .then((data) => {
           const list = data.data || [];
           setTenderList(list);
           setProjectsVisibility(list.length > 0);
-          localStorage.setItem('tenderList', JSON.stringify(list));
+          localStorage.setItem("tenderList", JSON.stringify(list));
         })
         .catch(() => setTenderList([]));
     };
@@ -55,7 +55,9 @@ const Dashboard = () => {
     return () => clearInterval(interval); // Cleanup on unmount
   }, []);
 
-
+  localStorage.removeItem("tenderReport");
+  localStorage.removeItem("tenderTitle");
+  localStorage.removeItem("tenderId");
   return (
     <div className="min-h-screen bg-gray-2d text-white">
       {/* Using the Header component */}
@@ -63,19 +65,22 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="flex justify-center items-start w-full px-10 py-6">
-        <div className={`flex flex-row gap-4 w-full  min-h-[calc(100vh-180px)] ${!projectsVisibility ? "pt-24 pb-32 px-48" : ""}`}>{/* 96px header, 48px py-12 */}
+        <div
+          className={`flex flex-row gap-4 w-full  min-h-[calc(100vh-180px)] ${
+            !projectsVisibility ? "pt-24 pb-32 px-48" : ""
+          }`}
+        >
+          {/* 96px header, 48px py-12 */}
           {/* Left Card: Upload + Info */}
 
           <UploadAction projectsVisibility={projectsVisibility} />
 
           {/* Right Card: Project Listing */}
-          {projectsVisibility && (
-            <ProjectList tenderList={tenderList} />
-          )}
+          {projectsVisibility && <ProjectList tenderList={tenderList} />}
         </div>
       </main>
     </div>
   );
 };
 
-export default Dashboard; 
+export default Dashboard;

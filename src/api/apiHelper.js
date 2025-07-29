@@ -38,14 +38,24 @@ export async function fetchAuthStart() {
 }
 
 // ####### POST request to TENDER_UPLOAD endpoint with streaming response #######
-export async function uploadTenderFile(file, onChunk, token = AUTH_TOKEN) {
+export async function uploadTenderFile(files, onChunk, token = AUTH_TOKEN) {
+  // Accepts single File or array of Files
   const formData = new FormData();
-  formData.append("files", file);
+  if (Array.isArray(files)) {
+    files.forEach((file) => formData.append("files", file));
+  } else {
+    formData.append("files", files);
+  }
+  // Grab tender_id from localStorage if present
+  const tender_id = localStorage.getItem("tenderId");
+  if (tender_id) {
+    formData.append("tender_id", tender_id);
+  }
   const authHeaders = getAuthHeaders();
   const response = await fetch(API_ENDPOINTS.TENDER_UPLOAD, {
     method: "POST",
     body: formData,
-    headers: getAuthHeaders(),
+    headers: authHeaders,
     // credentials: 'include', // for cookies
   });
 

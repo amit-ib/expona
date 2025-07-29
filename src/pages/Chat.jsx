@@ -49,10 +49,11 @@ const Chat = ({ projectsVisibility }) => {
     setShowErrorModal,
     openModal,
     closeModal,
+    isNewTender,
+    setIsNewTender,
   } = useChatData();
 
   const { handleSendMessage } = useChat(report, message, setMessage);
-
 
   // Optional: Scroll to the element when activeHash changes, if needed
   // useEffect(() => {
@@ -90,6 +91,7 @@ const Chat = ({ projectsVisibility }) => {
                 setShowSavedNote={setShowSavedNote}
                 setSaved={setSaved}
                 onNewTenderClick={openModal}
+                setIsNewTender={setIsNewTender}
               />
               <div className="flex flex-1 flex-col">
                 <div className="flex items-center justify-between gap-4 py-6 px-5 border-b border-gray-42 bg-gray-24 rounded-t-lg">
@@ -186,6 +188,7 @@ const Chat = ({ projectsVisibility }) => {
                     setCollapsed={setRightSidebarCollapsed}
                     // onCheckedChange={setIsAnyDocumentChecked}
                     isTenderListLoading={isTenderListLoading}
+                    onUploadNewTenderDoc={openModal}
                   />
                 </div>
               </div>
@@ -231,6 +234,8 @@ const Chat = ({ projectsVisibility }) => {
           projectsVisibility={false}
           fullHeight={true}
           onFileSelect={closeModal}
+          isNewTender={isNewTender}
+          setIsNewTender={setIsNewTender}
         />
       </Modal>
     </div>

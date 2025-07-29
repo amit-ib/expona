@@ -2,23 +2,33 @@ import React, { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 
-const UploadAction = ({ projectsVisibility, fullHeight, onFileSelect }) => {
+const UploadAction = ({
+  projectsVisibility,
+  fullHeight,
+  onFileSelect,
+  isNewTender,
+  setIsNewTender,
+}) => {
   const navigate = useNavigate();
-
+  // console.log("UPLOAD IS NEW TENDER:", isNewTender);
   const onDrop = useCallback(
     (acceptedFiles) => {
-      localStorage.removeItem("tenderReport");
-      localStorage.removeItem("tenderTitle");
-      localStorage.removeItem("tenderId");
+      // Only clear items if isNewTender is true
+      if (isNewTender) {
+        localStorage.removeItem("tenderReport");
+        localStorage.removeItem("tenderTitle");
+        localStorage.removeItem("tenderId");
+        setIsNewTender(false);
+      }
       if (acceptedFiles.length > 0) {
-        const file = acceptedFiles[0];
-        navigate("/chat", { state: { fileToUpload: file } });
+        // Pass all files for multi-upload
+        navigate("/chat", { state: { fileToUpload: acceptedFiles } });
         if (onFileSelect) {
           onFileSelect();
         }
       }
     },
-    [navigate, onFileSelect]
+    [navigate, onFileSelect, isNewTender]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
@@ -32,7 +42,7 @@ const UploadAction = ({ projectsVisibility, fullHeight, onFileSelect }) => {
       {!projectsVisibility && (
         <div className="flex flex-col items-center gap-3 text-center w-full mb-10">
           <h1 className="text-2xl md:text-3xl font-semibold">
-            Upload a tender file. I'll do the rest.
+            Upload tender files. I'll do the rest.
           </h1>
           <p className="text-sm font-light text-white opacity-80">
             Get a quick summary, checklist, and answers to your questions
@@ -65,7 +75,7 @@ const UploadAction = ({ projectsVisibility, fullHeight, onFileSelect }) => {
               <p>
                 Drag & drop files here{" "}
                 <span className="text-gray-ae inline-block mx-1">or</span>{" "}
-                <span className="underline cursor-pointer">Choose File</span>
+                <span className="underline cursor-pointer">Choose Files</span>
               </p>
             )}
           </div>

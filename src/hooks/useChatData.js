@@ -30,16 +30,28 @@ export const useChatData = () => {
   const [hasFinalSummary, setHasFinalSummary] = useState(false);
   const finalSummaryFlag = useRef(false);
   const [storedSummary, setStoredSummary] = useState("");
+  const [isNewTender, setIsNewTender] = useState(false);
   const hasUploaded = useRef(false);
   const [report, setReport] = useState(() => {
     const saved = localStorage.getItem("tenderReport");
     return saved ? JSON.parse(saved) : null;
   });
   const lastReportKey = useRef(null);
-  const [tenderTitle, setTenderTitle] = useState(
-    location.state?.title ||
-      localStorage.getItem("tenderTitle") ||
-      "Untitled Tender"
+  function getInitialTenderTitle(location) {
+    const titleFromLocation = location?.state?.title;
+    if (typeof titleFromLocation === "string" && titleFromLocation.trim()) {
+      return titleFromLocation.trim();
+    }
+
+    const titleFromStorage = localStorage.getItem("tenderTitle");
+    if (typeof titleFromStorage === "string" && titleFromStorage.trim()) {
+      return titleFromStorage.trim();
+    }
+
+    return "Untitled Tender";
+  }
+  const [tenderTitle, setTenderTitle] = useState(() =>
+    getInitialTenderTitle(location)
   );
   const [eligibilityData, setEligibilityData] = useState(null);
   const [isTenderListLoading, setIsTenderListLoading] = useState(false);
@@ -50,20 +62,26 @@ export const useChatData = () => {
   const closeModal = () => setIsModalOpen(false);
 
   useEffect(() => {
-    const file = location.state?.fileToUpload;
+    const filesToUpload = location.state?.fileToUpload;
 
-    if (file) {
+    if (filesToUpload) {
       if (hasUploaded.current) return;
       hasUploaded.current = true;
       finalSummaryFlag.current = false;
       setHasFinalSummary(false);
       setReport("");
-      setTenderTitle("Untitled Tender");
+      if (!localStorage.getItem("tenderTitle")) {
+        setTenderTitle("Untitled Tender");
+      } else {
+        setTenderTitle(localStorage.getItem("tenderTitle"));
+      }
+
       const doUpload = async () => {
         setIsUploading(true);
         setUploadResponse("");
         try {
-          await uploadTenderFile(file, (chunk) => {
+          // Support both single file and array of files
+          await uploadTenderFile(filesToUpload, (chunk) => {
             setUploadResponse((prev) => {
               const summaryMarker = "<---FINAL_SUMMARY--->";
               const analyzingMarker = "<---ANALYZE_PDF--->";
@@ -131,6 +149,7 @@ export const useChatData = () => {
                 }
                 return newContent; */
                 // console.log("Summary-ELSE", newContent);
+
                 const metaMarker = "<---METADATA--->";
                 const metaIndex = newContent.indexOf(metaMarker);
 
@@ -147,17 +166,15 @@ export const useChatData = () => {
                   afterMeta = newContent;
                 }
 
-                // console.log("AFTER META", afterMeta);
-
                 // Split the content by <br> to get individual parts
                 const parts = afterMeta.split("<br>");
 
                 // Extract tender title (second part, index 1) if available
-                const title =
-                  parts.length > 1 ? parts[1].trim() : parts[0].trim();
+
+                const title = parts.length > 1 && parts[0].trim();
                 localStorage.setItem("tenderTitle", title);
-                setTenderTitle(title);
-                // console.log("PARTS:", parts);
+                // setTenderTitle(title);
+                console.log("PARTS:", parts);
                 // Extract tender ID (third part, index 2) if available
                 if (parts.length > 2) {
                   const tenderId = parts[2].trim();
@@ -165,16 +182,24 @@ export const useChatData = () => {
                   setStoreTenderID(tenderId);
                 }
 
-                // Optionally strip the metadata from newContent if it exists
-                // newContent = metaIndex !== -1 ? afterMeta : newContent;
-
+                // Remove the metaMarker and afterMeta from newContent if metaMarker exists
+                if (metaIndex !== -1) {
+                  newContent = newContent.slice(0, metaIndex);
+                }
                 return newContent;
               }
             });
           });
           //--------------------- GET TENDER REPORT FOR NEW FILE UPLOAD -------------------------
           try {
-            const tenderId = localStorage.getItem("tenderId") || storeTenderID;
+            // Wait for tenderId to be available in localStorage (max 2s)
+            let tenderId = localStorage.getItem("tenderId") || storeTenderID;
+            let attempts = 0;
+            while (!tenderId && attempts < 20) {
+              await new Promise((res) => setTimeout(res, 100));
+              tenderId = localStorage.getItem("tenderId") || storeTenderID;
+              attempts++;
+            }
             console.log("TENDER ID FOR REPORT:", tenderId);
             if (tenderId) {
               // console.log(
@@ -212,6 +237,10 @@ export const useChatData = () => {
               } finally {
                 setIsTenderListLoading(false);
               }
+            } else {
+              console.error(
+                "Tender ID not found after upload. Report fetch skipped."
+              );
             }
           } catch (err) {
             console.error("fetchTenderReport error:", err);
@@ -232,7 +261,7 @@ export const useChatData = () => {
                   setUploadResponse(lastSummary);
                 }
               }
-              if (file && companyId) {
+              if (filesToUpload && companyId) {
                 const eligibility = await fetchEligibility({
                   tender_id: tenderId,
                   company_id: companyId,
@@ -357,5 +386,7 @@ export const useChatData = () => {
     setShowErrorModal,
     openModal,
     closeModal,
+    isNewTender,
+    setIsNewTender,
   };
 };

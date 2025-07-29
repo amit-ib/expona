@@ -19,6 +19,7 @@ const LeftSidebar = ({
   setShowSavedNote,
   setSaved,
   onNewTenderClick,
+  setIsNewTender, // <-- add this prop
 }) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileMenuRef = useRef(null);
@@ -221,7 +222,13 @@ const LeftSidebar = ({
             className={`border flex items-center justify-center  rounded-md ${
               collapsed ? "p-2" : "w-full p-3"
             }`}
-            onClick={onNewTenderClick}
+            onClick={() => {
+              if (setIsNewTender) {
+                setIsNewTender(true);
+                console.log("setIsNewTender called with:", true);
+              }
+              if (onNewTenderClick) onNewTenderClick();
+            }}
           >
             <img src="images/add-icon.svg" alt="New Tender" />
             <span

@@ -23,10 +23,11 @@ const ChatContent = ({
   uploadResponse,
   hasFinalSummary,
   storedSummary,
-  setStoredSummary,
   report,
   errorModal,
   setErrorModal,
+  qnaResponse,
+  pendingMessage,
 }) => {
   const [popup, setPopup] = React.useState({
     visible: false,
@@ -34,7 +35,7 @@ const ChatContent = ({
     index: null,
     position: { top: 0, left: 0 },
   });
-
+  const [chatLoader, setChatLoader] = React.useState(false);
   const [showOtherPrompts, setShowOtherPrompts] = React.useState(false);
 
   // Export popup state
@@ -281,7 +282,7 @@ const ChatContent = ({
 
       {/* Scrollable Chat Content */}
       <div
-        className="flex flex-col items-start pt-6 overflow-y-auto max-h-[calc(100vh-230px)] chat-scrollbar scrollbar-hide relative"
+        className="flex flex-col items-start pt-6 overflow-y-auto max-h-[calc(100vh-230px)] chat-scrollbar scrollbar-hide relative chat-scrollbar"
         style={{ scrollBehavior: "smooth" }}
       >
         {report === null && !uploadResponse && (
@@ -394,14 +395,34 @@ const ChatContent = ({
             )}
           </div>
           {/* Other Prompts */}
-          <ChatHistory
-            showOtherPrompts={showOtherPrompts}
-            setShowOtherPrompts={setShowOtherPrompts}
-            setShowSavedNote={setShowSavedNote}
-            saved={saved}
-            setSaved={setSaved}
-            scrollToSection={scrollToSection}
-          />
+          {report !== null && (
+            <ChatHistory
+              showOtherPrompts={showOtherPrompts}
+              setShowOtherPrompts={setShowOtherPrompts}
+              setShowSavedNote={setShowSavedNote}
+              saved={saved}
+              setSaved={setSaved}
+              scrollToSection={scrollToSection}
+              qnaResponse={qnaResponse}
+              pendingMessage={pendingMessage}
+              report={report}
+            />
+          )}
+          {/* Chat Loader */}
+          {/* {pendingMessage && (
+            <>
+              <div className="text-sm font-light flex flex-col">
+                <div className="self-end max-w-xl bg-gray-4f px-4 py-2 rounded-md">
+                  {pendingMessage}
+                </div>
+              </div>
+              <div className="flex pl-10">
+                <span className="animate-pulse bg-gradient-to-r from-expona-red via-gray-200 inline-block text-transparent bg-clip-text">
+                  Analysing.....
+                </span>
+              </div>
+            </>
+          )} */}
         </>
         {/*  ) : (
            <div className='flex flex-col justify-center items-center w-full h-full'>

@@ -19,7 +19,7 @@ const RightSidebar = ({
   setCollapsed,
   // onCheckedChange,
   isTenderListLoading,
-  onUploadNewTenderDoc
+  onUploadNewTenderDoc,
 }) => {
   // State to track which checkboxes are checked
   const [checkedItems, setCheckedItems] = useState([]);
@@ -207,7 +207,10 @@ const RightSidebar = ({
               collapsed ? "w-5" : "w-44"
             }`}
           /> */}
-          <button className="w-full flex items-center justify-center gap-2 py-3.5 bg-gray-32 hover:bg-gray-37 rounded text-sm font-medium transition-all duration-300 cursor-pointer" onClick={onUploadNewTenderDoc}>
+          <button
+            className="w-full flex items-center justify-center gap-2 py-3.5 bg-gray-32 hover:bg-gray-37 rounded text-sm font-medium transition-all duration-300 cursor-pointer"
+            onClick={onUploadNewTenderDoc}
+          >
             {/* Use the reusable Tooltip component */}
             <Tooltip
               tooltipContent="Upload Documents"
@@ -315,7 +318,7 @@ const RightSidebar = ({
                           title={filename}
                           onClick={() => setShowPdf(true)}
                         >
-                          {truncateString(filename, 27)}
+                          {truncateString(filename, 25)}
                         </button>
                       </div>
                     )}

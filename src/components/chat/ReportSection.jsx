@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Markdown from "react-markdown";
 import { copyToClipboard } from "../../utils.js";
 
@@ -14,6 +14,7 @@ const ReportSection = ({
   chatContent,
   handleCitationClick,
 }) => {
+  const [copied, setCopied] = useState(false);
   if (!report || !report.data) return null;
   const { Summary, Timeline, Todos, Checklist, Eligibility } =
     report.data || {};
@@ -21,6 +22,8 @@ const ReportSection = ({
   // Utility to handle copy for different sections
   const handleCopyClick = (content) => {
     copyToClipboard(content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
   };
 
   return (
@@ -74,7 +77,15 @@ const ReportSection = ({
                   className="p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f"
                   onClick={() => handleCopyClick(Timeline)}
                 >
-                  <img src="/images/copy-icon.svg" alt="Copy" title="Copy" />
+                  <img
+                    className="w-4 h-4"
+                    src={
+                      copied
+                        ? "/images/right-icon.svg"
+                        : "/images/copy-icon.svg"
+                    }
+                    alt={copied ? "Copied" : "Copy"}
+                  />
                 </button>
                 <button
                   onClick={handleExportClick}
@@ -220,7 +231,15 @@ const ReportSection = ({
                   className="p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f"
                   onClick={() => handleCopyClick(Todos)}
                 >
-                  <img src="/images/copy-icon.svg" alt="Copy" title="Copy" />
+                  <img
+                    className="w-4 h-4"
+                    src={
+                      copied
+                        ? "/images/right-icon.svg"
+                        : "/images/copy-icon.svg"
+                    }
+                    alt={copied ? "Copied" : "Copy"}
+                  />
                 </button>
               </div>
             </div>
@@ -244,7 +263,15 @@ const ReportSection = ({
                   className="p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f"
                   onClick={() => handleCopyClick(Checklist)}
                 >
-                  <img src="/images/copy-icon.svg" alt="Copy" title="Copy" />
+                  <img
+                    className="w-4 h-4"
+                    src={
+                      copied
+                        ? "/images/right-icon.svg"
+                        : "/images/copy-icon.svg"
+                    }
+                    alt={copied ? "Copied" : "Copy"}
+                  />
                 </button>
               </div>
             </div>
@@ -268,7 +295,15 @@ const ReportSection = ({
                   className="p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f"
                   onClick={() => handleCopyClick(Eligibility)}
                 >
-                  <img src="/images/copy-icon.svg" alt="Copy" title="Copy" />
+                  <img
+                    className="w-4 h-4"
+                    src={
+                      copied
+                        ? "/images/right-icon.svg"
+                        : "/images/copy-icon.svg"
+                    }
+                    alt={copied ? "Copied" : "Copy"}
+                  />
                 </button>
               </div>
             </div>

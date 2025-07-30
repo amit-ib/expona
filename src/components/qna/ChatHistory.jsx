@@ -1,6 +1,8 @@
 import React from "react";
 import ChatActions from "../chat/ChatActions";
 import { markdownComponents } from "../../utils";
+import Markdown from "react-markdown";
+import { FetchChatHistory } from "../../api/apiHelper";
 
 const ChatHistory = ({
   showOtherPrompts,
@@ -9,9 +11,13 @@ const ChatHistory = ({
   saved,
   setSaved,
   scrollToSection,
+  qnaResponse,
+  pendingMessage,
+  report,
 }) => {
-  // Ref for otherPrompts div
   const otherPromptsRef = React.useRef(null);
+  const [messages, setMessages] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
 
   // Function to scroll to otherPrompts
   const scrollToOtherPrompts = () => {
@@ -25,49 +31,81 @@ const ChatHistory = ({
     }
   }, [showOtherPrompts]);
 
+  React.useEffect(() => {
+    // Fetch chat history when qnaResponse changes and tenderId is available
+    const tenderId = localStorage.getItem("tenderId");
+    if (!tenderId) return;
+    if (report.status === "success") {
+      const fetchChatHistory = async () => {
+        setLoading(true);
+        try {
+          const chatHistory = await FetchChatHistory({
+            tender_id: tenderId,
+          });
+          // console.log("chatHistory", chatHistory);
+          setMessages(chatHistory?.data?.messages || []);
+        } finally {
+          setLoading(false);
+          // Scroll the chat content div to the bottom after sending
+          setTimeout(() => {
+            const chatContentDiv = document.querySelector(".chat-scrollbar");
+            if (chatContentDiv) {
+              chatContentDiv.scrollTop = chatContentDiv.scrollHeight;
+            }
+          }, 100);
+        }
+      };
+      fetchChatHistory();
+    }
+  }, [qnaResponse, report]);
+
+  React.useEffect(() => {
+    if (report.status === "success") {
+      setLoading(true);
+    }
+  }, [pendingMessage]);
+
+  // console.log("pendingMessage", pendingMessage, message);
   return (
-    // showOtherPrompts && (
-    // Chat history section
-    <div
-      className="w-full my-10 hidden"
-      id="otherPrompts"
-      ref={otherPromptsRef}
-    >
-      <div className="text-sm font-light flex flex-col">
-        <div className="self-end max-w-xl bg-gray-4f px-4 py-2 rounded-md">
-          Process for bid evaluation
-        </div>
-      </div>
-      <div className="group">
-        <div className="flex mb-4 mt-6 items-center">
-          <strong className="py-2"> Pre-submission Checklist</strong>
-          <div className="hidden ml-3 group-hover:inline-block flex space-x-3">
-            <button className="p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f">
-              <img src="/images/copy-icon.svg" alt="Copy" title="Copy"></img>
-            </button>{" "}
+    <div className="w-full " id="otherPrompts" ref={otherPromptsRef}>
+      {/* Messages or empty state */}
+      {messages.length > 0 &&
+        messages.map((msg, idx) => (
+          <div key={idx} className="mt-10">
+            <div className="text-sm font-light flex flex-col">
+              <div className="self-end max-w-xl bg-gray-4f px-4 py-2 rounded-md">
+                {msg.question}
+              </div>
+            </div>
+            <div className="group">
+              <div className="text-sm  my-5">{msg.answer}</div>
+              <ChatActions
+                setShowSavedNote={setShowSavedNote}
+                showOtherPrompts={showOtherPrompts}
+                saved={saved}
+                setSaved={setSaved}
+                answer={msg.answer}
+              />
+            </div>
           </div>
-        </div>
-        <ul className="mt-6 list-disc ml-5 text-sm font-light space-y-1">
-          <li>Upload duly filled tender form</li>
-          <li>Submit EMD in specified format</li>
-          <li>Financial bid in BOQ format</li>
-          <li>Signed and scanned copies of all pages of tender document</li>
-          <li>Relevant licenses and registration certificates</li>
-          <li>GST registration and PAN copy</li>
-          <li>Power of attorney/authorization letter (if applicable)</li>
-          <li>Affidavit of not being blacklisted</li>
-          <li>Attend pre-bid meeting (optional but recommended)</li>
-        </ul>
-      </div>
+        ))}
+      {/* Loader at the bottom */}
+      {loading && (
+        <>
+          <div className="text-sm font-light flex flex-col">
+            <div className="self-end max-w-xl bg-gray-4f px-4 py-2 rounded-md">
+              {pendingMessage}
+            </div>
+          </div>
+          <div className="flex">
+            <span className="animate-pulse bg-gradient-to-r from-expona-red via-gray-200 inline-block text-transparent bg-clip-text">
+              Analysing.....
+            </span>
+          </div>
+        </>
+      )}
       {/* Actions Section */}
-      <ChatActions
-        setShowSavedNote={setShowSavedNote}
-        showOtherPrompts={showOtherPrompts}
-        saved={saved}
-        setSaved={setSaved}
-      />
     </div>
-    // )
   );
 };
 

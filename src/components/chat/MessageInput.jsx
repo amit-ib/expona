@@ -1,9 +1,23 @@
 import React from "react";
 
-const MessageInput = ({ message, setMessage, isDisabled, onSendMessage }) => {
+const MessageInput = ({
+  message,
+  setMessage,
+  isDisabled,
+  onSendMessage,
+  setPendingMessage,
+}) => {
   const handleSend = () => {
     if (message.trim() && !isDisabled) {
+      if (setPendingMessage) setPendingMessage(message);
       onSendMessage(message);
+      // Scroll the chat content div to the bottom after sending
+      setTimeout(() => {
+        const chatContentDiv = document.querySelector(".chat-scrollbar");
+        if (chatContentDiv) {
+          chatContentDiv.scrollTop = chatContentDiv.scrollHeight;
+        }
+      }, 100);
     }
   };
 

@@ -51,9 +51,22 @@ const Chat = ({ projectsVisibility }) => {
     closeModal,
     isNewTender,
     setIsNewTender,
+    isReevaluate,
+    setIsReevaluate,
   } = useChatData();
-
-  const { handleSendMessage } = useChat(report, message, setMessage);
+  const [pendingMessage, _setPendingMessage] = React.useState(null);
+  // Custom setter to log whenever pendingMessage is updated from MessageInput
+  const setPendingMessage = React.useCallback((msg) => {
+    _setPendingMessage(msg);
+    // console.log("Pending Message:", msg);
+  }, []);
+  const [qnaResponse, setQnaResponse] = React.useState(null);
+  const { handleSendMessage } = useChat(
+    report,
+    message,
+    setMessage,
+    setQnaResponse
+  );
 
   // Optional: Scroll to the element when activeHash changes, if needed
   // useEffect(() => {
@@ -65,6 +78,7 @@ const Chat = ({ projectsVisibility }) => {
   //   }
   // }, [activeHash]);
   // console.log("IsUploading", isLoading);
+  // console.log("Pending Message:", pendingMessage); // Now handled in setPendingMessage
   return (
     <div className="min-h-screen bg-gray-2d text-white flex flex-col">
       {/* Header */}
@@ -166,6 +180,9 @@ const Chat = ({ projectsVisibility }) => {
                         report={report}
                         errorModal={showErrorModal}
                         setErrorModal={setShowErrorModal}
+                        qnaResponse={qnaResponse}
+                        setPendingMessage={setPendingMessage}
+                        pendingMessage={pendingMessage}
                       />
                     </div>
                     {/* Chat - Message Input Section */}
@@ -174,21 +191,22 @@ const Chat = ({ projectsVisibility }) => {
                         message={message}
                         setMessage={setMessage}
                         onSendMessage={handleSendMessage}
-                        // isAnyDocumentChecked={isAnyDocumentChecked}
+                        setPendingMessage={setPendingMessage}
                       />
                     )}
                   </div>
                   {/* Right Sidebar - Documents/Notes */}
                   <RightSidebar
-                    // isLoading={isLoading || isUploading || isTenderListLoading}
                     isLoading={isTenderListLoading || isUploading}
                     sources={sources}
                     setSources={setSources}
                     collapsed={rightSidebarCollapsed}
                     setCollapsed={setRightSidebarCollapsed}
-                    // onCheckedChange={setIsAnyDocumentChecked}
                     isTenderListLoading={isTenderListLoading}
-                    onUploadNewTenderDoc={openModal}
+                    onUploadNewTenderDoc={() => {
+                      setIsReevaluate(true);
+                      openModal();
+                    }}
                   />
                 </div>
               </div>

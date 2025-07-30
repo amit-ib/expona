@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { ChatConversation } from "../api/apiHelper";
 
-export const useChat = (report, message, setMessage) => {
+export const useChat = (report, message, setMessage, setQnaResponse) => {
   const location = useLocation();
   const [isSending, setIsSending] = useState(false);
 
@@ -11,41 +11,34 @@ export const useChat = (report, message, setMessage) => {
       if (!query.trim() || isSending) return;
 
       setIsSending(true);
+      setMessage(""); // Clear input immediately for better UX
 
       try {
         const companyId = localStorage.getItem("company_id");
-        const rawFilename = location.state?.filename || report?.data?.filename;
-        const tenderId = report?.data?.tender_id || location.state?.id;
+        const tenderId = localStorage.getItem("tenderId");
 
-        if (!rawFilename || !companyId || !tenderId) {
+        if (!companyId || !tenderId) {
           console.error(
             "Missing required parameters for ChatConversation API",
-            rawFilename
+            tenderId
           );
           return;
         }
 
-        // Remove the last 3 characters from the filename
-        const filename = rawFilename.slice(0, -4);
-
-        const response = await ChatConversation({
-          filename: filename,
+        const QnaResponse = await ChatConversation({
           company_id: companyId,
           query: query,
           tender_id: tenderId,
         });
 
-        console.log("ChatConversation API response:", response);
-
-        // Clear the input after successful send
-        setMessage("");
+        setQnaResponse(QnaResponse.data);
       } catch (error) {
         console.error("Error calling ChatConversation API:", error);
       } finally {
         setIsSending(false);
       }
     },
-    [report, location.state, message, setMessage, isSending]
+    [report, location.state, setMessage, isSending, setQnaResponse]
   );
 
   return {

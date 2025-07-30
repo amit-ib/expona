@@ -22,6 +22,7 @@ export const API_ENDPOINTS = {
   UPLOAD_COMPANY_DOC: `${BASE_URL}/company/upload_supporting_docs`,
   // Chat Related Endpoints
   CHAT_CONVERSATION: `${BASE_URL}/conversation/converse`,
+  FETCH_CHAT_HISTORY: `${BASE_URL}/conversation/chat_history`,
 
   // Add more endpoints here as needed
 };

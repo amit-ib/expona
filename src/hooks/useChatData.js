@@ -31,6 +31,7 @@ export const useChatData = () => {
   const finalSummaryFlag = useRef(false);
   const [storedSummary, setStoredSummary] = useState("");
   const [isNewTender, setIsNewTender] = useState(false);
+  const [isReevaluate, setIsReevaluate] = useState(false);
   const hasUploaded = useRef(false);
   const [report, setReport] = useState(() => {
     const saved = localStorage.getItem("tenderReport");
@@ -176,11 +177,22 @@ export const useChatData = () => {
                 // setTenderTitle(title);
                 console.log("PARTS:", parts);
                 // Extract tender ID (third part, index 2) if available
-                if (parts.length > 2) {
-                  const tenderId = parts[2].trim();
-                  localStorage.setItem("tenderId", tenderId);
-                  setStoreTenderID(tenderId);
-                }
+                // Wait for up to 2 seconds for parts[2] to be available and parts.length > 2
+                const getTenderIdWithDelay = async () => {
+                  let attempts = 0;
+                  let tenderId = undefined;
+                  while (
+                    (parts.length <= 2 || !(tenderId = parts[2]?.trim())) &&
+                    attempts < 20
+                  ) {
+                    await new Promise((res) => setTimeout(res, 100));
+                  }
+                  if (parts.length > 2 && tenderId) {
+                    localStorage.setItem("tenderId", tenderId);
+                    setStoreTenderID(tenderId);
+                  }
+                };
+                getTenderIdWithDelay();
 
                 // Remove the metaMarker and afterMeta from newContent if metaMarker exists
                 if (metaIndex !== -1) {
@@ -212,7 +224,9 @@ export const useChatData = () => {
               const fetchedReport = await fetchTenderReport({
                 tender_id: tenderId,
                 company_id: companyId,
+                reevaluate: isReevaluate,
               });
+              setIsReevaluate(false);
               setIsUploading(false);
               setReport(fetchedReport);
               localStorage.setItem(
@@ -261,12 +275,14 @@ export const useChatData = () => {
                   setUploadResponse(lastSummary);
                 }
               }
-              if (filesToUpload && companyId) {
+              if (filesToUpload && companyId && tenderId) {
                 const eligibility = await fetchEligibility({
                   tender_id: tenderId,
                   company_id: companyId,
+                  reevaluate: isReevaluate,
                 });
                 setEligibilityData(eligibility);
+                setIsReevaluate(false);
               }
             } catch (err) {
               console.error(
@@ -388,5 +404,7 @@ export const useChatData = () => {
     closeModal,
     isNewTender,
     setIsNewTender,
+    isReevaluate,
+    setIsReevaluate,
   };
 };

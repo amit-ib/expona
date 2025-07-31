@@ -156,7 +156,7 @@ const ChatActions = ({
                 "opacity-50 cursor-not-allowed"
               } hover:border-gray-5c hover:bg-gray-4f transition-colors`}
               onClick={openFeedbackModal}
-              // disabled={feedbackSent || isfeedbackSent !== null}
+              disabled={feedbackSent || isfeedbackSent !== null}
             >
               <img src="/images/thumbs-down-icon.svg" alt="Dislike" />
             </button>

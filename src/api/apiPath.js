@@ -12,6 +12,7 @@ export const API_ENDPOINTS = {
   FETCH_SUPPORTING_DOCS: `${BASE_URL}/company/fetch_supporting_docs`,
   DELETE_SUPPORTING_DOCS: `${BASE_URL}/company/delete_supporting_doc`,
   FETCH_TENDER_REPORT: `${BASE_URL}/report/detailed_report`,
+  UPDATE_TENDER_TITLE: `${BASE_URL}/tender/update_tender_title`,
   // Eligibility Report Endpoints
   FETCH_ELIGIBILITY: `${BASE_URL}/report/eligibility_report`,
   FETCH_REVISE_ELIGIBILITY: `${BASE_URL}/report/revise_eligibility`,

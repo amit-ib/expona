@@ -410,3 +410,26 @@ export async function StoreChatFeedback({ message_id, rating, feedback }) {
     throw error;
   }
 }
+
+// ####### POST request for UPDATE_TENDER_TITLE endpoint  #######
+export async function updateTenderTitle(tender_id, new_title) {
+  try {
+    const url = `${
+      API_ENDPOINTS.UPDATE_TENDER_TITLE
+    }?tender_id=${encodeURIComponent(tender_id)}&new_title=${encodeURIComponent(
+      new_title
+    )}`;
+
+    const response = await axiosInstance.post(
+      url,
+      {},
+      {
+        headers: getAuthHeaders(),
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating tender title:", error);
+    throw error;
+  }
+}

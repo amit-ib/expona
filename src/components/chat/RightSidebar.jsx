@@ -46,7 +46,7 @@ const RightSidebar = ({
     if (tenderListRaw && tenderId) {
       try {
         const tenderList = JSON.parse(tenderListRaw);
-        console.log("Tender List:", tenderList);
+
         // Step 2: Search for tenderId in tenderList by id
         const found = tenderList.find(
           (tender) => String(tender.id) === String(tenderId)

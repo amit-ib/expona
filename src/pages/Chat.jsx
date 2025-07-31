@@ -53,6 +53,12 @@ const Chat = ({ projectsVisibility }) => {
     setIsNewTender,
     isReevaluate,
     setIsReevaluate,
+    isEditingTitle,
+    editedTitle,
+    setEditedTitle,
+    handleEditTitle,
+    handleSaveTitle,
+    handleCancelEdit,
   } = useChatData();
   const [pendingMessage, _setPendingMessage] = React.useState(null);
   // Custom setter to log whenever pendingMessage is updated from MessageInput
@@ -109,7 +115,7 @@ const Chat = ({ projectsVisibility }) => {
               />
               <div className="flex flex-1 flex-col">
                 <div className="flex items-center justify-between gap-4 py-6 px-5 border-b border-gray-42 bg-gray-24 rounded-t-lg">
-                  <div className="flex items-center">
+                  <div className="flex items-center  w-full">
                     <button
                       onClick={() => {
                         navigate("/dashboard");
@@ -118,23 +124,48 @@ const Chat = ({ projectsVisibility }) => {
                     >
                       <img src="/images/back-arrow.svg" width={16} alt="Back" />
                     </button>
-                    <div className="flex items-center gap-3 group relative hover:bg-gray-24 p-1">
+                    <div className="flex items-center gap-3 group relative hover:bg-gray-24 p-1 w-full">
                       {/* <span className="text-2xl">
                         <img src="/images/chat-head-icon.png" alt="Expona" />
                       </span> */}
-                      <h1
-                        className="text-lg font-medium flex items-center cursor-pointer pl-3 "
-                        title={tenderTitle}
-                      >
-                        {tenderTitle && tenderTitle.length > 80
-                          ? `${tenderTitle.slice(0, 80)}...`
-                          : tenderTitle}
-                        <img
-                          src="/images/edit-icon.svg"
-                          alt="Edit Title"
-                          className="ml-2  opacity-0 group-hover:opacity-100 transition-opacity"
-                        />
-                      </h1>
+                      {isEditingTitle ? (
+                        <div className="flex items-center w-full">
+                          <input
+                            type="text"
+                            value={editedTitle}
+                            onChange={(e) => setEditedTitle(e.target.value)}
+                            className="flex-1 bg-gray-2d border border-gray-5c rounded px-2 py-1.5 text-lg font-medium"
+                          />
+                          <button
+                            onClick={handleSaveTitle}
+                            className="ml-2 px-3 py-2 bg-expona-red text-white rounded-md"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={handleCancelEdit}
+                            className="ml-2 px-3 py-2 bg-gray-5c text-white rounded-md"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <h1
+                          className="text-lg font-medium flex items-center cursor-pointer pl-3 "
+                          title={tenderTitle}
+                        >
+                          {tenderTitle && tenderTitle.length > 80
+                            ? `${tenderTitle.slice(0, 80)}...`
+                            : tenderTitle}
+                          <button alt="Edit Title" onClick={handleEditTitle}>
+                            <img
+                              src="/images/edit-icon.svg"
+                              alt="Edit Title"
+                              className="ml-2  opacity-0 group-hover:opacity-100 transition-opacity"
+                            />
+                          </button>
+                        </h1>
+                      )}
                     </div>
                   </div>
                   <button

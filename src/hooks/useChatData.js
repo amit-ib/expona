@@ -6,6 +6,7 @@ import {
   fetchTenderReport,
   fetchEligibility,
   fetchTenderList,
+  updateTenderTitle,
 } from "../api/apiHelper";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -51,9 +52,34 @@ export const useChatData = () => {
 
     return "Untitled Tender";
   }
-  const [tenderTitle, setTenderTitle] = useState(() =>
-    getInitialTenderTitle(location)
+  const [tenderTitle, setTenderTitle] = useState(
+    () => localStorage.getItem("tenderTitle") || getInitialTenderTitle(location)
   );
+
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editedTitle, setEditedTitle] = useState(tenderTitle);
+
+  const handleEditTitle = () => {
+    setIsEditingTitle(true);
+    setEditedTitle(tenderTitle);
+  };
+
+  const handleSaveTitle = async () => {
+    setTenderTitle(editedTitle);
+    setIsEditingTitle(false);
+    // console.log("Updated title:", editedTitle);
+    try {
+      await updateTenderTitle(localStorage.getItem("tenderId"), editedTitle);
+      // console.log(localStorage.getItem("tenderId"));
+      localStorage.setItem("tenderTitle", editedTitle);
+    } catch (error) {
+      console.error("Error updating tender title:", error);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditingTitle(false);
+  };
   const [eligibilityData, setEligibilityData] = useState(null);
   const [isTenderListLoading, setIsTenderListLoading] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(null);
@@ -224,6 +250,7 @@ export const useChatData = () => {
                 "tenderReport",
                 JSON.stringify(fetchedReport)
               );
+
               setTenderTitle(fetchedReport?.data?.title || tenderTitle);
               if (fetchedReport && fetchedReport.data.tender_id) {
                 localStorage.setItem("tenderId", fetchedReport.data.tender_id);
@@ -333,11 +360,13 @@ export const useChatData = () => {
         try {
           const companyId = localStorage.getItem("company_id");
           // const filename = tenderFile;
+
           if (tenderId && companyId) {
             const fetchedReport = await fetchTenderReport({
               tender_id: tenderId,
               company_id: companyId,
             });
+
             setReport(fetchedReport);
             localStorage.setItem("tenderReport", JSON.stringify(fetchedReport));
 
@@ -387,6 +416,12 @@ export const useChatData = () => {
     setStoredSummary,
     report,
     tenderTitle,
+    isEditingTitle,
+    editedTitle,
+    setEditedTitle,
+    handleEditTitle,
+    handleSaveTitle,
+    handleCancelEdit,
     eligibilityData,
     isTenderListLoading,
     showErrorModal,

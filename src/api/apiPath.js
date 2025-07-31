@@ -23,6 +23,7 @@ export const API_ENDPOINTS = {
   // Chat Related Endpoints
   CHAT_CONVERSATION: `${BASE_URL}/conversation/converse`,
   FETCH_CHAT_HISTORY: `${BASE_URL}/conversation/chat_history`,
+  STORE_CHAT_FEEDBACK: `${BASE_URL}/conversation/response_feedback`,
 
   // Add more endpoints here as needed
 };

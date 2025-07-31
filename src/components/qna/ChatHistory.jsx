@@ -85,6 +85,8 @@ const ChatHistory = ({
                 saved={saved}
                 setSaved={setSaved}
                 answer={msg.answer}
+                messageId={msg.answer_id}
+                isfeedbackSent={msg.liked}
               />
             </div>
           </div>

@@ -178,22 +178,13 @@ export const useChatData = () => {
                 console.log("PARTS:", parts);
                 // Extract tender ID (third part, index 2) if available
                 // Wait for up to 2 seconds for parts[2] to be available and parts.length > 2
-                const getTenderIdWithDelay = async () => {
-                  let attempts = 0;
-                  let tenderId = undefined;
-                  while (
-                    (parts.length <= 2 || !(tenderId = parts[2]?.trim())) &&
-                    attempts < 20
-                  ) {
-                    await new Promise((res) => setTimeout(res, 100));
-                  }
-                  if (parts.length > 2 && tenderId) {
-                    localStorage.setItem("tenderId", tenderId);
-                    setStoreTenderID(tenderId);
-                  }
-                };
-                getTenderIdWithDelay();
 
+                if (parts.length > 2) {
+                  const tenderId = parts[2].trim();
+                  console.log("Extracted tender ID", tenderId);
+                  localStorage.setItem("tenderId", tenderId);
+                  setStoreTenderID(tenderId);
+                }
                 // Remove the metaMarker and afterMeta from newContent if metaMarker exists
                 if (metaIndex !== -1) {
                   newContent = newContent.slice(0, metaIndex);

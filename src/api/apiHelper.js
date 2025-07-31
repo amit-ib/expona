@@ -392,3 +392,21 @@ export async function FetchChatHistory({ tender_id }) {
     throw error;
   }
 }
+
+// ####### GET request for STORE_CHAT_FEEDBACK endpoint  #######
+export async function StoreChatFeedback({ message_id, rating, feedback }) {
+  try {
+    const url = `${
+      API_ENDPOINTS.STORE_CHAT_FEEDBACK
+    }?message_id=${encodeURIComponent(message_id)}&rating=${encodeURIComponent(
+      rating
+    )}&feedback=${encodeURIComponent(feedback)}`;
+    const response = await axiosInstance.get(url, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error storing chat feedback:", error);
+    throw error;
+  }
+}

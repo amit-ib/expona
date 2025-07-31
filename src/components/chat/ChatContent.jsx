@@ -28,6 +28,7 @@ const ChatContent = ({
   setErrorModal,
   qnaResponse,
   pendingMessage,
+  onSendMessage,
 }) => {
   const [popup, setPopup] = React.useState({
     visible: false,
@@ -358,6 +359,7 @@ const ChatContent = ({
               closeExportPopup={closeExportPopup}
               chatContent={chatContent}
               handleCitationClick={handleCitationClick}
+              onSendMessage={onSendMessage}
             />
             {report !== null && (
               <>

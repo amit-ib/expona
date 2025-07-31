@@ -13,10 +13,11 @@ const ReportSection = ({
   closeExportPopup,
   chatContent,
   handleCitationClick,
+  onSendMessage,
 }) => {
   const [copied, setCopied] = useState(false);
   if (!report || !report.data) return null;
-  const { Summary, Timeline, Todos, Checklist, Eligibility } =
+  const { Summary, Timeline, Todos, Checklist, Eligibility, Questions } =
     report.data || {};
 
   // Utility to handle copy for different sections
@@ -317,6 +318,28 @@ const ReportSection = ({
           </div>
           {/* Separator */}
           <div className="w-full h-px bg-gray-42 my-4"></div>
+        </>
+      )}
+      {Questions && Questions.questions && (
+        <>
+          <div className="mb-8 relative group" id="questions">
+            <div className="flex mb-4 mt-6 items-center">
+              <strong className="py-2">
+                Would you like details on any specific category?
+              </strong>
+            </div>
+            <div className="text-sm font-light flex flex-wrap">
+              {Questions.questions.map((question, index) => (
+                <button
+                  key={index}
+                  className="bg-transparent border border-gray-5c text-white font-normal py-2 px-4 rounded-lg mr-2 mb-2 hover:bg-gray-5c"
+                  onClick={() => onSendMessage(question)}
+                >
+                  {question}
+                </button>
+              ))}
+            </div>
+          </div>
         </>
       )}
     </div>

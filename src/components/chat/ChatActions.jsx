@@ -182,13 +182,20 @@ const ChatActions = ({
               </button>
             </Tooltip>
             {/* )} */}
-            <button
+            {/* <button
               className="px-5 py-2 border border-gray-5c rounded-full text-xs hover:bg-gray-4f transition-colors flex items-center gap-1"
               onClick={handleExportClick}
               ref={exportButtonRef}
             >
               Export as
               <img src="/images/arrow-down.svg" alt="Export as" />
+            </button> */}
+            <button
+              className="px-5 py-2 border border-gray-5c rounded-full text-xs hover:bg-gray-4f transition-colors flex items-center gap-1"
+              onClick={handleExportClick}
+              ref={exportButtonRef}
+            >
+              Export as PDF
             </button>
           </div>
         </div>

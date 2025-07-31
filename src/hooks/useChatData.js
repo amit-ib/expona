@@ -205,12 +205,35 @@ export const useChatData = () => {
                 // Extract tender ID (third part, index 2) if available
                 // Wait for up to 2 seconds for parts[2] to be available and parts.length > 2
 
-                if (parts.length > 2) {
-                  const tenderId = parts[2].trim();
-                  console.log("Extracted tender ID", tenderId);
-                  localStorage.setItem("tenderId", tenderId);
-                  setStoreTenderID(tenderId);
-                }
+                // if (parts.length > 2) {
+                //   console.log("PARTS TENDER ID:", parts[2]);
+                //   const tenderId = parts[2].trim();
+                //   console.log("Extracted tender ID", tenderId);
+                //   localStorage.setItem("tenderId", tenderId);
+                //   setStoreTenderID(tenderId);
+                // }
+                // Retry logic to ensure we get tenderId (parts[2]) even if delayed
+                let attempts = 0;
+                const maxAttempts = 50; // 20 x 100ms = 2 seconds
+
+                const checkTenderId = () => {
+                  const updatedParts = afterMeta.split("<br>");
+                  if (updatedParts.length > 2 && updatedParts[2].trim()) {
+                    const tenderId = updatedParts[2].trim();
+                    console.log("✅ Extracted tender ID:", tenderId);
+                    localStorage.setItem("tenderId", tenderId);
+                    setStoreTenderID(tenderId);
+                  } else if (attempts < maxAttempts) {
+                    attempts++;
+                    setTimeout(checkTenderId, 100); // try again in 100ms
+                  } else {
+                    console.warn(
+                      "⚠️ Tender ID not found after waiting 5 seconds."
+                    );
+                  }
+                };
+
+                checkTenderId();
                 // Remove the metaMarker and afterMeta from newContent if metaMarker exists
                 if (metaIndex !== -1) {
                   newContent = newContent.slice(0, metaIndex);
@@ -223,6 +246,7 @@ export const useChatData = () => {
           try {
             // Wait for tenderId to be available in localStorage (max 2s)
             let tenderId = localStorage.getItem("tenderId") || storeTenderID;
+            console.log("REPORT TENDER ID:", tenderId);
             let attempts = 0;
             while (!tenderId && attempts < 20) {
               await new Promise((res) => setTimeout(res, 100));

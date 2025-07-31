@@ -214,6 +214,7 @@ const Chat = ({ projectsVisibility }) => {
                         qnaResponse={qnaResponse}
                         setPendingMessage={setPendingMessage}
                         pendingMessage={pendingMessage}
+                        onSendMessage={handleSendMessage}
                       />
                     </div>
                     {/* Chat - Message Input Section */}

@@ -9,17 +9,19 @@ const PdfViewerModal = ({ isOpen, onClose, fileUrl }) => {
   const [scale, setScale] = useState(1.5);
   const [currentPage, setCurrentPage] = useState(1);
 
+  const pdfUrl = Array.isArray(fileUrl) ? fileUrl[0] : fileUrl;
+
   useEffect(() => {
     // Reset page number when modal opens or file changes
     if (isOpen) {
       setCurrentPage(1);
     }
-  }, [isOpen, fileUrl]);
+  }, [isOpen, pdfUrl]);
 
   if (!isOpen) return null;
 
   // Extract file name from URL and remove anything after the extension
-  let fileName = fileUrl ? fileUrl.split("/").pop() : "Document";
+  let fileName = pdfUrl ? pdfUrl.split("/").pop() : "Document";
   if (fileName) {
     // Match the file extension
     const extMatch = fileName.match(/\.(pdf|docx?|doc|txt|rtf)\b/i);
@@ -72,7 +74,7 @@ const PdfViewerModal = ({ isOpen, onClose, fileUrl }) => {
       <div className="flex flex-col relative h-[calc(100vh-80px)] bg-white py-3 rounded max-w-[700px] w-11/12 mt-8 ">
         <div className="overflow-auto flex-1 mb-0">
           <Document
-            file={fileUrl}
+            file={pdfUrl}
             onLoadSuccess={handleLoadSuccess}
             loading="Loading PDF..."
           >

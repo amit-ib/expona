@@ -14,6 +14,8 @@ const ReportSection = ({
   chatContent,
   handleCitationClick,
   onSendMessage,
+  setIsChatHistoryLoading,
+  setPendingMessage,
 }) => {
   const [copied, setCopied] = useState(false);
   if (!report || !report.data) return null;
@@ -332,8 +334,12 @@ const ReportSection = ({
               {Questions.questions.map((question, index) => (
                 <button
                   key={index}
-                  className="bg-transparent border border-gray-5c text-white font-normal py-2 px-4 rounded-lg mr-2 mb-2 hover:bg-gray-5c"
-                  onClick={() => onSendMessage(question)}
+                  className="bg-transparent border text-left border-gray-5c text-white font-normal py-2 px-4 rounded-lg mr-2 mb-2 hover:bg-gray-5c"
+                  onClick={() => {
+                    onSendMessage(question);
+                    setIsChatHistoryLoading(true);
+                    setPendingMessage(question);
+                  }}
                 >
                   {question}
                 </button>

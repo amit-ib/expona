@@ -14,10 +14,11 @@ const ChatHistory = ({
   qnaResponse,
   pendingMessage,
   report,
+  isChatHistoryLoading,
+  setIsChatHistoryLoading,
 }) => {
   const otherPromptsRef = React.useRef(null);
   const [messages, setMessages] = React.useState([]);
-  const [loading, setLoading] = React.useState(false);
 
   // Function to scroll to otherPrompts
   const scrollToOtherPrompts = () => {
@@ -37,7 +38,7 @@ const ChatHistory = ({
     if (!tenderId) return;
     if (report.status === "success") {
       const fetchChatHistory = async () => {
-        setLoading(true);
+        setIsChatHistoryLoading(true);
         try {
           const chatHistory = await FetchChatHistory({
             tender_id: tenderId,
@@ -45,7 +46,7 @@ const ChatHistory = ({
           // console.log("chatHistory", chatHistory);
           setMessages(chatHistory?.data?.messages || []);
         } finally {
-          setLoading(false);
+          setIsChatHistoryLoading(false);
           // Scroll the chat content div to the bottom after sending
           setTimeout(() => {
             const chatContentDiv = document.querySelector(".chat-scrollbar");
@@ -61,7 +62,7 @@ const ChatHistory = ({
 
   React.useEffect(() => {
     if (report.status === "success") {
-      setLoading(true);
+      setIsChatHistoryLoading(true);
     }
   }, [pendingMessage]);
 
@@ -92,7 +93,7 @@ const ChatHistory = ({
           </div>
         ))}
       {/* Loader at the bottom */}
-      {loading && (
+      {isChatHistoryLoading && (
         <>
           <div className="text-sm font-light flex flex-col">
             <div className="self-end max-w-xl bg-gray-4f px-4 py-2 rounded-md">

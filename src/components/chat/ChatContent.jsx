@@ -29,6 +29,7 @@ const ChatContent = ({
   qnaResponse,
   pendingMessage,
   onSendMessage,
+  setPendingMessage,
 }) => {
   const [popup, setPopup] = React.useState({
     visible: false,
@@ -38,6 +39,7 @@ const ChatContent = ({
   });
   const [chatLoader, setChatLoader] = React.useState(false);
   const [showOtherPrompts, setShowOtherPrompts] = React.useState(false);
+  const [isChatHistoryLoading, setIsChatHistoryLoading] = React.useState(false);
 
   // Export popup state
   const [exportPopup, setExportPopup] = React.useState({
@@ -360,6 +362,8 @@ const ChatContent = ({
               chatContent={chatContent}
               handleCitationClick={handleCitationClick}
               onSendMessage={onSendMessage}
+              setIsChatHistoryLoading={setIsChatHistoryLoading}
+              setPendingMessage={setPendingMessage}
             />
             {report !== null && (
               <>
@@ -408,6 +412,8 @@ const ChatContent = ({
               qnaResponse={qnaResponse}
               pendingMessage={pendingMessage}
               report={report}
+              isChatHistoryLoading={isChatHistoryLoading}
+              setIsChatHistoryLoading={setIsChatHistoryLoading}
             />
           )}
           {/* Chat Loader */}

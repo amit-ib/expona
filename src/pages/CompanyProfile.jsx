@@ -188,7 +188,7 @@ const CompanyProfile = () => {
 
   // Prepare files for Other documents section
   // const otherDocsFiles = getSupportingFiles(supportingDocs);
-  // console.log("Other documents uploadedFiles:", supportingDocs);
+  // console.log("Other documents uploadedFiles:", supportingDocs.data);
 
   return (
     <div className="bg-gray-24 min-h-screen overflow-y-auto">
@@ -662,40 +662,43 @@ const CompanyProfile = () => {
                 </div>
 
                 {/* Supporting Document Section */}
-                <div className="flex gap-8 w-full">
-                  <div className="flex flex-col gap-0.5 w-[270px] flex-shrink-0">
-                    <div className="flex items-center gap-2.5">
-                      <h3 className="text-white font-lexend text-base font-medium">
-                        Supporting Documents
-                      </h3>
-                      {/* {profileFiles.length === 0 && (
+                {supportingDocs.data && supportingDocs.data.length > 0 && (
+                  <div className="flex gap-8 w-full">
+                    <div className="flex flex-col gap-0.5 w-[270px] flex-shrink-0">
+                      <div className="flex items-center gap-2.5">
+                        <h3 className="text-white font-lexend text-base font-medium">
+                          Supporting Documents
+                        </h3>
+                        {/* {profileFiles.length === 0 && (
                                                 <div className="bg-expona-red bg-opacity-20 rounded-md px-2 py-0.5 h-5 flex items-center">
                                                     <span className="text-xs font-light  text-red-83">In-Complete</span>
                                                 </div>
                                             )} */}
+                      </div>
+                      <p className="text-gray-ae font-lexend text-sm font-light">
+                        Documents uploaded via eligibility
+                      </p>
                     </div>
-                    <p className="text-gray-ae font-lexend text-sm font-light">
-                      Documents uploaded via eligibility
-                    </p>
-                  </div>
-                  <div className="bg-gray-32 rounded-md flex-1 p-8 flex flex-col gap-12">
-                    <div className="bg-gray-32 rounded-xl flex flex-col gap-4 w-full">
-                      <div className="flex flex-col gap-6 px-6">
-                        <CompanyFileList
-                          uploadedFiles={filterFilesByText(
-                            getSupportingFiles(supportingDocs),
-                            "docTitle",
-                            [
-                              "Certificate_of_Incorporation",
-                              "GST_Registration_Certificate",
-                            ]
-                          )}
-                          onFileUpload={handleFileUpload}
-                        />
+
+                    <div className="bg-gray-32 rounded-md flex-1 p-8 flex flex-col gap-12">
+                      <div className="bg-gray-32 rounded-xl flex flex-col gap-4 w-full">
+                        <div className="flex flex-col gap-6 px-6">
+                          <CompanyFileList
+                            uploadedFiles={filterFilesByText(
+                              getSupportingFiles(supportingDocs),
+                              "docTitle",
+                              [
+                                "Certificate_of_Incorporation",
+                                "GST_Registration_Certificate",
+                              ]
+                            )}
+                            onFileUpload={handleFileUpload}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
 

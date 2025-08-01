@@ -115,7 +115,7 @@ const Chat = ({ projectsVisibility }) => {
               />
               <div className="flex flex-1 flex-col">
                 <div className="flex items-center justify-between gap-4 py-6 px-5 border-b border-gray-42 bg-gray-24 rounded-t-lg">
-                  <div className="flex items-center  w-full">
+                  <div className="flex items-center  w-[78%]">
                     <button
                       onClick={() => {
                         navigate("/dashboard");

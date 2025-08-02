@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Markdown from "react-markdown";
 import { copyToClipboard } from "../../utils.js";
 
@@ -13,14 +13,20 @@ const ReportSection = ({
   closeExportPopup,
   chatContent,
   handleCitationClick,
+  onSendMessage,
+  setIsChatHistoryLoading,
+  setPendingMessage,
 }) => {
+  const [copied, setCopied] = useState(false);
   if (!report || !report.data) return null;
-  const { Summary, Timeline, Todos, Checklist, Eligibility } =
+  const { Summary, Timeline, Todos, Checklist, Eligibility, Questions } =
     report.data || {};
 
   // Utility to handle copy for different sections
   const handleCopyClick = (content) => {
     copyToClipboard(content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
   };
 
   return (
@@ -74,7 +80,15 @@ const ReportSection = ({
                   className="p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f"
                   onClick={() => handleCopyClick(Timeline)}
                 >
-                  <img src="/images/copy-icon.svg" alt="Copy" title="Copy" />
+                  <img
+                    className="w-4 h-4"
+                    src={
+                      copied
+                        ? "/images/right-icon.svg"
+                        : "/images/copy-icon.svg"
+                    }
+                    alt={copied ? "Copied" : "Copy"}
+                  />
                 </button>
                 <button
                   onClick={handleExportClick}
@@ -220,7 +234,15 @@ const ReportSection = ({
                   className="p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f"
                   onClick={() => handleCopyClick(Todos)}
                 >
-                  <img src="/images/copy-icon.svg" alt="Copy" title="Copy" />
+                  <img
+                    className="w-4 h-4"
+                    src={
+                      copied
+                        ? "/images/right-icon.svg"
+                        : "/images/copy-icon.svg"
+                    }
+                    alt={copied ? "Copied" : "Copy"}
+                  />
                 </button>
               </div>
             </div>
@@ -244,7 +266,15 @@ const ReportSection = ({
                   className="p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f"
                   onClick={() => handleCopyClick(Checklist)}
                 >
-                  <img src="/images/copy-icon.svg" alt="Copy" title="Copy" />
+                  <img
+                    className="w-4 h-4"
+                    src={
+                      copied
+                        ? "/images/right-icon.svg"
+                        : "/images/copy-icon.svg"
+                    }
+                    alt={copied ? "Copied" : "Copy"}
+                  />
                 </button>
               </div>
             </div>
@@ -268,7 +298,15 @@ const ReportSection = ({
                   className="p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f"
                   onClick={() => handleCopyClick(Eligibility)}
                 >
-                  <img src="/images/copy-icon.svg" alt="Copy" title="Copy" />
+                  <img
+                    className="w-4 h-4"
+                    src={
+                      copied
+                        ? "/images/right-icon.svg"
+                        : "/images/copy-icon.svg"
+                    }
+                    alt={copied ? "Copied" : "Copy"}
+                  />
                 </button>
               </div>
             </div>
@@ -282,6 +320,32 @@ const ReportSection = ({
           </div>
           {/* Separator */}
           <div className="w-full h-px bg-gray-42 my-4"></div>
+        </>
+      )}
+      {Questions && Questions.questions && (
+        <>
+          <div className="mb-8 relative group" id="questions">
+            <div className="flex mb-4 mt-6 items-center">
+              <strong className="py-2">
+                Would you like details on any specific category?
+              </strong>
+            </div>
+            <div className="text-sm font-light flex flex-wrap">
+              {Questions.questions.map((question, index) => (
+                <button
+                  key={index}
+                  className="bg-transparent border text-left border-gray-5c text-white font-normal py-2 px-4 rounded-lg mr-2 mb-2 hover:bg-gray-5c"
+                  onClick={() => {
+                    onSendMessage(question);
+                    setIsChatHistoryLoading(true);
+                    setPendingMessage(question);
+                  }}
+                >
+                  {question}
+                </button>
+              ))}
+            </div>
+          </div>
         </>
       )}
     </div>

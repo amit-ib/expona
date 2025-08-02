@@ -9,6 +9,7 @@ import Lottie from "lottie-react";
 import animationData from "./chat-loader.json";
 import ReportSection from "./ReportSection";
 import ConfirmationModal from "../common/ConfirmationModal";
+import ChatHistory from "../qna/ChatHistory";
 
 const ChatContent = ({
   isLoading,
@@ -22,10 +23,13 @@ const ChatContent = ({
   uploadResponse,
   hasFinalSummary,
   storedSummary,
-  setStoredSummary,
   report,
   errorModal,
   setErrorModal,
+  qnaResponse,
+  pendingMessage,
+  onSendMessage,
+  setPendingMessage,
 }) => {
   const [popup, setPopup] = React.useState({
     visible: false,
@@ -33,8 +37,9 @@ const ChatContent = ({
     index: null,
     position: { top: 0, left: 0 },
   });
-
+  const [chatLoader, setChatLoader] = React.useState(false);
   const [showOtherPrompts, setShowOtherPrompts] = React.useState(false);
+  const [isChatHistoryLoading, setIsChatHistoryLoading] = React.useState(false);
 
   // Export popup state
   const [exportPopup, setExportPopup] = React.useState({
@@ -280,7 +285,7 @@ const ChatContent = ({
 
       {/* Scrollable Chat Content */}
       <div
-        className="flex flex-col items-start pt-6 overflow-y-auto max-h-[calc(100vh-230px)] chat-scrollbar scrollbar-hide relative"
+        className="flex flex-col items-start pt-6 overflow-y-auto max-h-[calc(100vh-230px)] chat-scrollbar scrollbar-hide relative chat-scrollbar"
         style={{ scrollBehavior: "smooth" }}
       >
         {report === null && !uploadResponse && (
@@ -356,6 +361,9 @@ const ChatContent = ({
               closeExportPopup={closeExportPopup}
               chatContent={chatContent}
               handleCitationClick={handleCitationClick}
+              onSendMessage={onSendMessage}
+              setIsChatHistoryLoading={setIsChatHistoryLoading}
+              setPendingMessage={setPendingMessage}
             />
             {report !== null && (
               <>
@@ -393,55 +401,36 @@ const ChatContent = ({
             )}
           </div>
           {/* Other Prompts */}
-          {showOtherPrompts && (
-            <div
-              className="w-full my-10"
-              id="otherPrompts"
-              ref={setSectionRef("otherPrompts")}
-            >
+          {report !== null && (
+            <ChatHistory
+              showOtherPrompts={showOtherPrompts}
+              setShowOtherPrompts={setShowOtherPrompts}
+              setShowSavedNote={setShowSavedNote}
+              saved={saved}
+              setSaved={setSaved}
+              scrollToSection={scrollToSection}
+              qnaResponse={qnaResponse}
+              pendingMessage={pendingMessage}
+              report={report}
+              isChatHistoryLoading={isChatHistoryLoading}
+              setIsChatHistoryLoading={setIsChatHistoryLoading}
+            />
+          )}
+          {/* Chat Loader */}
+          {/* {pendingMessage && (
+            <>
               <div className="text-sm font-light flex flex-col">
                 <div className="self-end max-w-xl bg-gray-4f px-4 py-2 rounded-md">
-                  Process for bid evaluation
+                  {pendingMessage}
                 </div>
               </div>
-              <div className="group">
-                <div className="flex mb-4 mt-6 items-center">
-                  <strong className="py-2"> Pre-submission Checklist</strong>
-                  <div className="hidden ml-3 group-hover:inline-block flex space-x-3">
-                    <button className="p-2 rounded-lg border border-gray-24 hover:border-gray-5c hover:bg-gray-4f">
-                      <img
-                        src="/images/copy-icon.svg"
-                        alt="Copy"
-                        title="Copy"
-                      ></img>
-                    </button>{" "}
-                  </div>
-                </div>
-                <ul className="mt-6 list-disc ml-5 text-sm font-light space-y-1">
-                  <li>Upload duly filled tender form</li>
-                  <li>Submit EMD in specified format</li>
-                  <li>Financial bid in BOQ format</li>
-                  <li>
-                    Signed and scanned copies of all pages of tender document
-                  </li>
-                  <li>Relevant licenses and registration certificates</li>
-                  <li>GST registration and PAN copy</li>
-                  <li>
-                    Power of attorney/authorization letter (if applicable)
-                  </li>
-                  <li>Affidavit of not being blacklisted</li>
-                  <li>Attend pre-bid meeting (optional but recommended)</li>
-                </ul>
+              <div className="flex pl-10">
+                <span className="animate-pulse bg-gradient-to-r from-expona-red via-gray-200 inline-block text-transparent bg-clip-text">
+                  Analysing.....
+                </span>
               </div>
-              {/* Actions Section */}
-              <ChatActions
-                setShowSavedNote={setShowSavedNote}
-                showOtherPrompts={showOtherPrompts}
-                saved={saved}
-                setSaved={setSaved}
-              />
-            </div>
-          )}
+            </>
+          )} */}
         </>
         {/*  ) : (
            <div className='flex flex-col justify-center items-center w-full h-full'>

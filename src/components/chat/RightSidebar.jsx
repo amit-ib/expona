@@ -19,6 +19,7 @@ const RightSidebar = ({
   setCollapsed,
   // onCheckedChange,
   isTenderListLoading,
+  onUploadNewTenderDoc,
 }) => {
   // State to track which checkboxes are checked
   const [checkedItems, setCheckedItems] = useState([]);
@@ -45,13 +46,18 @@ const RightSidebar = ({
     if (tenderListRaw && tenderId) {
       try {
         const tenderList = JSON.parse(tenderListRaw);
+
         // Step 2: Search for tenderId in tenderList by id
         const found = tenderList.find(
           (tender) => String(tender.id) === String(tenderId)
         );
         if (found && found.filename) {
-          // Step 3: Grab filename, store in setSupportingDocList, and console it
-          setSupportingDocList([found.filename]);
+          // If filename is an array, use it directly; otherwise wrap in array
+          if (Array.isArray(found.filename)) {
+            setSupportingDocList(found.filename);
+          } else {
+            setSupportingDocList([found.filename]);
+          }
         } else {
           setSupportingDocList([]);
         }
@@ -195,13 +201,16 @@ const RightSidebar = ({
       ) : (
         <div className="py-4 px-6 pt-0  flex flex-col justify-center relative">
           {/* Add Document Button */}
-          <input
+          {/* <input
             type="file"
             className={`absolute top-4 left-10 opacity-0 z-40 h-16  cursor-pointer ${
               collapsed ? "w-5" : "w-44"
             }`}
-          />
-          <button className="w-full flex items-center justify-center gap-2 py-3.5 bg-gray-32 hover:bg-gray-37 rounded text-sm font-medium transition-all duration-300 cursor-pointer">
+          /> */}
+          <button
+            className="w-full flex items-center justify-center gap-2 py-3.5 bg-gray-32 hover:bg-gray-37 rounded text-sm font-medium transition-all duration-300 cursor-pointer"
+            onClick={onUploadNewTenderDoc}
+          >
             {/* Use the reusable Tooltip component */}
             <Tooltip
               tooltipContent="Upload Documents"
@@ -309,9 +318,8 @@ const RightSidebar = ({
                           title={filename}
                           onClick={() => setShowPdf(true)}
                         >
-                          {truncateString(filename, 27)}
+                          {truncateString(filename, 25)}
                         </button>
-                        {/* <p className="text-xs text-gray-ae">{source.date}</p> */}
                       </div>
                     )}
                   </div>

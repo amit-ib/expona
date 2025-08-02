@@ -1,6 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
-// import Header from "../components/layout/Header";
-import { useNavigate, useLocation } from "react-router-dom";
+import React from "react";
 import MessageInput from "../components/chat/MessageInput";
 import ChatContent from "../components/chat/ChatContent";
 import RightSidebar from "../components/chat/RightSidebar";
@@ -11,295 +9,70 @@ import RightSideDrawer from "../components/layout/RightSideDrawer";
 import Modal from "../components/common/Modal";
 import UploadAction from "../components/dashboard/UploadAction";
 import { Link } from "react-router-dom";
-import {
-  uploadTenderFile,
-  fetchTenderSummary,
-  fetchTenderReport,
-  fetchEligibility,
-  fetchTenderList,
-} from "../api/apiHelper";
-import { useAuth } from "../contexts/AuthContext";
-import { getCompanyIdFromUser } from "../utils";
+import { useChatData } from "../hooks/useChatData";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useChat } from "../hooks/useChat";
 
-// import Loader from "../components/common/Loader";
-
-const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
+const Chat = ({ projectsVisibility }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [message, setMessage] = useState("");
-  const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false);
-  const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
-  const [showSavedNote, setShowSavedNote] = useState(false);
-  const [sources, setSources] = useState(chatContent.sources);
-  const [activeHash, setActiveHash] = useState(location.hash); // State to track active hash
-  const [saved, setSaved] = useState(false); // Add saved state here
-  const [isTourVisible, setIsTourVisible] = useState(false);
-  // State to track if any document is checked
-  // const [isAnyDocumentChecked, setIsAnyDocumentChecked] = useState(true); // Initialize to true
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false); // New state for drawer visibility
-  const [isModalOpen, setIsModalOpen] = useState(false); // State for New Tender modal
-  const [isLoading, setIsLoading] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadResponse, setUploadResponse] = useState("");
-  const [hasFinalSummary, setHasFinalSummary] = useState(false);
-  const finalSummaryFlag = useRef(false);
-  const [storedSummary, setStoredSummary] = useState("");
-  const hasUploaded = useRef(false);
-  const { user } = useAuth();
-  const [report, setReport] = useState(() => {
-    const saved = localStorage.getItem("tenderReport");
-    return saved ? JSON.parse(saved) : null;
-  });
-  const lastReportKey = useRef(null);
-  const [tenderTitle, setTenderTitle] = useState(
-    location.state?.title ||
-      localStorage.getItem("tenderTitle") ||
-      localStorage.getItem("tender-title") ||
-      "Untitled Tender"
+  const {
+    message,
+    setMessage,
+    rightSidebarCollapsed,
+    setRightSidebarCollapsed,
+    leftSidebarCollapsed,
+    setLeftSidebarCollapsed,
+    showSavedNote,
+    setShowSavedNote,
+    sources,
+    setSources,
+    activeHash,
+    saved,
+    setSaved,
+    isTourVisible,
+    setIsTourVisible,
+    isDrawerOpen,
+    setIsDrawerOpen,
+    isModalOpen,
+    isLoading,
+    isUploading,
+    uploadResponse,
+    hasFinalSummary,
+    storedSummary,
+    setStoredSummary,
+    report,
+    tenderTitle,
+    eligibilityData,
+    isTenderListLoading,
+    showErrorModal,
+    setShowErrorModal,
+    openModal,
+    closeModal,
+    isNewTender,
+    setIsNewTender,
+    isReevaluate,
+    setIsReevaluate,
+    isEditingTitle,
+    editedTitle,
+    setEditedTitle,
+    handleEditTitle,
+    handleSaveTitle,
+    handleCancelEdit,
+  } = useChatData();
+  const [pendingMessage, _setPendingMessage] = React.useState(null);
+  // Custom setter to log whenever pendingMessage is updated from MessageInput
+  const setPendingMessage = React.useCallback((msg) => {
+    _setPendingMessage(msg);
+    // console.log("Pending Message:", msg);
+  }, []);
+  const [qnaResponse, setQnaResponse] = React.useState(null);
+  const { handleSendMessage } = useChat(
+    report,
+    message,
+    setMessage,
+    setQnaResponse
   );
-  const [eligibilityData, setEligibilityData] = useState(null);
-  const [isTenderListLoading, setIsTenderListLoading] = useState(false); // NEW STATE
-  const [showErrorModal, setShowErrorModal] = useState(null);
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
-
-  /* # 
- ####### After Uploading New Tender  ######
-# */
-  useEffect(() => {
-    const file = location.state?.fileToUpload;
-
-    if (file) {
-      if (hasUploaded.current) return;
-      hasUploaded.current = true;
-      finalSummaryFlag.current = false; // Reset flag on new upload
-      setHasFinalSummary(false); // Reset summary flag
-      setReport("");
-      setTenderTitle("Untitled Tender");
-      const doUpload = async () => {
-        setIsUploading(true);
-        setUploadResponse(""); // Reset response state
-        try {
-          await uploadTenderFile(file, (chunk) => {
-            setUploadResponse((prev) => {
-              const summaryMarker = "<---FINAL_SUMMARY--->## TENDER SUMMARY";
-              const analyzingMarker = "<---ANALYZE_PDF--->";
-              let newContent = prev + chunk;
-
-              // Check for database error in the chunk
-              try {
-                const parsed = JSON.parse(newContent);
-                if (parsed.detail && parsed.detail.error === "Database Error") {
-                  setShowErrorModal({
-                    heading: "Oops! Not allowed",
-                    message:
-                      parsed.detail.message ||
-                      "An error occurred while processing your request.",
-                  });
-                  // setIsUploading(false);
-                  return ""; // Clear the response
-                }
-              } catch (e) {
-                // Not JSON, continue processing
-              }
-
-              // Remove all occurrences of the analyzing marker
-              newContent = newContent.split(analyzingMarker).join("");
-
-              const markerIndex = newContent.indexOf(summaryMarker);
-              if (markerIndex !== -1) {
-                finalSummaryFlag.current = true;
-                setHasFinalSummary(true);
-                // Remove everything before and including the summary marker
-                // console.log("UPLOAD RESPONSE:", newContent);
-                return newContent.substring(markerIndex + summaryMarker.length);
-              } else {
-                // Extract text after <---METADATA--->
-                const metaMarker = "<---METADATA--->";
-                const metaIndex = newContent.indexOf(metaMarker);
-                if (metaIndex !== -1) {
-                  const afterMeta = newContent.substring(
-                    metaIndex + metaMarker.length
-                  );
-                  // Grab text before <br
-                  const brIndex = afterMeta.indexOf("<br");
-                  const extractedTitle =
-                    brIndex !== -1
-                      ? afterMeta.substring(0, brIndex)
-                      : afterMeta;
-                  localStorage.setItem("tenderTitle", extractedTitle.trim());
-                  setTenderTitle(extractedTitle.trim());
-                }
-
-                return newContent;
-              }
-            });
-          });
-          // ================== Fetch Final Tender Report ==================
-          try {
-            // setIsLoading(false);
-            const companyId = localStorage.getItem("company_id");
-            const fetchedReport = await fetchTenderReport({
-              filename: file.name,
-              company_id: companyId,
-            });
-            setIsUploading(false);
-            setReport(fetchedReport);
-            localStorage.setItem("tenderReport", JSON.stringify(fetchedReport));
-            setTenderTitle(fetchedReport?.data?.title || tenderTitle);
-            // Set tenderId in localStorage from fetchedReport.tender_id
-            // console.log("NEW TENDER ID:", fetchedReport);
-            if (fetchedReport && fetchedReport.data.tender_id) {
-              localStorage.setItem("tenderId", fetchedReport.data.tender_id);
-            }
-            // Fetch tender list and store in localStorage
-            try {
-              setIsTenderListLoading(true); // START LOADING
-              const tenderListResponse = await fetchTenderList({});
-              if (tenderListResponse && tenderListResponse.data) {
-                localStorage.setItem(
-                  "tenderList",
-                  JSON.stringify(tenderListResponse.data)
-                );
-                // setIsLoading(true) // REMOVE THIS LINE
-              }
-            } catch (err) {
-              console.error("Failed to fetch tender list:", err);
-            } finally {
-              setIsTenderListLoading(false); // END LOADING
-            }
-          } catch (err) {
-            console.error("fetchTenderReport error:", err);
-          }
-        } catch (error) {
-          console.error("Tender upload error:", error);
-          setUploadResponse("Upload failed");
-        } finally {
-          setIsUploading(false);
-
-          // Wait 1 seconds after streaming completes, then log uploadResponse
-          setTimeout(async () => {
-            // console.log('Upload response after 2s:', uploadResponse);
-            try {
-              const data = await fetchTenderSummary();
-              if (Array.isArray(data.data) && data.data.length > 0) {
-                const lastSummary = data.data[data.data.length - 1].summary;
-                if (lastSummary) {
-                  // console.log('lastSummary:', lastSummary);
-                  setUploadResponse(lastSummary);
-                }
-              }
-              // Fetch eligibility after summary
-              const companyId = localStorage.getItem("company_id");
-              if (file && companyId) {
-                const eligibility = await fetchEligibility({
-                  filename: file.name,
-                  company_id: companyId,
-                });
-                setEligibilityData(eligibility);
-                // console.log("Eligibility data after upload:", eligibility);
-              }
-            } catch (err) {
-              console.error(
-                "fetchTenderSummary or fetchEligibility error:",
-                err
-              );
-            }
-          }, 1000);
-        }
-      };
-      doUpload();
-      // Clear the file from the state so it doesn't re-upload
-      navigate(location.pathname, {
-        replace: true,
-        state: { ...location.state, fileToUpload: null },
-      });
-      hasUploaded.current = false;
-    }
-  }, [location, navigate]);
-  /* # 
- ####### After Uploading New Tender Closed ######
-# */
-
-  useEffect(() => {
-    // Update activeHash when location.hash changes
-    setActiveHash(location.hash);
-  }, [location.hash]); // Depend on location.hash
-
-  useEffect(() => {
-    // Check local storage for tour status on component mount
-    const tourSeen = localStorage.getItem("exponaTourSeen");
-    if (!tourSeen) {
-      setIsTourVisible(true);
-    }
-  }, []); // Empty dependency array ensures this runs only once on mount
-
-  /* # 
- ####### After Clicking Tender from Tender Listing ######
- # */
-  useEffect(() => {
-    const tenderId = location.state?.id;
-    const tenderFile = location.state?.filename;
-
-    if (tenderId) {
-      // Fetch summary
-      const fetchSummary = async () => {
-        try {
-          const response = await fetchTenderSummary();
-          const summaryObj = response.data.find((item) => item.id === tenderId);
-          if (summaryObj) {
-            setStoredSummary(summaryObj.summary);
-          } else {
-            setStoredSummary("");
-          }
-        } catch (err) {
-          setStoredSummary("");
-        }
-      };
-      fetchSummary();
-
-      // Prevent double fetch for the same tenderId and filename
-      const reportKey = `${tenderId}_${tenderFile}`;
-      if (lastReportKey.current === reportKey) return;
-      lastReportKey.current = reportKey;
-
-      // Fetch report and then eligibility after a delay
-      const fetchReportThenEligibility = async () => {
-        try {
-          const companyId = localStorage.getItem("company_id");
-          const filename = tenderFile;
-          if (filename && companyId) {
-            // Fetch and display report first
-            const fetchedReport = await fetchTenderReport({
-              filename,
-              company_id: companyId,
-            });
-            setReport(fetchedReport);
-            localStorage.setItem("tenderReport", JSON.stringify(fetchedReport));
-            console.log(
-              "fetchTenderReport output (from fetchReport):",
-              fetchedReport
-            );
-
-            // After a short delay, fetch eligibility in the background
-            setTimeout(() => {
-              fetchEligibility({ filename, company_id: companyId })
-                .then((eligibilityData) => {
-                  // console.log("Eligibility data:", eligibilityData.data);
-                  setEligibilityData(eligibilityData);
-                })
-                .catch((eligErr) => {
-                  console.error("fetchEligibility error:", eligErr);
-                });
-            }, 1000); // 1 second delay
-          }
-        } catch (err) {
-          console.error("fetchTenderReport error (from fetchReport):", err);
-        }
-      };
-      fetchReportThenEligibility();
-    }
-  }, [location.state, user]);
 
   // Optional: Scroll to the element when activeHash changes, if needed
   // useEffect(() => {
@@ -311,6 +84,7 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
   //   }
   // }, [activeHash]);
   // console.log("IsUploading", isLoading);
+  // console.log("Pending Message:", pendingMessage); // Now handled in setPendingMessage
   return (
     <div className="min-h-screen bg-gray-2d text-white flex flex-col">
       {/* Header */}
@@ -337,10 +111,11 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                 setShowSavedNote={setShowSavedNote}
                 setSaved={setSaved}
                 onNewTenderClick={openModal}
+                setIsNewTender={setIsNewTender}
               />
               <div className="flex flex-1 flex-col">
                 <div className="flex items-center justify-between gap-4 py-6 px-5 border-b border-gray-42 bg-gray-24 rounded-t-lg">
-                  <div className="flex items-center">
+                  <div className="flex items-center  w-[78%]">
                     <button
                       onClick={() => {
                         navigate("/dashboard");
@@ -349,23 +124,48 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                     >
                       <img src="/images/back-arrow.svg" width={16} alt="Back" />
                     </button>
-                    <div className="flex items-center gap-3 group relative hover:bg-gray-24 p-1">
+                    <div className="flex items-center gap-3 group relative hover:bg-gray-24 p-1 w-full">
                       {/* <span className="text-2xl">
                         <img src="/images/chat-head-icon.png" alt="Expona" />
                       </span> */}
-                      <h1
-                        className="text-lg font-medium flex items-center cursor-pointer pl-3 "
-                        title={tenderTitle}
-                      >
-                        {tenderTitle && tenderTitle.length > 80
-                          ? `${tenderTitle.slice(0, 80)}...`
-                          : tenderTitle}
-                        <img
-                          src="/images/edit-icon.svg"
-                          alt="Edit Title"
-                          className="ml-2  opacity-0 group-hover:opacity-100 transition-opacity"
-                        />
-                      </h1>
+                      {isEditingTitle ? (
+                        <div className="flex items-center w-full">
+                          <input
+                            type="text"
+                            value={editedTitle}
+                            onChange={(e) => setEditedTitle(e.target.value)}
+                            className="flex-1 bg-gray-2d border border-gray-5c rounded px-2 py-1.5 text-lg font-medium"
+                          />
+                          <button
+                            onClick={handleSaveTitle}
+                            className="ml-2 px-3 py-2 bg-expona-red text-white rounded-md"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={handleCancelEdit}
+                            className="ml-2 px-3 py-2 bg-gray-5c text-white rounded-md"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <h1
+                          className="text-lg font-medium flex items-center cursor-pointer pl-3 "
+                          title={tenderTitle}
+                        >
+                          {tenderTitle && tenderTitle.length > 80
+                            ? `${tenderTitle.slice(0, 80)}...`
+                            : tenderTitle}
+                          <button alt="Edit Title" onClick={handleEditTitle}>
+                            <img
+                              src="/images/edit-icon.svg"
+                              alt="Edit Title"
+                              className="ml-2  opacity-0 group-hover:opacity-100 transition-opacity"
+                            />
+                          </button>
+                        </h1>
+                      )}
                     </div>
                   </div>
                   <button
@@ -411,27 +211,34 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
                         report={report}
                         errorModal={showErrorModal}
                         setErrorModal={setShowErrorModal}
+                        qnaResponse={qnaResponse}
+                        setPendingMessage={setPendingMessage}
+                        pendingMessage={pendingMessage}
+                        onSendMessage={handleSendMessage}
                       />
                     </div>
-                    {/* Message Input Section */}
+                    {/* Chat - Message Input Section */}
                     {!isLoading && (
                       <MessageInput
                         message={message}
                         setMessage={setMessage}
-                        // isAnyDocumentChecked={isAnyDocumentChecked}
+                        onSendMessage={handleSendMessage}
+                        setPendingMessage={setPendingMessage}
                       />
                     )}
                   </div>
                   {/* Right Sidebar - Documents/Notes */}
                   <RightSidebar
-                    // isLoading={isLoading || isUploading || isTenderListLoading}
                     isLoading={isTenderListLoading || isUploading}
                     sources={sources}
                     setSources={setSources}
                     collapsed={rightSidebarCollapsed}
                     setCollapsed={setRightSidebarCollapsed}
-                    // onCheckedChange={setIsAnyDocumentChecked}
                     isTenderListLoading={isTenderListLoading}
+                    onUploadNewTenderDoc={() => {
+                      setIsReevaluate(true);
+                      openModal();
+                    }}
                   />
                 </div>
               </div>
@@ -477,6 +284,8 @@ const Chat = ({ setProjectsVisibility, projectsVisibility }) => {
           projectsVisibility={false}
           fullHeight={true}
           onFileSelect={closeModal}
+          isNewTender={isNewTender}
+          setIsNewTender={setIsNewTender}
         />
       </Modal>
     </div>

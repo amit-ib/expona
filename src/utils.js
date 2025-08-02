@@ -77,6 +77,7 @@ export function truncateWordsLimit(text, wordLimit) {
 
 // Truncate a string to a maximum number of characters, adding ellipsis if exceeded
 export function truncateString(text, maxChars) {
+  // console.log("FILE NAME:", text);
   if (!text) return "";
   if (typeof text !== "string") return text;
   if (text.length <= maxChars) return text;

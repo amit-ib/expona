@@ -38,14 +38,24 @@ export async function fetchAuthStart() {
 }
 
 // ####### POST request to TENDER_UPLOAD endpoint with streaming response #######
-export async function uploadTenderFile(file, onChunk, token = AUTH_TOKEN) {
+export async function uploadTenderFile(files, onChunk, token = AUTH_TOKEN) {
+  // Accepts single File or array of Files
   const formData = new FormData();
-  formData.append("file", file);
+  if (Array.isArray(files)) {
+    files.forEach((file) => formData.append("files", file));
+  } else {
+    formData.append("files", files);
+  }
+  // Grab tender_id from localStorage if present
+  const tender_id = localStorage.getItem("tenderId");
+  if (tender_id) {
+    formData.append("tender_id", tender_id);
+  }
   const authHeaders = getAuthHeaders();
   const response = await fetch(API_ENDPOINTS.TENDER_UPLOAD, {
     method: "POST",
     body: formData,
-    headers: getAuthHeaders(),
+    headers: authHeaders,
     // credentials: 'include', // for cookies
   });
 
@@ -214,14 +224,18 @@ export async function fetchSupportingDocs(company_id) {
   }
 }
 
-// ####### GET request to FETCH_TENDER_REPORT endpoint with filename and company_id as query params #######
-export async function fetchTenderReport({ filename, company_id }) {
+// ####### GET request to FETCH_TENDER_REPORT endpoint with filename, company_id, and reevaluate as query params #######
+export async function fetchTenderReport({
+  tender_id,
+  company_id,
+  reevaluate = false,
+}) {
   try {
     const url = `${
       API_ENDPOINTS.FETCH_TENDER_REPORT
-    }?filename=${encodeURIComponent(filename)}&company_id=${encodeURIComponent(
-      company_id
-    )}`;
+    }?tender_id=${encodeURIComponent(
+      tender_id
+    )}&company_id=${encodeURIComponent(company_id)}&reevaluate=${reevaluate}`;
     const response = await axiosInstance.get(url, {
       headers: getAuthHeaders(),
     });
@@ -233,13 +247,17 @@ export async function fetchTenderReport({ filename, company_id }) {
 }
 
 // ####### GET request to FETCH_ELIGIBILITY endpoint with filename and company_id as query params #######
-export async function fetchEligibility({ filename, company_id }) {
+export async function fetchEligibility({
+  tender_id,
+  company_id,
+  reevaluate = false,
+}) {
   try {
     const url = `${
       API_ENDPOINTS.FETCH_ELIGIBILITY
-    }?filename=${encodeURIComponent(filename)}&company_id=${encodeURIComponent(
-      company_id
-    )}`;
+    }?tender_id=${encodeURIComponent(
+      tender_id
+    )}&company_id=${encodeURIComponent(company_id)}&reevaluate=${reevaluate}`;
     const response = await axiosInstance.get(url, {
       headers: getAuthHeaders(),
     });
@@ -324,7 +342,6 @@ export async function fetchReviseEligibility({
 // ####### POST request to UPDATE_COMPANY_PROFILE endpoint with company_id as query param and profile data in body #######
 export async function updateCompanyProfile(company_id, profileData) {
   try {
-    console.log("PROFILE", profileData);
     const url = `${
       API_ENDPOINTS.UPDATE_COMPANY_PROFILE
     }?company_id=${encodeURIComponent(company_id)}`;
@@ -335,6 +352,84 @@ export async function updateCompanyProfile(company_id, profileData) {
     return response.data;
   } catch (error) {
     console.error("Error updating company profile:", error);
+    throw error;
+  }
+}
+
+// ####### GET request for CHAT_CONVERSATION endpoint  #######
+export async function ChatConversation({ company_id, query, tender_id }) {
+  try {
+    const url = `${
+      API_ENDPOINTS.CHAT_CONVERSATION
+    }?company_id=${encodeURIComponent(company_id)}&query=${encodeURIComponent(
+      query
+    )}&tender_id=${encodeURIComponent(tender_id)}`;
+    const response = await axiosInstance.get(url, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error storing chat conversation:", error);
+    throw error;
+  }
+}
+
+// ####### GET request for CHAT_HISTORY endpoint  #######
+export async function FetchChatHistory({ tender_id }) {
+  try {
+    const url = `${
+      API_ENDPOINTS.FETCH_CHAT_HISTORY
+    }?tender_id=${encodeURIComponent(tender_id)}`;
+    if (!tender_id) {
+      throw new Error("tender_id is required for ChatHistory API");
+    }
+    const response = await axiosInstance.get(url, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error getting chat history:", error);
+    throw error;
+  }
+}
+
+// ####### GET request for STORE_CHAT_FEEDBACK endpoint  #######
+export async function StoreChatFeedback({ message_id, rating, feedback }) {
+  try {
+    const url = `${
+      API_ENDPOINTS.STORE_CHAT_FEEDBACK
+    }?message_id=${encodeURIComponent(message_id)}&rating=${encodeURIComponent(
+      rating
+    )}&feedback=${encodeURIComponent(feedback)}`;
+    const response = await axiosInstance.get(url, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error storing chat feedback:", error);
+    throw error;
+  }
+}
+
+// ####### POST request for UPDATE_TENDER_TITLE endpoint  #######
+export async function updateTenderTitle(tender_id, new_title) {
+  try {
+    const url = `${
+      API_ENDPOINTS.UPDATE_TENDER_TITLE
+    }?tender_id=${encodeURIComponent(tender_id)}&new_title=${encodeURIComponent(
+      new_title
+    )}`;
+
+    const response = await axiosInstance.post(
+      url,
+      {},
+      {
+        headers: getAuthHeaders(),
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating tender title:", error);
     throw error;
   }
 }

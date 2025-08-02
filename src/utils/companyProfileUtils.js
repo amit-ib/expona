@@ -7,10 +7,10 @@ export function extractFileName(url) {
 
 // Returns supporting files for a given docName from supportingDocs
 export function getSupportingFiles(supportingDocs, docName) {
-    if (!supportingDocs || !Array.isArray(supportingDocs.data)) return [];
+    if (!supportingDocs || !supportingDocs.data || !Array.isArray(supportingDocs.data.data)) return [];
     const docs = docName
-        ? supportingDocs.data.filter(doc => doc.doc_name === docName)
-        : supportingDocs.data;
+        ? supportingDocs.data.data.filter(doc => doc.doc_name === docName)
+        : supportingDocs.data.data;
     return docs.map(doc => ({
         name: extractFileName(doc.doc_path),
         url: doc.doc_path,
@@ -44,4 +44,4 @@ export const documentSections = [
         docName: "GST_Registration_Certificate"
     }
     // Add more document types here as needed
-]; 
+];

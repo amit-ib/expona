@@ -19,6 +19,7 @@ const LeftSidebar = ({
   setShowSavedNote,
   setSaved,
   onNewTenderClick,
+  setIsNewTender, // <-- add this prop
 }) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileMenuRef = useRef(null);
@@ -124,7 +125,7 @@ const LeftSidebar = ({
           <div className="flex flex-col">
             <Lottie animationData={animationData} loop={true} />
           </div>
-        ) : sources.length > 0 ? (
+        ) : (
           // left Sidebar Content
           <div className="py-3 flex flex-col transition-all duration-500">
             {/* {!collapsed && ( */}
@@ -197,16 +198,17 @@ const LeftSidebar = ({
               </div>
             )}
           </div>
-        ) : (
-          // !collapsed && (
-          <div
-            className={`text-xs py-6 px-4  transition-all duration-300 ${
-              collapsed ? "opacity-0" : ""
-            }`}
-          >
-            It looks quiet here. Upload a tender to see key areas show up.
-          </div>
-          // )
+          //    ) : (
+          //   // !collapsed && (
+          //   <div
+          //     className={`text-xs py-6 px-4  transition-all duration-300 ${
+          //       collapsed ? "opacity-0" : ""
+          //     }`}
+          //   >
+          //     It looks quiet here. Upload a tender to see key areas show up.
+          //   </div>
+          //   // )
+          // )}
         )}
       </div>
       <div
@@ -220,7 +222,13 @@ const LeftSidebar = ({
             className={`border flex items-center justify-center  rounded-md ${
               collapsed ? "p-2" : "w-full p-3"
             }`}
-            onClick={onNewTenderClick}
+            onClick={() => {
+              if (setIsNewTender) {
+                setIsNewTender(true);
+                console.log("setIsNewTender called with:", true);
+              }
+              if (onNewTenderClick) onNewTenderClick();
+            }}
           >
             <img src="images/add-icon.svg" alt="New Tender" />
             <span

@@ -47,7 +47,7 @@ export async function uploadTenderFile(files, onChunk, token = AUTH_TOKEN) {
     formData.append("files", files);
   }
   // Grab tender_id from localStorage if present
-  const tender_id = localStorage.getItem("tenderId");
+  const tender_id = localStorage.getItem("TENDER_ID");
   if (tender_id) {
     formData.append("tender_id", tender_id);
   }

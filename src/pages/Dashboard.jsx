@@ -50,14 +50,15 @@ const Dashboard = () => {
     };
     fetchAndUpdateTenderList();
 
+    localStorage.removeItem("TENDER_REPORT");
+    localStorage.removeItem("TENDER_TITLE");
+    localStorage.removeItem("TENDER_ID");
+
     // Polling for updates every 30 seconds
     const interval = setInterval(fetchAndUpdateTenderList, 10000);
     return () => clearInterval(interval); // Cleanup on unmount
   }, []);
 
-  localStorage.removeItem("tenderReport");
-  localStorage.removeItem("tenderTitle");
-  localStorage.removeItem("tenderId");
   return (
     <div className="min-h-screen bg-gray-2d text-white">
       {/* Using the Header component */}

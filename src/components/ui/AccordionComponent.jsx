@@ -38,7 +38,7 @@ const AccordionComponent = ({
   const handleReEvaluateEligibility = async () => {
     setFileError(false);
     const company_id = localStorage.getItem("company_id");
-    const tender_id = localStorage.getItem("tenderId");
+    const tender_id = localStorage.getItem("TENDER_ID");
     const criteria_name = title;
     const criteria_type = actionType;
     let payload = {

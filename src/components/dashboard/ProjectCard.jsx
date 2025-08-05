@@ -10,10 +10,10 @@ const ProjectCard = ({ tender, onProjectClick }) => {
 
   const handleCardClick = () => {
     if (onProjectClick) {
-      localStorage.removeItem("tenderReport");
-      localStorage.removeItem("tenderTitle");
-      localStorage.removeItem("tenderId");
-      localStorage.setItem("tenderId", id);
+      localStorage.removeItem("TENDER_REPORT");
+      localStorage.removeItem("TENDER_TITLE");
+      localStorage.removeItem("TENDER_ID");
+      localStorage.setItem("TENDER_ID", id);
       navigate("/chat", { state: { id, filename, title } });
     }
   };

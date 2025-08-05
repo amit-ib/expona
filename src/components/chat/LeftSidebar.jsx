@@ -19,7 +19,8 @@ const LeftSidebar = ({
   setShowSavedNote,
   setSaved,
   onNewTenderClick,
-  setIsNewTender, // <-- add this prop
+  setIsNewTender,
+  isAllowNewTenderUpload,
 }) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileMenuRef = useRef(null);
@@ -65,7 +66,7 @@ const LeftSidebar = ({
   //     </div>
   //   );
   // }
-
+  console.log("isAllowNewTenderUpload", isAllowNewTenderUpload);
   return (
     <div
       id="left-sidebar"
@@ -221,7 +222,7 @@ const LeftSidebar = ({
             id="new-tender-btn"
             className={`border flex items-center justify-center  rounded-md ${
               collapsed ? "p-2" : "w-full p-3"
-            }`}
+            } ${!isAllowNewTenderUpload && "opacity-50"}`}
             onClick={() => {
               if (setIsNewTender) {
                 setIsNewTender(true);
@@ -229,6 +230,7 @@ const LeftSidebar = ({
               }
               if (onNewTenderClick) onNewTenderClick();
             }}
+            disabled={!isAllowNewTenderUpload}
           >
             <img src="images/add-icon.svg" alt="New Tender" />
             <span

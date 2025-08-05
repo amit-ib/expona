@@ -188,6 +188,7 @@ const CompanyProfile = () => {
 
   // Prepare files for Other documents section
   // const otherDocsFiles = getSupportingFiles(supportingDocs);
+  console.log(supportingDocs);
 
   return (
     <div className="bg-gray-24 min-h-screen overflow-y-auto">
@@ -449,7 +450,7 @@ const CompanyProfile = () => {
                       )}
                     </div>
                     <p className="text-gray-ae font-lexend text-sm font-light">
-                      Tax registration and compliance detailsny
+                      Tax registration and compliance details
                     </p>
                   </div>
                   <div className="bg-gray-32 rounded-md flex-1 p-6">
@@ -652,7 +653,7 @@ const CompanyProfile = () => {
                               supportingDocs,
                               document.docName
                             )}
-                            onFileUpload={() => {}}
+                            onFileUpload={handleFileUpload}
                           />
                         </div>
                       </div>
@@ -661,46 +662,61 @@ const CompanyProfile = () => {
                 </div>
 
                 {/* Supporting Document Section */}
-                {supportingDocs &&
-                  supportingDocs.data &&
-                  Array.isArray(supportingDocs.data.data) &&
-                  supportingDocs.data.data.length > 0 && (
-                    <div className="flex gap-8 w-full">
-                      <div className="flex flex-col gap-0.5 w-[270px] flex-shrink-0">
-                        <div className="flex items-center gap-2.5">
-                          <h3 className="text-white font-lexend text-base font-medium">
-                            Supporting Documents
-                          </h3>
-                          {/* {profileFiles.length === 0 && (
+                {supportingDocs && Array.isArray(supportingDocs.data) && (
+                  <div className="flex gap-8 w-full">
+                    <div className="flex flex-col gap-0.5 w-[270px] flex-shrink-0">
+                      <div className="flex items-center gap-2.5">
+                        <h3 className="text-white font-lexend text-base font-medium">
+                          Supporting Documents
+                        </h3>
+                        {/* {profileFiles.length === 0 && (
                                                 <div className="bg-expona-red bg-opacity-20 rounded-md px-2 py-0.5 h-5 flex items-center">
                                                     <span className="text-xs font-light  text-red-83">In-Complete</span>
                                                 </div>
                                             )} */}
-                        </div>
-                        <p className="text-gray-ae font-lexend text-sm font-light">
-                          Documents uploaded via eligibility
-                        </p>
                       </div>
+                      <p className="text-gray-ae font-lexend text-sm font-light">
+                        Documents uploaded via eligibility
+                      </p>
+                    </div>
 
-                      <div className="bg-gray-32 rounded-md flex-1 p-8 flex flex-col gap-12">
-                        <div className="bg-gray-32 rounded-xl flex flex-col gap-4 w-full">
-                          <div className="flex flex-col gap-6 px-6">
-                            <CompanyFileList
-                              uploadedFiles={filterFilesByText(
-                                getSupportingFiles(supportingDocs),
-                                "docTitle",
-                                [
-                                  "Certificate_of_Incorporation",
-                                  "GST_Registration_Certificate",
-                                ]
-                              )}
-                              onFileUpload={handleFileUpload}
-                            />
-                          </div>
+                    <div className="bg-gray-32 rounded-md flex-1 p-8 flex flex-col gap-12">
+                      <div className="bg-gray-32 rounded-xl flex flex-col gap-4 w-full">
+                        <div className="flex flex-col gap-6 px-6">
+                          {/* {supportingDocs &&
+                            Array.isArray(supportingDocs.data) && (
+                              <div className="mt-6">
+                                <h4 className="text-white text-lg font-semibold mb-2">
+                                  All Supporting Documents:
+                                </h4>
+                                <ul className="list-disc list-inside text-gray-ae">
+                                  {supportingDocs.data.map((doc, index) => (
+                                    <li key={index}>
+                                      {doc.name
+                                        ? doc.name
+                                        : JSON.stringify(doc)}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )} */}
+                          <CompanyFileList
+                            uploadedFiles={filterFilesByText(
+                              getSupportingFiles(supportingDocs),
+                              "docTitle",
+                              [
+                                "Certificate_of_Incorporation",
+                                "GST_Registration_Certificate",
+                              ]
+                            )}
+                            // uploadedFiles={supportingDocs.data}
+                            onFileUpload={handleFileUpload}
+                          />
                         </div>
                       </div>
                     </div>
-                  )}
+                  </div>
+                )}
               </div>
             )}
 

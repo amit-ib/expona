@@ -34,7 +34,7 @@ const ChatHistory = ({
 
   React.useEffect(() => {
     // Fetch chat history when qnaResponse changes and tenderId is available
-    const tenderId = localStorage.getItem("tenderId");
+    const tenderId = localStorage.getItem("TENDER_ID");
     if (!tenderId) return;
     if (report.status === "success") {
       const fetchChatHistory = async () => {
@@ -79,7 +79,11 @@ const ChatHistory = ({
               </div>
             </div>
             <div className="group">
-              <div className="text-sm  my-5">{msg.answer}</div>
+              <div className="text-sm font-light  my-5 qna-response">
+                <Markdown components={markdownComponents}>
+                  {msg.answer}
+                </Markdown>
+              </div>
               <ChatActions
                 setShowSavedNote={setShowSavedNote}
                 showOtherPrompts={showOtherPrompts}
@@ -101,7 +105,7 @@ const ChatHistory = ({
             </div>
           </div>
           <div className="flex">
-            <span className="animate-pulse bg-gradient-to-r from-expona-red via-gray-200 inline-block text-transparent bg-clip-text">
+            <span className="animate-pulse bg-gradient-to-r from-expona-red via-gray-200 inline-block text-transparent bg-clip-text mt-3">
               Analysing.....
             </span>
           </div>

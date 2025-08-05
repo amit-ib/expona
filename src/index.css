@@ -99,7 +99,9 @@ code {
 .search-icon {
   background: url(../public/images/search-icon-gray.svg) no-repeat 7px 50%;
 }
-
+.qna-response hr {
+  margin-bottom: 15px;
+}
 /* Hide the default checkbox */
 .custom-checkbox {
   appearance: none;

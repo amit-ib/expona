@@ -2,7 +2,7 @@ import React from "react";
 
 const CompanyFileList = ({ uploadedFiles = [], onFileUpload }) => {
   if (!uploadedFiles.length) return null;
-  // console.log("Files:", uploadedFiles)
+  console.log("Files:", uploadedFiles);
   return (
     <>
       {uploadedFiles.map((file, idx) => {

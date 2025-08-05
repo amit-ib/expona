@@ -59,6 +59,7 @@ const Chat = ({ projectsVisibility }) => {
     handleEditTitle,
     handleSaveTitle,
     handleCancelEdit,
+    isAllowNewTenderUpload,
   } = useChatData();
   const [pendingMessage, _setPendingMessage] = React.useState(null);
   // Custom setter to log whenever pendingMessage is updated from MessageInput
@@ -112,6 +113,7 @@ const Chat = ({ projectsVisibility }) => {
                 setSaved={setSaved}
                 onNewTenderClick={openModal}
                 setIsNewTender={setIsNewTender}
+                isAllowNewTenderUpload={isAllowNewTenderUpload}
               />
               <div className="flex flex-1 flex-col">
                 <div className="flex items-center justify-between gap-4 py-6 px-5 border-b border-gray-42 bg-gray-24 rounded-t-lg">

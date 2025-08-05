@@ -56,6 +56,9 @@ const ChatContent = ({
   // Ref for otherPrompts div
   const otherPromptsRef = React.useRef(null);
 
+  // Ref for chat scroll container
+  const chatScrollRef = React.useRef(null);
+
   // Function to close error modal
   const closeErrorModal = () => {
     if (setErrorModal) {
@@ -98,6 +101,14 @@ const ChatContent = ({
     otherPromptsRef.current.scrollIntoView({ behavior: "smooth" });
   };
 
+  const scrollToBottom = () => {
+    if (chatScrollRef.current) {
+      setTimeout(() => {
+        chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+      }, 0);
+    }
+  };
+
   // Close export popup on outside click
   React.useEffect(() => {
     if (!exportPopup.visible) return;
@@ -119,6 +130,13 @@ const ChatContent = ({
       scrollToOtherPrompts();
     }
   }, [showOtherPrompts]);
+
+  // Auto-scroll to bottom during streaming
+  React.useEffect(() => {
+    if (chatScrollRef.current && !report) {
+      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+    }
+  }, [uploadResponse, report]);
 
   // React.useEffect(() => {
   //   if (uploadResponse) {
@@ -285,6 +303,7 @@ const ChatContent = ({
 
       {/* Scrollable Chat Content */}
       <div
+        ref={chatScrollRef}
         className="flex flex-col items-start pt-6 overflow-y-auto max-h-[calc(100vh-230px)] chat-scrollbar scrollbar-hide relative chat-scrollbar"
         style={{ scrollBehavior: "smooth" }}
       >
@@ -364,6 +383,7 @@ const ChatContent = ({
               onSendMessage={onSendMessage}
               setIsChatHistoryLoading={setIsChatHistoryLoading}
               setPendingMessage={setPendingMessage}
+              scrollToBottom={scrollToBottom}
             />
             {report !== null && (
               <>

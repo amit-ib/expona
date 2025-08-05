@@ -16,6 +16,7 @@ const ReportSection = ({
   onSendMessage,
   setIsChatHistoryLoading,
   setPendingMessage,
+  scrollToBottom,
 }) => {
   const [copied, setCopied] = useState(false);
   if (!report || !report.data) return null;
@@ -339,6 +340,9 @@ const ReportSection = ({
                     onSendMessage(question);
                     setIsChatHistoryLoading(true);
                     setPendingMessage(question);
+                    if (scrollToBottom) {
+                      scrollToBottom();
+                    }
                   }}
                 >
                   {question}

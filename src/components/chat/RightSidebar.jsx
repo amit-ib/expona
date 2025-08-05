@@ -42,7 +42,7 @@ const RightSidebar = ({
   useEffect(() => {
     // Step 1: Get tenderList and tenderId from localStorage
     const tenderListRaw = localStorage.getItem("tenderList");
-    const tenderId = localStorage.getItem("tenderId");
+    const tenderId = localStorage.getItem("TENDER_ID");
     if (tenderListRaw && tenderId) {
       try {
         const tenderList = JSON.parse(tenderListRaw);

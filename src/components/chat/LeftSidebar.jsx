@@ -133,7 +133,7 @@ const LeftSidebar = ({
             <div className="flex itemss-center transition-all duration-500 text-gray-99 mb-4 relative text-xs">
               Key Areas
               <InfoTooltip
-                tooltipContent="Key points helps you to  quickly return to important responses. Some are suggested by AI to get you started. You can add more as you go."
+                tooltipContent="Key area helps you to  quickly return to important responses. Some are suggested by AI to get you started. You can add more as you go."
                 position="right"
               >
                 <img

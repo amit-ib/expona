@@ -10,6 +10,7 @@ import {
   deleteSupportingDoc,
 } from "../../api/apiHelper";
 import { truncateString, truncateWordsLimit } from "../../utils";
+import Modal from "../common/Modal";
 
 const RightSidebar = ({
   isLoading,
@@ -31,6 +32,7 @@ const RightSidebar = ({
   const [showUploadTooltip, setShowUploadTooltip] = useState(false);
   const [tenderLoading, setTenderLoading] = useState(false);
   const [showPdf, setShowPdf] = useState(false);
+  const [showMaxFilesModal, setShowMaxFilesModal] = useState(false);
   // const pdfUrl = "/A_Brief_Introduction_To_AI.pdf"; // File in public folder
   // const pdfUrl = "https://apploginteligenius.blob.core.windows.net/tender-rfp-ai/empanelment_of_agencies_for_providing_ai_service_on_cloud.pdf?sv=2024-11-04&ss=bfqt&srt=sco&sp=rwdlacupiytfx&se=2028-04-24T16:53:43Z&st=2025-04-24T08:53:43Z&spr=https&sig=LLEjCMbWatB2yYi8UP0P82uq7iwCA8grjHjSrv6IsYY%3D";
 
@@ -149,6 +151,14 @@ const RightSidebar = ({
   //   }
   // };
 
+  const handleUploadClick = () => {
+    if (supportingDocList.length >= 3) {
+      setShowMaxFilesModal(true);
+    } else {
+      onUploadNewTenderDoc();
+    }
+  };
+
   return (
     <div
       id="right-sidebar"
@@ -167,7 +177,7 @@ const RightSidebar = ({
               Documents{" "}
               <InfoTooltip
                 position="left"
-                tooltipContent="Key points helps you to  quickly return to important responses. Some are suggested by AI to get you started. You can add more as you go."
+                tooltipContent="Please upload documents specific to this tender only. Unrelated files could affect review accuracy."
               >
                 <img
                   src="images/help-icon.svg"
@@ -209,7 +219,7 @@ const RightSidebar = ({
           /> */}
           <button
             className="w-full flex items-center justify-center gap-2 py-3.5 bg-gray-32 hover:bg-gray-37 rounded text-sm font-medium transition-all duration-300 cursor-pointer"
-            onClick={onUploadNewTenderDoc}
+            onClick={handleUploadClick}
           >
             {/* Use the reusable Tooltip component */}
             <Tooltip
@@ -352,6 +362,25 @@ const RightSidebar = ({
         onClose={() => setShowPdf(false)}
         fileUrl={sasUrl}
       />
+      {/* Max tender files allowed */}
+      <Modal
+        isOpen={showMaxFilesModal}
+        onClose={() => setShowMaxFilesModal(false)}
+      >
+        <div className=" w-96  text-white text-center ">
+          <div>Maximum File Limit Reached</div>
+          <p className="mt-2 text-sm text-gray-ae">
+            You can only upload 3 tender document at a time. Please delete the
+            existing document to upload a new one.
+          </p>
+          <button
+            onClick={() => setShowMaxFilesModal(false)}
+            className="mt-6 w-full bg-expona-red hover:bg-ib-red text-white py-2 rounded transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 };

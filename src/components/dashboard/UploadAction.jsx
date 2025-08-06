@@ -41,6 +41,8 @@ const UploadAction = ({
         setError("Invalid file type. Please upload a PDF or DOCX file.");
       } else if (firstError.code === "file-too-large") {
         setError("File is too large. Maximum size is 20MB.");
+      } else if (firstError.code === "too-many-files") {
+        setError("You can only upload a maximum of 3 files at a time.");
       } else {
         setError(firstError.message);
       }
@@ -56,6 +58,7 @@ const UploadAction = ({
         [".docx"],
     },
     maxSize: 20971520, // 20MB in bytes
+    maxFiles: 3,
   });
 
   return (

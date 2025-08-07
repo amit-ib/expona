@@ -3,6 +3,7 @@ import ChatActions from "../chat/ChatActions";
 import { markdownComponents } from "../../utils";
 import Markdown from "react-markdown";
 import { FetchChatHistory } from "../../api/apiHelper";
+import remarkGfm from "remark-gfm";
 
 const ChatHistory = ({
   showOtherPrompts,
@@ -80,7 +81,10 @@ const ChatHistory = ({
             </div>
             <div className="group">
               <div className="text-sm font-light  my-5 qna-response">
-                <Markdown components={markdownComponents}>
+                <Markdown
+                  components={markdownComponents}
+                  remarkPlugins={[remarkGfm]}
+                >
                   {msg.answer}
                 </Markdown>
               </div>

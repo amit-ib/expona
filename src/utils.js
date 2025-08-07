@@ -31,6 +31,9 @@ export const markdownComponents = {
       />
     );
   },
+  table: ({ node, ...props }) => (
+    <table className="w-full border-collapse table-markdown" {...props} />
+  ),
   ol: ({ node, ...props }) => <ul className="list-decimal" {...props} />,
   h1: ({ node, ...props }) => <h1 className="text-2xl font-bold" {...props} />,
   h3: ({ node, ...props }) => <h3 className="font-semibold mb-4" {...props} />,

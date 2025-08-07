@@ -61,7 +61,7 @@ export const useChatData = () => {
       return titleFromStorage.trim();
     }
 
-    return "Untitled1 Tender";
+    return "Untitled Tender";
   }
   const [tenderTitle, setTenderTitle] = useState(
     () =>
@@ -110,7 +110,7 @@ export const useChatData = () => {
       setHasFinalSummary(false);
       setReport("");
       if (!localStorage.getItem("TENDER_TITLE")) {
-        setTenderTitle("Untitled2 Tender");
+        setTenderTitle("Untitled Tender");
       } else {
         setTenderTitle(localStorage.getItem("TENDER_TITLE"));
       }

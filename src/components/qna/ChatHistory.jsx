@@ -9,8 +9,6 @@ const ChatHistory = ({
   showOtherPrompts,
   setShowOtherPrompts,
   setShowSavedNote,
-  saved,
-  setSaved,
   scrollToSection,
   qnaResponse,
   pendingMessage,
@@ -20,6 +18,21 @@ const ChatHistory = ({
 }) => {
   const otherPromptsRef = React.useRef(null);
   const [messages, setMessages] = React.useState([]);
+  const justSentMessage = React.useRef(false);
+
+  const fetchChatHistory = React.useCallback(async () => {
+    const tenderId = localStorage.getItem("TENDER_ID");
+    if (!tenderId) return;
+    setIsChatHistoryLoading(true);
+    try {
+      const chatHistory = await FetchChatHistory({
+        tender_id: tenderId,
+      });
+      setMessages(chatHistory?.data?.messages || []);
+    } finally {
+      setIsChatHistoryLoading(false);
+    }
+  }, [setIsChatHistoryLoading]);
 
   // Function to scroll to otherPrompts
   const scrollToOtherPrompts = () => {
@@ -38,34 +51,28 @@ const ChatHistory = ({
     const tenderId = localStorage.getItem("TENDER_ID");
     if (!tenderId) return;
     if (report.status === "success") {
-      const fetchChatHistory = async () => {
-        setIsChatHistoryLoading(true);
-        try {
-          const chatHistory = await FetchChatHistory({
-            tender_id: tenderId,
-          });
-          // console.log("chatHistory", chatHistory);
-          setMessages(chatHistory?.data?.messages || []);
-        } finally {
-          setIsChatHistoryLoading(false);
-          // Scroll the chat content div to the bottom after sending
-          setTimeout(() => {
-            const chatContentDiv = document.querySelector(".chat-scrollbar");
-            if (chatContentDiv) {
-              chatContentDiv.scrollTop = chatContentDiv.scrollHeight;
-            }
-          }, 100);
-        }
-      };
       fetchChatHistory();
     }
-  }, [qnaResponse, report]);
+  }, [qnaResponse, report, fetchChatHistory]);
 
   React.useEffect(() => {
-    if (report.status === "success") {
+    if (pendingMessage) {
+      justSentMessage.current = true;
       setIsChatHistoryLoading(true);
     }
   }, [pendingMessage]);
+
+  React.useEffect(() => {
+    if (justSentMessage.current) {
+      setTimeout(() => {
+        const chatContentDiv = document.querySelector(".chat-scrollbar");
+        if (chatContentDiv) {
+          chatContentDiv.scrollTop = chatContentDiv.scrollHeight;
+        }
+      }, 100);
+      justSentMessage.current = false;
+    }
+  }, [messages]);
 
   // console.log("pendingMessage", pendingMessage, message);
   return (
@@ -91,11 +98,11 @@ const ChatHistory = ({
               <ChatActions
                 setShowSavedNote={setShowSavedNote}
                 showOtherPrompts={showOtherPrompts}
-                saved={saved}
-                setSaved={setSaved}
+                saved={msg.saved}
                 answer={msg.answer}
                 messageId={msg.answer_id}
                 isfeedbackSent={msg.liked}
+                fetchChatHistory={fetchChatHistory}
               />
             </div>
           </div>

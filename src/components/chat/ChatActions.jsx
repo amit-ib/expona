@@ -1,18 +1,19 @@
 import React, { useState } from "react";
 import Tooltip from "../common/Tooltip";
 import { copyToClipboard } from "../../utils";
-import { StoreChatFeedback } from "../../api/apiHelper";
+import { StoreChatFeedback, SaveToKeyarea } from "../../api/apiHelper";
 import Modal from "../common/Modal";
 
 const ChatActions = ({
   setShowSavedNote,
   showOtherPrompts,
   saved,
-  setSaved,
   answer,
   messageId,
   isfeedbackSent,
+  fetchChatHistory,
 }) => {
+  const [isSaved, setIsSaved] = useState(saved);
   const [copied, setCopied] = useState(false);
   const [feedbackSent, setFeedbackSent] = useState(false);
   const [clickedButton, setClickedButton] = useState(null);
@@ -27,12 +28,35 @@ const ChatActions = ({
       setTimeout(() => setCopied(false), 1500);
     }
   };
-  const handleSave = () => {
-    setSaved((prev) => {
-      const newSaved = !prev;
-      if (setShowSavedNote) setShowSavedNote(newSaved);
-      return newSaved;
-    });
+
+  React.useEffect(() => {
+    setIsSaved(saved);
+  }, [saved]);
+
+  const handleSave = async () => {
+    const originalState = isSaved;
+    const newSavedState = !originalState;
+    setIsSaved(newSavedState); // Optimistic update
+
+    try {
+      await SaveToKeyarea({
+        answer_id: messageId,
+        saved: newSavedState,
+      });
+
+      if (setShowSavedNote) {
+        setShowSavedNote(newSavedState);
+      }
+
+      // If API call succeeds, fetch the latest history to sync all data.
+      if (fetchChatHistory) {
+        await fetchChatHistory();
+      }
+    } catch (error) {
+      console.error("Error saving to key area:", error);
+      // Revert the state on any exception
+      setIsSaved(originalState);
+    }
   };
 
   const handleFeedback = async (rating, feedback) => {
@@ -164,7 +188,7 @@ const ChatActions = ({
           <div className="flex items-center gap-4">
             {/* {showOtherPrompts && ( */}
             <Tooltip
-              tooltipContent={saved ? "Remove from Key Areas" : false}
+              tooltipContent={isSaved ? "Remove from Key Areas" : false}
               position="top"
             >
               <button
@@ -173,12 +197,14 @@ const ChatActions = ({
               >
                 <img
                   src={
-                    saved ? "images/tick-icon.svg" : "images/bookmark-icon.svg"
+                    isSaved
+                      ? "images/right-icon.svg"
+                      : "images/bookmark-icon.svg"
                   }
-                  className="mr-2"
-                  alt={saved ? "Saved" : "Save"}
+                  className="mr-2 w-4"
+                  alt={isSaved ? "Saved" : "Save"}
                 />
-                {saved ? "Saved to Key Areas" : "Save to Key Areas"}
+                {isSaved ? "Saved to Key Areas" : "Save to Key Areas"}
               </button>
             </Tooltip>
             {/* )} */}

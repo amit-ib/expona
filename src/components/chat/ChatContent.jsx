@@ -30,6 +30,7 @@ const ChatContent = ({
   pendingMessage,
   onSendMessage,
   setPendingMessage,
+  openModal,
 }) => {
   const [popup, setPopup] = React.useState({
     visible: false,
@@ -76,6 +77,13 @@ const ChatContent = ({
   const closeMessageModal = () => {
     if (setErrorModal) {
       setErrorModal(null);
+    }
+  };
+
+  const handleConfirmAndOpenModal = () => {
+    closeMessageModal();
+    if (openModal) {
+      openModal();
     }
   };
 
@@ -347,7 +355,7 @@ const ChatContent = ({
                     // Show error modal immediately
                     setTimeout(() => {
                       showMessageModal(
-                        "Oops! Not allowed",
+                        "Oops! Not allowed-1",
                         parsed.detail.message ||
                           "An error occurred while processing your request."
                       );
@@ -509,7 +517,7 @@ const ChatContent = ({
       <ConfirmationModal
         isOpen={!!errorModal}
         onClose={closeMessageModal}
-        onConfirm={closeMessageModal}
+        onConfirm={handleConfirmAndOpenModal}
         heading={errorModal?.heading || ""}
         message={errorModal?.message || ""}
         confirmButtonText="Ok"

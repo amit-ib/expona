@@ -9,12 +9,18 @@ import {
   updateTenderTitle,
 } from "../api/apiHelper";
 import { useAuth } from "../contexts/AuthContext";
+import { useAppContext } from "../contexts/AppContext";
 
 export const useChatData = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-
+  const {
+    isDuplicateFile,
+    setIsDuplicateFile,
+    isAllowNewTenderUpload,
+    setIsAllowNewTenderUpload,
+  } = useAppContext();
   const [message, setMessage] = useState("");
   const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false);
   const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
@@ -26,6 +32,8 @@ export const useChatData = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  // const [isDuplicateFile, setIsDuplicateFile] = useState(false);
+  const isDuplicateFileRef = useRef(isDuplicateFile);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadResponse, setUploadResponse] = useState("");
   const [hasFinalSummary, setHasFinalSummary] = useState(false);
@@ -33,7 +41,7 @@ export const useChatData = () => {
   const [storedSummary, setStoredSummary] = useState("");
   const [isNewTender, setIsNewTender] = useState(false);
   const [isReevaluate, setIsReevaluate] = useState(false);
-  const [isAllowNewTenderUpload, setIsAllowNewTenderUpload] = useState(false);
+  // const [isAllowNewTenderUpload, setIsAllowNewTenderUpload] = useState(false);
 
   const hasUploaded = useRef(false);
   const [report, setReport] = useState(() => {
@@ -121,25 +129,44 @@ export const useChatData = () => {
         try {
           // Support both single file and array of files
           await uploadTenderFile(filesToUpload, (chunk) => {
+            try {
+              const parsed = JSON.parse(chunk);
+              if (parsed.detail && parsed.detail.error === "Database Error") {
+                setShowErrorModal({
+                  heading: "Oops! Not allowed",
+                  message:
+                    parsed.detail.message ||
+                    "An error occurred while processing your request.",
+                });
+                setIsUploading(false);
+                setIsDuplicateFile(true);
+                isDuplicateFileRef.current = true;
+                // isAllowNewTenderUpload(true);
+                return;
+              }
+            } catch (e) {
+              // Not a JSON object, continue processing
+            }
             setUploadResponse((prev) => {
+              setIsAllowNewTenderUpload(false);
               const summaryMarker = "<---FINAL_SUMMARY--->";
               const analyzingMarker = "<---ANALYZE_PDF--->";
               let newContent = prev + chunk;
 
-              try {
-                const parsed = JSON.parse(newContent);
-                if (parsed.detail && parsed.detail.error === "Database Error") {
-                  setShowErrorModal({
-                    heading: "Oops! Not allowed",
-                    message:
-                      parsed.detail.message ||
-                      "An error occurred while processing your request.",
-                  });
-                  return "";
-                }
-              } catch (e) {
-                // Not JSON, continue processing
-              }
+              // try {
+              //   const parsed = JSON.parse(newContent);
+              //   if (parsed.detail && parsed.detail.error === "Database Error") {
+              //     setShowErrorModal({
+              //       heading: "Oops! Not allowed123",
+              //       message:
+              //         parsed.detail.message ||
+              //         "An error occurred while processing your request.",
+              //     });
+              //     return "";
+              //   }
+              // } catch (e) {
+              //   // Not JSON, continue processing
+              // }
 
               newContent = newContent.split(analyzingMarker).join("");
 
@@ -254,6 +281,7 @@ export const useChatData = () => {
                 //   newContent = newContent.slice(0, metaIndex);
                 // }
                 finalDataRef.current = newContent;
+                isDuplicateFileRef.current = false;
                 // console.log("AFTER META:", afterMeta);
                 // console.log("NEW CONTENT:", newContent);
                 // console.log("FRESH CONTENT:", freshContent);
@@ -264,6 +292,9 @@ export const useChatData = () => {
           // This will only execute after the stream is completed
           console.log("Stream completed - processing final data");
 
+          if (isDuplicateFileRef.current) {
+            return;
+          }
           // Extract metadata from the final accumulated data with retry logic
           const finalString = finalDataRef.current;
           const maxRetries = 10; // Maximum number of retry attempts
@@ -442,6 +473,9 @@ export const useChatData = () => {
           console.error("Tender upload error:", error);
           setUploadResponse("Upload failed");
         } finally {
+          if (isDuplicateFileRef.current) {
+            return;
+          }
           setIsUploading(false);
           const companyId = localStorage.getItem("company_id");
           const tenderId = localStorage.getItem("TENDER_ID") || storeTenderID;
@@ -597,6 +631,6 @@ export const useChatData = () => {
     setIsNewTender,
     isReevaluate,
     setIsReevaluate,
-    isAllowNewTenderUpload,
+    // isAllowNewTenderUpload,
   };
 };

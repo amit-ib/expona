@@ -7,6 +7,7 @@ import animationData from "./loader-left-bar.json";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { truncateString } from "../../utils";
+import { useAppContext } from "../../contexts/AppContext";
 
 const LeftSidebar = ({
   isLoading,
@@ -20,8 +21,10 @@ const LeftSidebar = ({
   setSaved,
   onNewTenderClick,
   setIsNewTender,
-  isAllowNewTenderUpload,
+  uploadResponse,
+  // isAllowNewTenderUpload,
 }) => {
+  const { isAllowNewTenderUpload } = useAppContext();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileMenuRef = useRef(null);
   const profileToggleRef = useRef(null);
@@ -66,7 +69,7 @@ const LeftSidebar = ({
   //     </div>
   //   );
   // }
-  console.log("isAllowNewTenderUpload", isAllowNewTenderUpload);
+
   return (
     <div
       id="left-sidebar"
@@ -123,9 +126,30 @@ const LeftSidebar = ({
           /> */}
         </div>
         {isLoading ? (
-          <div className="flex flex-col">
-            <Lottie animationData={animationData} loop={true} />
-          </div>
+          uploadResponse === "" ? (
+            <div className="py-3 flex flex-col transition-all duration-500">
+              <div className="flex itemss-center transition-all duration-500 text-gray-99 mb-4 relative text-xs">
+                Key Areas
+                <InfoTooltip
+                  tooltipContent="Key area helps you to  quickly return to important responses. Some are suggested by AI to get you started. You can add more as you go."
+                  position="right"
+                >
+                  <img
+                    src="images/help-icon.svg"
+                    alt="help"
+                    className="ml-1 cursor-pointer group"
+                  />
+                </InfoTooltip>
+              </div>
+              <div className="text-xs text-gray-ae  block">
+                It looks quiet here. Upload a tender to see key areas show up.
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col">
+              <Lottie animationData={animationData} loop={true} />
+            </div>
+          )
         ) : (
           // left Sidebar Content
           <div className="py-3 flex flex-col transition-all duration-500">
@@ -194,6 +218,7 @@ const LeftSidebar = ({
                         </button>
                       </Tooltip>
                     </a>
+                    {/* Show list of key area */}
                   </div>
                 </div>
               </div>
@@ -226,7 +251,7 @@ const LeftSidebar = ({
             onClick={() => {
               if (setIsNewTender) {
                 setIsNewTender(true);
-                console.log("setIsNewTender called with:", true);
+                // console.log("setIsNewTender called with:", true);
               }
               if (onNewTenderClick) onNewTenderClick();
             }}

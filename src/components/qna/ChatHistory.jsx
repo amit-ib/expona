@@ -80,7 +80,7 @@ const ChatHistory = ({
       {/* Messages or empty state */}
       {messages.length > 0 &&
         messages.map((msg, idx) => (
-          <div key={idx} className="mt-10">
+          <div key={idx} className="mt-10" id={msg.question_id}>
             <div className="text-sm font-light flex flex-col">
               <div className="self-end max-w-xl bg-gray-4f px-4 py-2 rounded-md">
                 {msg.question}

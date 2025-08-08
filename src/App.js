@@ -8,6 +8,7 @@ import SignIn from "./pages/SignIn";
 import CompanyDetail from "./pages/CompanyDetail";
 import CompanyProfile from "./pages/CompanyProfile";
 import { AuthProvider } from "./contexts/AuthContext";
+import { AppProvider } from "./contexts/AppContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
@@ -19,8 +20,9 @@ function App() {
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <Router>
-        <AuthProvider>
-          <Routes>
+        <AppProvider>
+          <AuthProvider>
+            <Routes>
             <Route
               path="/"
               element={
@@ -36,16 +38,41 @@ function App() {
               path="/dashboard"
               element={
                 <ProtectedRoute>
-                  <Dashboard projectsVisibility={projectsVisibility} setProjectsVisibility={setProjectsVisibility} />
+                  <Dashboard
+                    projectsVisibility={projectsVisibility}
+                    setProjectsVisibility={setProjectsVisibility}
+                  />
                 </ProtectedRoute>
               }
             />
-            <Route path="/chat" element={<ProtectedRoute><Chat setProjectsVisibility={setProjectsVisibility} /></ProtectedRoute>} />
+            <Route
+              path="/chat"
+              element={
+                <ProtectedRoute>
+                  <Chat setProjectsVisibility={setProjectsVisibility} />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/signin" element={<SignIn />} />
-            <Route path="/company-detail" element={<ProtectedRoute><CompanyDetail /></ProtectedRoute>} />
-            <Route path="/company-profile" element={<ProtectedRoute><CompanyProfile /></ProtectedRoute>} />
+            <Route
+              path="/company-detail"
+              element={
+                <ProtectedRoute>
+                  <CompanyDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/company-profile"
+              element={
+                <ProtectedRoute>
+                  <CompanyProfile />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
-        </AuthProvider>
+          </AuthProvider>
+        </AppProvider>
       </Router>
     </GoogleOAuthProvider>
   );

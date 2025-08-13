@@ -80,31 +80,37 @@ const ChatHistory = ({
       {/* Messages or empty state */}
       {messages.length > 0 &&
         messages.map((msg, idx) => (
-          <div key={idx} className="mt-10" id={msg.question_id}>
-            <div className="text-sm font-light flex flex-col">
-              <div className="self-end max-w-xl bg-gray-4f px-4 py-2 rounded-md">
-                {msg.question}
+          <div key={idx} className="mt-10">
+            <div id={`chat-history-${msg.question_id}`}>
+              <div className="text-sm font-light flex flex-col">
+                <div className="self-end max-w-xl bg-gray-4f px-4 py-2 rounded-md">
+                  {msg.question}
+                </div>
               </div>
-            </div>
-            <div className="group">
-              <div className="text-sm font-light  my-5 qna-response">
-                <Markdown
-                  components={markdownComponents}
-                  remarkPlugins={[remarkGfm]}
+              <div className="group">
+                <div
+                  className="text-sm font-light  my-5 qna-response"
+                  id={`qna-response-${msg.question_id}`}
                 >
-                  {msg.answer}
-                </Markdown>
+                  <Markdown
+                    components={markdownComponents}
+                    remarkPlugins={[remarkGfm]}
+                  >
+                    {msg.answer}
+                  </Markdown>
+                </div>
               </div>
-              <ChatActions
-                setShowSavedNote={setShowSavedNote}
-                showOtherPrompts={showOtherPrompts}
-                saved={msg.saved}
-                answer={msg.answer}
-                messageId={msg.answer_id}
-                isfeedbackSent={msg.liked}
-                fetchChatHistory={fetchChatHistory}
-              />
             </div>
+            <ChatActions
+              setShowSavedNote={setShowSavedNote}
+              showOtherPrompts={showOtherPrompts}
+              saved={msg.saved}
+              answer={msg.answer}
+              messageId={msg.answer_id}
+              isfeedbackSent={msg.liked}
+              fetchChatHistory={fetchChatHistory}
+              questionId={`qna-response-${msg.question_id}`}
+            />
           </div>
         ))}
       {/* Loader at the bottom */}

@@ -1,3 +1,4 @@
+import html2pdf from "html2pdf.js";
 // Utility to extract Company_ID from user object
 export function getCompanyIdFromUser(user) {
   if (
@@ -109,3 +110,20 @@ export async function copyToClipboard(text) {
     document.body.removeChild(textarea);
   }
 }
+
+export const exportToPdf = (elementId, fileName) => {
+  // Convert HTML string to a DOM element for html2pdf
+  const input = document.getElementById(elementId);
+  // const element = document.createElement("div");
+  // element.innerHTML = htmlContent;
+  // console.log(element.innerHTML);
+  const opt = {
+    margin: 10,
+    filename: fileName,
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+  };
+
+  html2pdf().set(opt).from(input).save();
+};

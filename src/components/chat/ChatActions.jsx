@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Tooltip from "../common/Tooltip";
-import { copyToClipboard } from "../../utils";
+import { copyToClipboard, exportToPdf } from "../../utils";
 import { StoreChatFeedback, SaveToKeyarea } from "../../api/apiHelper";
 import Modal from "../common/Modal";
 
@@ -12,6 +12,7 @@ const ChatActions = ({
   messageId,
   isfeedbackSent,
   fetchChatHistory,
+  questionId,
 }) => {
   const [isSaved, setIsSaved] = useState(saved);
   const [copied, setCopied] = useState(false);
@@ -90,32 +91,9 @@ const ChatActions = ({
     setFeedbackText("");
   };
   // State and ref for export options popup
-  const [showExportOptions, setShowExportOptions] = useState(false);
-  const exportButtonRef = React.useRef(null);
-  const exportOptionsRef = React.useRef(null);
-
-  // Handle click on "Export as" button
   const handleExportClick = () => {
-    setShowExportOptions((prev) => !prev);
+    exportToPdf(questionId, `chat-${questionId}`);
   };
-
-  // Close export options popup when clicking outside
-  React.useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        exportOptionsRef.current &&
-        !exportOptionsRef.current.contains(event.target) &&
-        !exportButtonRef.current.contains(event.target)
-      ) {
-        setShowExportOptions(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showExportOptions]);
 
   const feedbackOptions = [
     "Response is not relevant",
@@ -135,6 +113,7 @@ const ChatActions = ({
       setFeedbackText(option);
     }
   };
+
   return (
     <>
       <div className="w-full   border-gray-42  mb-10 relative">
@@ -219,26 +198,11 @@ const ChatActions = ({
             <button
               className="px-5 py-2 border border-gray-5c rounded-full text-xs hover:bg-gray-4f transition-colors flex items-center gap-1"
               onClick={handleExportClick}
-              ref={exportButtonRef}
             >
               Export as PDF
             </button>
           </div>
         </div>
-        {/* Export Options Popup */}
-        {showExportOptions && (
-          <div
-            ref={exportOptionsRef}
-            className="absolute bottom-10 right-0 z-50 bg-gray-2d rounded shadow-lg p-2 text-xs"
-          >
-            <button className="block w-full text-left py-2 px-4 hover:bg-gray-24 rounded-lg">
-              Export as CSV
-            </button>
-            <button className="block w-full text-left py-2 px-4 hover:bg-gray-24 rounded-lg">
-              Export as Image
-            </button>
-          </div>
-        )}
       </div>
       <Modal
         isOpen={isFeedbackModalOpen}

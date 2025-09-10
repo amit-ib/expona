@@ -226,7 +226,7 @@ const ChatActions = ({
               {feedbackOptions.map((option) => (
                 <button
                   key={option}
-                  className={`p-3 border border-gray-5c p-2 rounded-lg hover:bg-gray-5c hover:shadow-xl ${
+                  className={`p-2 border border-gray-5c rounded-lg hover:bg-gray-5c hover:shadow-xl ${
                     selectedFeedback === option ? "bg-gray-5c shadow-xl" : ""
                   }`}
                   onClick={() => handleFeedbackOptionsClick(option)}
@@ -236,7 +236,7 @@ const ChatActions = ({
               ))}
               {showTextarea && (
                 <textarea
-                  className="w-full p-3 mt-2 border border-gray-5c bg-gray-32 p-2 rounded-lg bg-gray-39"
+                  className="w-full p-3 mt-2 border border-gray-5c bg-gray-39 rounded-lg"
                   rows="4"
                   placeholder="(Optional) Feel free to add specific details..."
                   value={feedbackText}

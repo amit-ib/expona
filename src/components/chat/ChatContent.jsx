@@ -355,7 +355,7 @@ const ChatContent = ({
                     // Show error modal immediately
                     setTimeout(() => {
                       showMessageModal(
-                        "Oops! Not allowed-1",
+                        "Oops! Not allowed",
                         parsed.detail.message ||
                           "An error occurred while processing your request."
                       );

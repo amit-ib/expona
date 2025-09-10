@@ -111,19 +111,27 @@ export async function copyToClipboard(text) {
   }
 }
 
-export const exportToPdf = (elementId, fileName) => {
-  // Convert HTML string to a DOM element for html2pdf
+export const exportToPdf = async (elementId, fileName = "document.pdf") => {
+  if (typeof window === "undefined" || typeof document === "undefined") {
+    throw new Error("exportToPdf must be called in a browser context");
+  }
   const input = document.getElementById(elementId);
-  // const element = document.createElement("div");
-  // element.innerHTML = htmlContent;
-  // console.log(element.innerHTML);
+  if (!input) {
+    throw new Error(`exportToPdf: element with id "${elementId}" not found`);
+  }
+  const { default: html2pdf } = await import("html2pdf.js");
   const opt = {
-    margin: 10,
+    margin: [10, 10, 10, 10],
     filename: fileName,
     image: { type: "jpeg", quality: 0.98 },
-    html2canvas: { scale: 2 },
+    html2canvas: { scale: 2, useCORS: true },
     jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    pagebreak: {
+      mode: ["css", "legacy"],
+      before: ".page-break",
+      after: ".end-section",
+      avoid: ".avoid-break",
+    },
   };
-
-  html2pdf().set(opt).from(input).save();
+  return html2pdf().set(opt).from(input).save();
 };

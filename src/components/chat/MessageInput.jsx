@@ -28,7 +28,7 @@ const MessageInput = ({
   };
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 pb-4">
+    <div className="lg:absolute relative bottom-0 lg:left-0  lg:right-0 pb-4">
       <div className="flex items-center border border-gray-5c bg-gray-37 rounded-2xl px-4 py-3">
         <input
           type="text"
@@ -45,14 +45,18 @@ const MessageInput = ({
         />
         <div className="ml-2 w-8 h-8 rounded-full bg-white/12 flex items-center justify-center cursor-pointer">
           <button
+            type="button"
             onClick={handleSend}
-            disabled={isDisabled}
+            disabled={isDisabled || !message.trim()}
+            aria-label="Send message"
             className={`${
               message.trim() ? "bg-expona-red" : "bg-gray-5c"
-            } rounded-full p-1.5 ${isDisabled ? "opacity-50" : ""}`}
+            } rounded-full p-1.5 ${
+              isDisabled || !message.trim() ? "opacity-50" : ""
+            }`}
           >
-            <img src="/images/send-icon.svg" alt="Send" />
-          </button>
+            <img src="/images/send-icon.svg" alt="" aria-hidden="true" />
+          </button>{" "}
         </div>
       </div>
     </div>

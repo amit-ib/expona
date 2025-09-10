@@ -28,9 +28,13 @@ const ReportSection = ({
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
+  const TTitle =
+    "Report-" + JSON.parse(localStorage.getItem("TENDER_REPORT")).data.title;
+  console.log("TITLE", TTitle);
   const handleReportExport = () => {
-    exportToPdf("report-container", "report");
+    exportToPdf("report-container", TTitle);
   };
+
   return (
     <div className="">
       <div id="report-container">
@@ -225,6 +229,7 @@ const ReportSection = ({
             </div>
             {/* Separator */}
             <div className="w-full h-px bg-gray-42 my-5"></div>
+            <div className="page-break"></div> {/* Starts a new PDF page */}
           </>
         )}
         {Todos && Todos.trim() !== "" && (
@@ -257,6 +262,7 @@ const ReportSection = ({
             </div>
             {/* Separator */}
             <div className="w-full h-px bg-gray-42 mt-8 mb-4"></div>
+            <div className="page-break"></div> {/* Starts a new PDF page */}
           </>
         )}
         {Checklist && Checklist.trim() !== "" && (
@@ -291,6 +297,7 @@ const ReportSection = ({
             </div>
             {/* Separator */}
             <div className="w-full h-px bg-gray-42 mt-8 mb-4"></div>
+            <div className="page-break"></div> {/* Starts a new PDF page */}
           </>
         )}
         {Eligibility && Eligibility.trim() !== "" && (
@@ -325,6 +332,7 @@ const ReportSection = ({
             </div>
             {/* Separator */}
             <div className="w-full h-px bg-gray-42 my-4"></div>
+            <div className="page-break"></div> {/* Starts a new PDF page */}
           </>
         )}
       </div>

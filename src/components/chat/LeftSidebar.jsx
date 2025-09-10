@@ -73,7 +73,7 @@ const LeftSidebar = ({
   return (
     <div
       id="left-sidebar"
-      className={`flex relative flex-col  bg-gray-2d  transition-all duration-500 ${
+      className={`lg:flex absolute z-10 h-full lg:relative flex-col lg:left-0 -left-80  bg-gray-2d  transition-all duration-500 ${
         collapsed ? "w-[70px] " : "w-[300px]  "
       }`}
     >

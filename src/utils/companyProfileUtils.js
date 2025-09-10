@@ -16,9 +16,13 @@ export function getSupportingFiles(supportingDocs, docName) {
     url: doc.doc_path,
     docID: doc.doc_id,
     docTitle: doc.doc_name,
-    date: doc.uploaded_date
-      ? new Date(doc.uploaded_date).toLocaleDateString()
-      : "",
+    date: (() => {
+      const raw = doc.uploaded_date;
+      if (!raw) return "";
+      const d = new Date(raw);
+      if (Number.isNaN(d.getTime())) return "";
+      return d.toLocaleDateString();
+    })(),
   }));
 }
 

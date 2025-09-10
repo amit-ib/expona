@@ -65,9 +65,9 @@ const Dashboard = () => {
       <Header projectsVisibility={projectsVisibility} />
 
       {/* Main Content */}
-      <main className="flex justify-center items-start w-full px-10 py-6">
+      <main className="flex justify-center items-start w-full lg:px-10 px-5 py-6">
         <div
-          className={`flex flex-row gap-4 w-full  min-h-[calc(100vh-180px)] ${
+          className={`lg:flex flex-row gap-4 w-full  min-h-[calc(100vh-180px)] ${
             !projectsVisibility ? "pt-24 pb-32 px-48" : ""
           }`}
         >

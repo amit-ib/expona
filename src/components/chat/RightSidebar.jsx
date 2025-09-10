@@ -162,12 +162,12 @@ const RightSidebar = ({
   return (
     <div
       id="right-sidebar"
-      className={`border-l border-gray-42 transition-all duration-300 ${
+      className={`fixed lg:relative top-0 lg:right-0 -right-80 bg-gray-2d h-full border-l border-gray-42 transition-all duration-300 ${
         collapsed ? "w-[80px]" : "w-[300px]"
-      } transition-all duration-300 flex flex-col`}
+      } transition-all duration-300 lg:flex flex-col`}
     >
       <div
-        className={`flex h-[72px]   items-center ${
+        className={`flex lg:h-[72px]    items-center ${
           collapsed ? "justify-center pl-0 " : "justify-between pl-6 pr-4"
         }`}
       >

@@ -41,18 +41,15 @@ const CompanyDetailForm = () => {
   };
 
   return (
-    <div
-      className="p-[1px] mb-16 rounded-xl bg-gradient-to-br from-[#FF3C3C]  to-[#3C00FF]  w-[528px]
-
-"
-    >
+    <div className="p-[1px] mb-16 rounded-xl bg-gradient-to-br from-[#FF3C3C] to-[#3C00FF] w-[528px]">
+      {" "}
       <div className="sign-in-form relative rounded-xl bg-[#23242B] p-10 pb-9 w-full mx-auto">
         {/* Content from Figma design for the sign-in form will go here */}
         <h2 className="sr-only">Sign In Form</h2>
 
         {/* Form Header */}
         <div className="flex flex-col   mb-6 ">
-          <h2 className="text-white text-2xl">Enter Your Company Detais</h2>
+          <h2 className="text-white text-2xl">Enter Your Company Details</h2>{" "}
           <div className="text-gray-ae mt-3 text-sm">
             We'll use your company name and website to auto-fetch public records
             like your business type and incorporation date.

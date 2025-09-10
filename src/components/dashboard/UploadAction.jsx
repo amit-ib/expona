@@ -64,7 +64,7 @@ const UploadAction = ({
   return (
     <div
       className={`flex   ${
-        projectsVisibility ? "w-[480px]" : "flex-col w-8/12 mx-auto"
+        projectsVisibility ? "lg:w-[480px] lg:mb-0 mb-5" : "flex-col w-8/12 mx-auto"
       } ${fullHeight ? "h-full w-full" : ""}`}
     >
       {!projectsVisibility && (

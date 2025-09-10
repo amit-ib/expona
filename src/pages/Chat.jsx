@@ -25,8 +25,6 @@ const Chat = ({ projectsVisibility }) => {
     setRightSidebarCollapsed,
     leftSidebarCollapsed,
     setLeftSidebarCollapsed,
-    showSavedNote,
-    setShowSavedNote,
     sources,
     setSources,
     activeHash,
@@ -110,9 +108,7 @@ const Chat = ({ projectsVisibility }) => {
                 activeHash={activeHash}
                 collapsed={leftSidebarCollapsed}
                 setCollapsed={setLeftSidebarCollapsed}
-                showSavedNote={showSavedNote}
                 sources={sources}
-                setShowSavedNote={setShowSavedNote}
                 setSaved={setSaved}
                 onNewTenderClick={openModal}
                 setIsNewTender={setIsNewTender}
@@ -205,7 +201,7 @@ const Chat = ({ projectsVisibility }) => {
                         isLoading={isLoading || isUploading}
                         chatContent={chatContent}
                         navigate={navigate}
-                        setShowSavedNote={setShowSavedNote}
+                        // setShowSavedNote={setShowSavedNote}
                         sources={sources}
                         saved={saved}
                         setSaved={setSaved}
@@ -222,6 +218,7 @@ const Chat = ({ projectsVisibility }) => {
                         pendingMessage={pendingMessage}
                         onSendMessage={handleSendMessage}
                         openModal={openModal}
+                        // showSavedNote={showSavedNote}
                       />
                     </div>
                     {/* Chat - Message Input Section */}

@@ -15,7 +15,6 @@ const ChatContent = ({
   isLoading,
   chatContent,
   navigate,
-  setShowSavedNote,
   sources,
   saved,
   setSaved,
@@ -423,8 +422,6 @@ const ChatContent = ({
                     </button>
                   </div>
                 </div>
-                {/* Actions Section */}
-                {/* <ChatActions setShowSavedNote={setShowSavedNote} /> */}
               </>
             )}
           </div>
@@ -433,7 +430,6 @@ const ChatContent = ({
             <ChatHistory
               showOtherPrompts={showOtherPrompts}
               setShowOtherPrompts={setShowOtherPrompts}
-              setShowSavedNote={setShowSavedNote}
               saved={saved}
               setSaved={setSaved}
               scrollToSection={scrollToSection}

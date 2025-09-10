@@ -4,11 +4,11 @@ import { markdownComponents } from "../../utils";
 import Markdown from "react-markdown";
 import { FetchChatHistory } from "../../api/apiHelper";
 import remarkGfm from "remark-gfm";
+import { useAppContext } from "../../contexts/AppContext";
 
 const ChatHistory = ({
   showOtherPrompts,
   setShowOtherPrompts,
-  setShowSavedNote,
   scrollToSection,
   qnaResponse,
   pendingMessage,
@@ -16,6 +16,7 @@ const ChatHistory = ({
   isChatHistoryLoading,
   setIsChatHistoryLoading,
 }) => {
+  const { showSavedNote } = useAppContext();
   const otherPromptsRef = React.useRef(null);
   const [messages, setMessages] = React.useState([]);
   const justSentMessage = React.useRef(false);
@@ -50,10 +51,8 @@ const ChatHistory = ({
     // Fetch chat history when qnaResponse changes and tenderId is available
     const tenderId = localStorage.getItem("TENDER_ID");
     if (!tenderId) return;
-    if (report.status === "success") {
-      fetchChatHistory();
-    }
-  }, [qnaResponse, report, fetchChatHistory]);
+    fetchChatHistory();
+  }, [qnaResponse, report, fetchChatHistory, showSavedNote]);
 
   React.useEffect(() => {
     if (pendingMessage) {
@@ -102,7 +101,7 @@ const ChatHistory = ({
               </div>
             </div>
             <ChatActions
-              setShowSavedNote={setShowSavedNote}
+              
               showOtherPrompts={showOtherPrompts}
               saved={msg.saved}
               answer={msg.answer}

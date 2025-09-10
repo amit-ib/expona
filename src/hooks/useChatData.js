@@ -24,7 +24,6 @@ export const useChatData = () => {
   const [message, setMessage] = useState("");
   const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false);
   const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
-  const [showSavedNote, setShowSavedNote] = useState(false);
   const [sources, setSources] = useState([]);
   const [activeHash, setActiveHash] = useState(location.hash);
   const [saved, setSaved] = useState(false);
@@ -594,8 +593,6 @@ export const useChatData = () => {
     setRightSidebarCollapsed,
     leftSidebarCollapsed,
     setLeftSidebarCollapsed,
-    showSavedNote,
-    setShowSavedNote,
     sources,
     setSources,
     activeHash,

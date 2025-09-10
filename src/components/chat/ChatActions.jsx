@@ -3,9 +3,8 @@ import Tooltip from "../common/Tooltip";
 import { copyToClipboard, exportToPdf } from "../../utils";
 import { StoreChatFeedback, SaveToKeyarea } from "../../api/apiHelper";
 import Modal from "../common/Modal";
-
+import { useAppContext } from "../../contexts/AppContext";
 const ChatActions = ({
-  setShowSavedNote,
   showOtherPrompts,
   saved,
   answer,
@@ -14,6 +13,7 @@ const ChatActions = ({
   fetchChatHistory,
   questionId,
 }) => {
+  const { setShowSavedNote } = useAppContext();
   const [isSaved, setIsSaved] = useState(saved);
   const [copied, setCopied] = useState(false);
   const [feedbackSent, setFeedbackSent] = useState(false);

@@ -86,7 +86,7 @@ const Chat = ({ projectsVisibility }) => {
   // }, [activeHash]);
   // console.log("IsUploading", isLoading);
   // console.log("Pending Message:", pendingMessage); // Now handled in setPendingMessage
-  console.log("uploadResponse:", uploadResponse);
+  // console.log("uploadResponse:", uploadResponse);
   return (
     <div className="min-h-screen bg-gray-2d text-white flex flex-col">
       {/* Header */}

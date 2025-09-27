@@ -4,8 +4,6 @@ import { copyToClipboard, exportToPdf } from "../../utils.js";
 const ReportSection = ({
   report,
   markdownComponents,
-  headers,
-  dataRows,
   exportPopup,
   handleExportClick,
   exportPopupRef,
@@ -22,16 +20,31 @@ const ReportSection = ({
   const { Summary, Timeline, Todos, Checklist, Eligibility, Questions } =
     report.data || {};
 
+  let headers = [];
+  let dataRows = [];
+  if (Timeline) {
+    const rows = Timeline.trim()
+      .split("\n")
+      .filter((row, idx) => idx !== 1) // remove separator
+      .map((line) =>
+        line
+          .split("|")
+          .map((cell) => cell.trim())
+          .filter(Boolean)
+      );
+    headers = rows[0] || [];
+    dataRows = rows.slice(1);
+  }
+
   // Utility to handle copy for different sections
   const handleCopyClick = (content) => {
     copyToClipboard(content);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
-  const TTitle =
-    "Report-" + JSON.parse(localStorage.getItem("TENDER_REPORT")).data.title;
-  console.log("TITLE", TTitle);
+
   const handleReportExport = () => {
+    const TTitle = "Report-" + String(localStorage.getItem("TENDER_TITLE"));
     exportToPdf("report-container", TTitle);
   };
 

@@ -68,7 +68,7 @@ export const useChatData = () => {
       return titleFromStorage.trim();
     }
 
-    return "Untitled Tender";
+    return "Processing Tender...";
   }
   const [tenderTitle, setTenderTitle] = useState(
     () =>
@@ -117,7 +117,7 @@ export const useChatData = () => {
       setHasFinalSummary(false);
       setReport("");
       if (!localStorage.getItem("TENDER_TITLE")) {
-        setTenderTitle("Untitled Tender");
+        setTenderTitle("Processing Tender...");
       } else {
         setTenderTitle(localStorage.getItem("TENDER_TITLE"));
       }
@@ -421,50 +421,68 @@ export const useChatData = () => {
               tenderId = localStorage.getItem("TENDER_ID") || storeTenderID;
               attempts++;
             }
+            const companyId = localStorage.getItem("company_id");
             // console.log("TENDER ID FOR REPORT:", tenderId);
-            if (tenderId) {
-              // console.log(
-              //   "storeTenderID",
-              //   storeTenderID,
-              //   "AND",
-              //   localStorage.getItem("tenderId")
-              // );
-              const companyId = localStorage.getItem("company_id");
-              const fetchedReport = await fetchTenderReport({
-                tender_id: tenderId,
-                company_id: companyId,
-                reevaluate: isReevaluate,
-              });
-              setIsReevaluate(false);
-              setIsUploading(false);
-              setReport(fetchedReport);
-              localStorage.setItem(
-                "tenderReport",
-                JSON.stringify(fetchedReport)
-              );
-              setTenderTitle(fetchedReport?.data?.title || tenderTitle);
-              if (fetchedReport && fetchedReport.data.tender_id) {
-                localStorage.setItem("TENDER_ID", fetchedReport.data.tender_id);
-              }
-              try {
-                setIsTenderListLoading(true);
-                const tenderListResponse = await fetchTenderList({});
-                if (tenderListResponse && tenderListResponse.data) {
-                  localStorage.setItem(
-                    "tenderList",
-                    JSON.stringify(tenderListResponse.data)
-                  );
+            const fn3 = async () => {
+              if (tenderId) {
+                // console.log(
+                //   "storeTenderID",
+                //   storeTenderID,
+                //   "AND",
+                //   localStorage.getItem("tenderId")
+                // );
+                const fetchedReport = await fetchTenderReport({
+                  tender_id: tenderId,
+                  company_id: companyId,
+                  reevaluate: isReevaluate,
+                });
+                setIsReevaluate(false);
+                setIsUploading(false);
+                setReport(fetchedReport);
+                localStorage.setItem(
+                  "tenderReport",
+                  JSON.stringify(fetchedReport)
+                );
+                setTenderTitle(fetchedReport?.data?.title || tenderTitle);
+                if (fetchedReport && fetchedReport.data.tender_id) {
+                  localStorage.setItem("TENDER_ID", fetchedReport.data.tender_id);
                 }
-              } catch (err) {
-                console.error("Failed to fetch tender list:", err);
-              } finally {
-                setIsTenderListLoading(false);
+                try {
+                  setIsTenderListLoading(true);
+                  const tenderListResponse = await fetchTenderList({});
+                  if (tenderListResponse && tenderListResponse.data) {
+                    localStorage.setItem(
+                      "tenderList",
+                      JSON.stringify(tenderListResponse.data)
+                    );
+                  }
+                } catch (err) {
+                  console.error("Failed to fetch tender list:", err);
+                } finally {
+                  setIsTenderListLoading(false);
+                }
+              } else {
+                console.error(
+                  "Tender ID not found after upload. Report fetch skipped."
+                );
               }
-            } else {
-              console.error(
-                "Tender ID not found after upload. Report fetch skipped."
-              );
             }
+            const fn1 = async () => {
+              if (filesToUpload && companyId && tenderId) {
+                const eligibility = await fetchEligibility({
+                  tender_id: tenderId,
+                  company_id: companyId,
+                  reevaluate: isReevaluate,
+                });
+                setEligibilityData(eligibility);
+                setIsReevaluate(false);
+              }
+            }
+            let a = fn3()
+            let b = fn1()
+            console.log(a, b)
+            Promise.all([a, b])
+
           } catch (err) {
             console.error("fetchTenderReport error:", err);
           }
@@ -478,32 +496,27 @@ export const useChatData = () => {
           setIsUploading(false);
           const companyId = localStorage.getItem("company_id");
           const tenderId = localStorage.getItem("TENDER_ID") || storeTenderID;
-          setTimeout(async () => {
-            try {
-              const data = await fetchTenderSummary();
-              if (Array.isArray(data.data) && data.data.length > 0) {
-                const lastSummary = data.data[data.data.length - 1].summary;
-                if (lastSummary) {
-                  setUploadResponse(lastSummary);
-                }
+
+
+          const fn2 = async () => {
+            const data = await fetchTenderSummary();
+            if (Array.isArray(data.data) && data.data.length > 0) {
+              const lastSummary = data.data[data.data.length - 1].summary;
+              if (lastSummary) {
+                setUploadResponse(lastSummary);
               }
-              if (filesToUpload && companyId && tenderId) {
-                const eligibility = await fetchEligibility({
-                  tender_id: tenderId,
-                  company_id: companyId,
-                  reevaluate: isReevaluate,
-                });
-                setEligibilityData(eligibility);
-                setIsReevaluate(false);
-                setIsAllowNewTenderUpload(true);
-              }
-            } catch (err) {
-              console.error(
-                "fetchTenderSummary or fetchEligibility error:",
-                err
-              );
             }
-          }, 1000);
+          }
+          try {
+            let b = fn2()
+            console.log(b)
+            await Promise.all([b])
+          } catch (err) {
+            console.error(
+              "fetchTenderSummary or fetchEligibility error:",
+              err
+            );
+          }
         }
       };
       doUpload();

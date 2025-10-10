@@ -423,7 +423,7 @@ export const useChatData = () => {
             }
             const companyId = localStorage.getItem("company_id");
             // console.log("TENDER ID FOR REPORT:", tenderId);
-            const fn3 = async () => {
+            const tenderReportFn = async () => {
               if (tenderId) {
                 // console.log(
                 //   "storeTenderID",
@@ -467,7 +467,7 @@ export const useChatData = () => {
                 );
               }
             }
-            const fn1 = async () => {
+            const eligibilityFn = async () => {
               if (filesToUpload && companyId && tenderId) {
                 const eligibility = await fetchEligibility({
                   tender_id: tenderId,
@@ -478,10 +478,10 @@ export const useChatData = () => {
                 setIsReevaluate(false);
               }
             }
-            let a = fn3()
-            let b = fn1()
-            console.log(a, b)
-            Promise.all([a, b])
+            let eligibilityPromise = eligibilityFn()
+            let tenderReportPromise = tenderReportFn()
+            // console.log(eligibilityPromise, tenderReportPromise)
+            Promise.all([eligibilityPromise, tenderReportPromise])
 
           } catch (err) {
             console.error("fetchTenderReport error:", err);
@@ -498,7 +498,7 @@ export const useChatData = () => {
           const tenderId = localStorage.getItem("TENDER_ID") || storeTenderID;
 
 
-          const fn2 = async () => {
+          const tenderSummaryFn = async () => {
             const data = await fetchTenderSummary();
             if (Array.isArray(data.data) && data.data.length > 0) {
               const lastSummary = data.data[data.data.length - 1].summary;
@@ -508,9 +508,9 @@ export const useChatData = () => {
             }
           }
           try {
-            let b = fn2()
-            console.log(b)
-            await Promise.all([b])
+            let tenderSummaryPromise = tenderSummaryFn()
+            // console.log(tenderSummaryPromise)
+            await Promise.all([tenderSummaryPromise])
           } catch (err) {
             console.error(
               "fetchTenderSummary or fetchEligibility error:",

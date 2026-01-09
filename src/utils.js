@@ -1,3 +1,4 @@
+import html2pdf from "html2pdf.js";
 // Utility to extract Company_ID from user object
 export function getCompanyIdFromUser(user) {
   if (
@@ -31,8 +32,12 @@ export const markdownComponents = {
       />
     );
   },
+  table: ({ node, ...props }) => (
+    <table className="w-full border-collapse table-markdown" {...props} />
+  ),
   ol: ({ node, ...props }) => <ul className="list-decimal" {...props} />,
   h1: ({ node, ...props }) => <h1 className="text-2xl font-bold" {...props} />,
+  h3: ({ node, ...props }) => <h3 className="font-semibold mb-4" {...props} />,
   a: ({ node, ...props }) => <a className="text-white underline" {...props} />,
 };
 
@@ -105,3 +110,28 @@ export async function copyToClipboard(text) {
     document.body.removeChild(textarea);
   }
 }
+
+export const exportToPdf = async (elementId, fileName = "document.pdf") => {
+  if (typeof window === "undefined" || typeof document === "undefined") {
+    throw new Error("exportToPdf must be called in a browser context");
+  }
+  const input = document.getElementById(elementId);
+  if (!input) {
+    throw new Error(`exportToPdf: element with id "${elementId}" not found`);
+  }
+  const { default: html2pdf } = await import("html2pdf.js");
+  const opt = {
+    margin: [10, 10, 10, 10],
+    filename: fileName,
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    pagebreak: {
+      mode: ["css", "legacy"],
+      before: ".page-break",
+      after: ".end-section",
+      avoid: ".avoid-break",
+    },
+  };
+  return html2pdf().set(opt).from(input).save();
+};

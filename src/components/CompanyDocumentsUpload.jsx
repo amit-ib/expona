@@ -1,6 +1,7 @@
 import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import CompanyFileList from "./CompanyFileList";
+import { truncateString } from "../utils";
 
 const CompanyDocumentsUpload = ({
   uploadedFiles = [],
@@ -63,15 +64,31 @@ const CompanyDocumentsUpload = ({
               </div>
               {style !== "compact" && (
                 <p className="text-gray-ae text-xs">
-                  PDF, DOC, TXT (Max file size 20 mb)
+                  PDF, DOCX (Max file size 20 mb)
                 </p>
               )}
             </div>
           </div>
+          {style === "compact" && (
+            <div>
+              <span className="text-xs font-light text-gray-ae ">
+                PDF, DOCX (Max file size 20 mb)
+              </span>
+            </div>
+          )}
           {/* Show file name below the icon and upload text if a file is uploaded */}
           {uploadedFiles && uploadedFiles.length > 0 && (
-            <div className="text-white text-xs mt-2 w-full">
-              {uploadedFiles[0].name}
+            <div className="text-white text-xs mt-2 w-full flex">
+              {truncateString(uploadedFiles[0].name, 35)}
+              <img
+                src="/images/close-red.svg"
+                className="inline-block h-4 ml-2 cursor-pointer"
+                alt="Delete"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onFileUpload(uploadedFiles[0], "remove");
+                }}
+              />
             </div>
           )}
         </div>

@@ -47,7 +47,7 @@ export async function uploadTenderFile(files, onChunk, token = AUTH_TOKEN) {
     formData.append("files", files);
   }
   // Grab tender_id from localStorage if present
-  const tender_id = localStorage.getItem("tenderId");
+  const tender_id = localStorage.getItem("TENDER_ID");
   if (tender_id) {
     formData.append("tender_id", tender_id);
   }
@@ -309,15 +309,18 @@ export async function fetchReviseEligibility({
       url += `&actionDescription=${encodeURIComponent(actionDescription)}`;
     }
     const formData = new FormData();
+
     if (actionDescription instanceof File) {
       formData.append(
         "actionDescription",
         actionDescription,
         actionDescription.name
       );
-    } else if (actionDescription) {
-      formData.append("actionDescription", actionDescription);
     }
+    // else if (actionDescription) {
+    //   formData.append("actionDescription", actionDescription);
+    // }
+
     if (file && actionDescription) {
       formData.append(actionDescription, file);
     }
@@ -430,6 +433,27 @@ export async function updateTenderTitle(tender_id, new_title) {
     return response.data;
   } catch (error) {
     console.error("Error updating tender title:", error);
+    throw error;
+  }
+}
+// ####### GET request for SAVE_TO_KEYAREA endpoint  #######
+export async function SaveToKeyarea({ answer_id, saved }) {
+  try {
+    const url = `${
+      API_ENDPOINTS.SAVE_TO_KEYAREA
+    }?answer_id=${encodeURIComponent(answer_id)}&saved=${encodeURIComponent(
+      saved
+    )}`;
+    const response = await axiosInstance.post(
+      url,
+      {},
+      {
+        headers: getAuthHeaders(),
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error storing to key area:", error);
     throw error;
   }
 }

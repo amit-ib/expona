@@ -6,7 +6,9 @@ import Lottie from "lottie-react";
 import animationData from "./loader-left-bar.json";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { truncateString } from "../../utils";
+import { truncateString, truncateWords } from "../../utils";
+import { useAppContext } from "../../contexts/AppContext";
+import { FetchChatHistory, SaveToKeyarea } from "../../api/apiHelper";
 
 const LeftSidebar = ({
   isLoading,
@@ -14,18 +16,20 @@ const LeftSidebar = ({
   activeHash,
   collapsed,
   setCollapsed,
-  showSavedNote,
   sources = [],
-  setShowSavedNote,
   setSaved,
   onNewTenderClick,
-  setIsNewTender, // <-- add this prop
+  setIsNewTender,
+  uploadResponse,
+  // isAllowNewTenderUpload,
 }) => {
+  const { isAllowNewTenderUpload, showSavedNote, setShowSavedNote  } = useAppContext();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileMenuRef = useRef(null);
   const profileToggleRef = useRef(null);
   const { logout, user } = useAuth();
   const navigate = useNavigate();
+  const [chatHistory, setChatHistory] = useState([]);
 
   const handleProfileClick = () => {
     setShowProfileMenu(!showProfileMenu);
@@ -54,6 +58,43 @@ const LeftSidebar = ({
     };
   }, [showProfileMenu]);
 
+  const getChatHistory = async () => {
+    const tenderId = localStorage.getItem("TENDER_ID");
+    if (tenderId) {
+      try {
+        const history = await FetchChatHistory({ tender_id: tenderId });
+        if (history && history.data && history.data.messages) {
+          const savedMessages = history.data.messages.filter(
+            (msg) => msg.saved === true
+          );
+          setChatHistory(savedMessages);
+        }
+      } catch (error) {
+        console.error("Error fetching chat history:", error);
+      }
+    }
+  };
+
+  const handleDelete = async (answerId) => {
+    try {
+      await SaveToKeyarea({
+        answer_id: answerId,
+        saved: false,
+      });
+      // After deleting, refresh the list
+      getChatHistory();
+      if (setShowSavedNote) {
+        setShowSavedNote((prev) => !prev);
+      }
+    } catch (error) {
+      console.error("Error removing from key area:", error);
+    }
+  };
+
+  useEffect(() => {
+    getChatHistory();
+  }, [showSavedNote]);
+
   // if (isLoading) {
   //   return (
   //     <div
@@ -69,7 +110,7 @@ const LeftSidebar = ({
   return (
     <div
       id="left-sidebar"
-      className={`flex relative flex-col  bg-gray-2d  transition-all duration-500 ${
+      className={`lg:flex absolute z-10 h-full lg:relative flex-col lg:left-0 -left-80  bg-gray-2d  transition-all duration-500 ${
         collapsed ? "w-[70px] " : "w-[300px]  "
       }`}
     >
@@ -122,9 +163,30 @@ const LeftSidebar = ({
           /> */}
         </div>
         {isLoading ? (
-          <div className="flex flex-col">
-            <Lottie animationData={animationData} loop={true} />
-          </div>
+          uploadResponse === "" ? (
+            <div className="py-3 flex flex-col transition-all duration-500">
+              <div className="flex itemss-center transition-all duration-500 text-gray-99 mb-4 relative text-xs">
+                Key Areas
+                <InfoTooltip
+                  tooltipContent="Key area helps you to  quickly return to important responses. Some are suggested by AI to get you started. You can add more as you go."
+                  position="right"
+                >
+                  <img
+                    src="images/help-icon.svg"
+                    alt="help"
+                    className="ml-1 cursor-pointer group"
+                  />
+                </InfoTooltip>
+              </div>
+              <div className="text-xs text-gray-ae  block">
+                It looks quiet here. Upload a tender to see key areas show up.
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col">
+              <Lottie animationData={animationData} loop={true} />
+            </div>
+          )
         ) : (
           // left Sidebar Content
           <div className="py-3 flex flex-col transition-all duration-500">
@@ -132,7 +194,7 @@ const LeftSidebar = ({
             <div className="flex itemss-center transition-all duration-500 text-gray-99 mb-4 relative text-xs">
               Key Areas
               <InfoTooltip
-                tooltipContent="Key points helps you to  quickly return to important responses. Some are suggested by AI to get you started. You can add more as you go."
+                tooltipContent="Key area helps you to  quickly return to important responses. Some are suggested by AI to get you started. You can add more as you go."
                 position="right"
               >
                 <img
@@ -157,46 +219,49 @@ const LeftSidebar = ({
                 {item.title}
               </a>
             ))}
-            {showSavedNote && (
-              <div className={`border-t border-gray-42 pt-4 px-2 mt-2`}>
-                <div className="flex items-center relative text-sm text-gray-ae  ">
-                  Saved by You
-                  <InfoTooltip
-                    tooltipContent="You can add key points to quickly return to important responses."
-                    position="right"
-                  >
-                    <img
-                      src="images/help-icon.svg"
-                      alt="help"
-                      className="ml-1 cursor-pointer group"
-                    />
-                  </InfoTooltip>
-                </div>
-                <div className="py-2">
-                  <div className="relative w-full">
+            <div className={`border-t border-gray-42 pt-4 px-2 mt-2`}>
+              <div className="flex items-center relative text-sm text-gray-ae pb-1 ">
+                Saved by You
+                <InfoTooltip
+                  tooltipContent="You can add key points to quickly return to important responses."
+                  position="right"
+                >
+                  <img
+                    src="images/help-icon.svg"
+                    alt="help"
+                    className="ml-1 cursor-pointer group"
+                  />
+                </InfoTooltip>
+              </div>
+              <div className="py-2">
+                {chatHistory.map((item) => (
+                  <div className="relative w-full" key={item.answer_id}>
                     <a
-                      href="#"
-                      className="w-full text-left py-3 text-sm relative text-gray-ae hover:text-white font-light flex justify-between items-center group"
+                      href={`#chat-history-${item.question_id}`}
+                      className="w-full text-left py-1 text-sm relative text-gray-ae hover:text-white font-light flex justify-between items-center group"
                     >
-                      Pre-submission Checklist
+                      {truncateWords(item.question, 3)}
                       <Tooltip tooltipContent="Remove" position="bottom">
                         <button
                           className="hidden group-hover:inline-block"
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            if (setShowSavedNote) setShowSavedNote(false);
-                            if (setSaved) setSaved(false);
+                            handleDelete(item.answer_id);
                           }}
                         >
-                          <img src="/images/delete-icon.svg" alt="Delete" />
+                          <img
+                            src="/images/delete-icon.svg"
+                            alt="Delete"
+                            className="h-5"
+                          />
                         </button>
                       </Tooltip>
                     </a>
                   </div>
-                </div>
+                ))}
               </div>
-            )}
+            </div>
           </div>
           //    ) : (
           //   // !collapsed && (
@@ -221,14 +286,15 @@ const LeftSidebar = ({
             id="new-tender-btn"
             className={`border flex items-center justify-center  rounded-md ${
               collapsed ? "p-2" : "w-full p-3"
-            }`}
+            } ${!isAllowNewTenderUpload && "opacity-50"}`}
             onClick={() => {
               if (setIsNewTender) {
                 setIsNewTender(true);
-                console.log("setIsNewTender called with:", true);
+                // console.log("setIsNewTender called with:", true);
               }
               if (onNewTenderClick) onNewTenderClick();
             }}
+            disabled={!isAllowNewTenderUpload}
           >
             <img src="images/add-icon.svg" alt="New Tender" />
             <span

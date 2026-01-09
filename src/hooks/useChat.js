@@ -15,7 +15,7 @@ export const useChat = (report, message, setMessage, setQnaResponse) => {
 
       try {
         const companyId = localStorage.getItem("company_id");
-        const tenderId = localStorage.getItem("tenderId");
+        const tenderId = localStorage.getItem("TENDER_ID");
 
         if (!companyId || !tenderId) {
           console.error(

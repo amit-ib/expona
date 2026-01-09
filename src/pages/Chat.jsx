@@ -12,10 +12,12 @@ import { Link } from "react-router-dom";
 import { useChatData } from "../hooks/useChatData";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useChat } from "../hooks/useChat";
+import { useAppContext } from "../contexts/AppContext";
 
 const Chat = ({ projectsVisibility }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAllowNewTenderUpload } = useAppContext();
   const {
     message,
     setMessage,
@@ -23,8 +25,6 @@ const Chat = ({ projectsVisibility }) => {
     setRightSidebarCollapsed,
     leftSidebarCollapsed,
     setLeftSidebarCollapsed,
-    showSavedNote,
-    setShowSavedNote,
     sources,
     setSources,
     activeHash,
@@ -59,6 +59,7 @@ const Chat = ({ projectsVisibility }) => {
     handleEditTitle,
     handleSaveTitle,
     handleCancelEdit,
+    // isAllowNewTenderUpload,
   } = useChatData();
   const [pendingMessage, _setPendingMessage] = React.useState(null);
   // Custom setter to log whenever pendingMessage is updated from MessageInput
@@ -85,6 +86,7 @@ const Chat = ({ projectsVisibility }) => {
   // }, [activeHash]);
   // console.log("IsUploading", isLoading);
   // console.log("Pending Message:", pendingMessage); // Now handled in setPendingMessage
+  // console.log("uploadResponse:", uploadResponse);
   return (
     <div className="min-h-screen bg-gray-2d text-white flex flex-col">
       {/* Header */}
@@ -106,12 +108,12 @@ const Chat = ({ projectsVisibility }) => {
                 activeHash={activeHash}
                 collapsed={leftSidebarCollapsed}
                 setCollapsed={setLeftSidebarCollapsed}
-                showSavedNote={showSavedNote}
                 sources={sources}
-                setShowSavedNote={setShowSavedNote}
                 setSaved={setSaved}
                 onNewTenderClick={openModal}
                 setIsNewTender={setIsNewTender}
+                uploadResponse={uploadResponse}
+                // isAllowNewTenderUpload={isAllowNewTenderUpload}
               />
               <div className="flex flex-1 flex-col">
                 <div className="flex items-center justify-between gap-4 py-6 px-5 border-b border-gray-42 bg-gray-24 rounded-t-lg">
@@ -199,7 +201,7 @@ const Chat = ({ projectsVisibility }) => {
                         isLoading={isLoading || isUploading}
                         chatContent={chatContent}
                         navigate={navigate}
-                        setShowSavedNote={setShowSavedNote}
+                        // setShowSavedNote={setShowSavedNote}
                         sources={sources}
                         saved={saved}
                         setSaved={setSaved}
@@ -215,6 +217,8 @@ const Chat = ({ projectsVisibility }) => {
                         setPendingMessage={setPendingMessage}
                         pendingMessage={pendingMessage}
                         onSendMessage={handleSendMessage}
+                        openModal={openModal}
+                        // showSavedNote={showSavedNote}
                       />
                     </div>
                     {/* Chat - Message Input Section */}

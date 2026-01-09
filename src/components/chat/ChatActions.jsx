@@ -1,18 +1,20 @@
 import React, { useState } from "react";
 import Tooltip from "../common/Tooltip";
-import { copyToClipboard } from "../../utils";
-import { StoreChatFeedback } from "../../api/apiHelper";
+import { copyToClipboard, exportToPdf } from "../../utils";
+import { StoreChatFeedback, SaveToKeyarea } from "../../api/apiHelper";
 import Modal from "../common/Modal";
-
+import { useAppContext } from "../../contexts/AppContext";
 const ChatActions = ({
-  setShowSavedNote,
   showOtherPrompts,
   saved,
-  setSaved,
   answer,
   messageId,
   isfeedbackSent,
+  fetchChatHistory,
+  questionId,
 }) => {
+  const { setShowSavedNote } = useAppContext();
+  const [isSaved, setIsSaved] = useState(saved);
   const [copied, setCopied] = useState(false);
   const [feedbackSent, setFeedbackSent] = useState(false);
   const [clickedButton, setClickedButton] = useState(null);
@@ -27,12 +29,35 @@ const ChatActions = ({
       setTimeout(() => setCopied(false), 1500);
     }
   };
-  const handleSave = () => {
-    setSaved((prev) => {
-      const newSaved = !prev;
-      if (setShowSavedNote) setShowSavedNote(newSaved);
-      return newSaved;
-    });
+
+  React.useEffect(() => {
+    setIsSaved(saved);
+  }, [saved]);
+
+  const handleSave = async () => {
+    const originalState = isSaved;
+    const newSavedState = !originalState;
+    setIsSaved(newSavedState); // Optimistic update
+
+    try {
+      await SaveToKeyarea({
+        answer_id: messageId,
+        saved: newSavedState,
+      });
+
+      if (setShowSavedNote) {
+        setShowSavedNote(newSavedState);
+      }
+
+      // If API call succeeds, fetch the latest history to sync all data.
+      if (fetchChatHistory) {
+        await fetchChatHistory();
+      }
+    } catch (error) {
+      console.error("Error saving to key area:", error);
+      // Revert the state on any exception
+      setIsSaved(originalState);
+    }
   };
 
   const handleFeedback = async (rating, feedback) => {
@@ -66,32 +91,9 @@ const ChatActions = ({
     setFeedbackText("");
   };
   // State and ref for export options popup
-  const [showExportOptions, setShowExportOptions] = useState(false);
-  const exportButtonRef = React.useRef(null);
-  const exportOptionsRef = React.useRef(null);
-
-  // Handle click on "Export as" button
   const handleExportClick = () => {
-    setShowExportOptions((prev) => !prev);
+    exportToPdf(questionId, `chat-${questionId}`);
   };
-
-  // Close export options popup when clicking outside
-  React.useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        exportOptionsRef.current &&
-        !exportOptionsRef.current.contains(event.target) &&
-        !exportButtonRef.current.contains(event.target)
-      ) {
-        setShowExportOptions(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showExportOptions]);
 
   const feedbackOptions = [
     "Response is not relevant",
@@ -111,6 +113,7 @@ const ChatActions = ({
       setFeedbackText(option);
     }
   };
+
   return (
     <>
       <div className="w-full   border-gray-42  mb-10 relative">
@@ -164,7 +167,7 @@ const ChatActions = ({
           <div className="flex items-center gap-4">
             {/* {showOtherPrompts && ( */}
             <Tooltip
-              tooltipContent={saved ? "Remove from Key Areas" : false}
+              tooltipContent={isSaved ? "Remove from Key Areas" : false}
               position="top"
             >
               <button
@@ -173,12 +176,14 @@ const ChatActions = ({
               >
                 <img
                   src={
-                    saved ? "images/tick-icon.svg" : "images/bookmark-icon.svg"
+                    isSaved
+                      ? "images/right-icon.svg"
+                      : "images/bookmark-icon.svg"
                   }
-                  className="mr-2"
-                  alt={saved ? "Saved" : "Save"}
+                  className="mr-2 w-4"
+                  alt={isSaved ? "Saved" : "Save"}
                 />
-                {saved ? "Saved to Key Areas" : "Save to Key Areas"}
+                {isSaved ? "Saved to Key Areas" : "Save to Key Areas"}
               </button>
             </Tooltip>
             {/* )} */}
@@ -193,26 +198,11 @@ const ChatActions = ({
             <button
               className="px-5 py-2 border border-gray-5c rounded-full text-xs hover:bg-gray-4f transition-colors flex items-center gap-1"
               onClick={handleExportClick}
-              ref={exportButtonRef}
             >
               Export as PDF
             </button>
           </div>
         </div>
-        {/* Export Options Popup */}
-        {showExportOptions && (
-          <div
-            ref={exportOptionsRef}
-            className="absolute bottom-10 right-0 z-50 bg-gray-2d rounded shadow-lg p-2 text-xs"
-          >
-            <button className="block w-full text-left py-2 px-4 hover:bg-gray-24 rounded-lg">
-              Export as CSV
-            </button>
-            <button className="block w-full text-left py-2 px-4 hover:bg-gray-24 rounded-lg">
-              Export as Image
-            </button>
-          </div>
-        )}
       </div>
       <Modal
         isOpen={isFeedbackModalOpen}
@@ -236,7 +226,7 @@ const ChatActions = ({
               {feedbackOptions.map((option) => (
                 <button
                   key={option}
-                  className={`p-3 border border-gray-5c p-2 rounded-lg hover:bg-gray-5c hover:shadow-xl ${
+                  className={`p-2 border border-gray-5c rounded-lg hover:bg-gray-5c hover:shadow-xl ${
                     selectedFeedback === option ? "bg-gray-5c shadow-xl" : ""
                   }`}
                   onClick={() => handleFeedbackOptionsClick(option)}
@@ -246,7 +236,7 @@ const ChatActions = ({
               ))}
               {showTextarea && (
                 <textarea
-                  className="w-full p-3 mt-2 border border-gray-5c bg-gray-32 p-2 rounded-lg bg-gray-39"
+                  className="w-full p-3 mt-2 border border-gray-5c bg-gray-39 rounded-lg"
                   rows="4"
                   placeholder="(Optional) Feel free to add specific details..."
                   value={feedbackText}

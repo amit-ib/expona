@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 
@@ -10,14 +10,17 @@ const UploadAction = ({
   setIsNewTender,
 }) => {
   const navigate = useNavigate();
+  const [error, setError] = useState("");
   // console.log("UPLOAD IS NEW TENDER:", isNewTender);
   const onDrop = useCallback(
     (acceptedFiles) => {
+      setError("");
       // Only clear items if isNewTender is true
       if (isNewTender) {
-        localStorage.removeItem("tenderReport");
-        localStorage.removeItem("tenderTitle");
-        localStorage.removeItem("tenderId");
+        localStorage.removeItem("TENDER_REPORT");
+        localStorage.removeItem("TENDER_TITLE");
+        localStorage.removeItem("TENDER_ID");
+        console.log("Cleared local storage for new tender upload-1");
         setIsNewTender(false);
       }
       if (acceptedFiles.length > 0) {
@@ -31,12 +34,37 @@ const UploadAction = ({
     [navigate, onFileSelect, isNewTender]
   );
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const onDropRejected = (fileRejections) => {
+    if (fileRejections.length > 0) {
+      const firstError = fileRejections[0].errors[0];
+      if (firstError.code === "file-invalid-type") {
+        setError("Invalid file type. Please upload a PDF or DOCX file.");
+      } else if (firstError.code === "file-too-large") {
+        setError("File is too large. Maximum size is 20MB.");
+      } else if (firstError.code === "too-many-files") {
+        setError("You can only upload a maximum of 3 files at a time.");
+      } else {
+        setError(firstError.message);
+      }
+    }
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    onDropRejected,
+    accept: {
+      "application/pdf": [".pdf"],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        [".docx"],
+    },
+    maxSize: 20971520, // 20MB in bytes
+    maxFiles: 3,
+  });
 
   return (
     <div
       className={`flex   ${
-        projectsVisibility ? "w-[480px]" : "flex-col w-8/12 mx-auto"
+        projectsVisibility ? "lg:w-[480px] lg:mb-0 mb-5" : "flex-col w-8/12 mx-auto"
       } ${fullHeight ? "h-full w-full" : ""}`}
     >
       {!projectsVisibility && (
@@ -80,8 +108,11 @@ const UploadAction = ({
             )}
           </div>
           <div className="text-sm font-thin text-gray-ae">
-            PDF, DOC, TXT (Max file size 20 mb)
+            PDF, DOCX (Max file size 20 mb)
           </div>
+          {error && (
+            <div className="text-sm font-thin text-red-500 mt-2">{error}</div>
+          )}
         </div>
       </div>
     </div>

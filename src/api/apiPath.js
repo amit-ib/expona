@@ -25,6 +25,7 @@ export const API_ENDPOINTS = {
   CHAT_CONVERSATION: `${BASE_URL}/conversation/converse`,
   FETCH_CHAT_HISTORY: `${BASE_URL}/conversation/chat_history`,
   STORE_CHAT_FEEDBACK: `${BASE_URL}/conversation/response_feedback`,
+  SAVE_TO_KEYAREA: `${BASE_URL}/conversation/save_to_key_area`,
 
   // Add more endpoints here as needed
 };

@@ -50,23 +50,24 @@ const Dashboard = () => {
     };
     fetchAndUpdateTenderList();
 
+    localStorage.removeItem("TENDER_REPORT");
+    localStorage.removeItem("TENDER_TITLE");
+    localStorage.removeItem("TENDER_ID");
+
     // Polling for updates every 30 seconds
     const interval = setInterval(fetchAndUpdateTenderList, 10000);
     return () => clearInterval(interval); // Cleanup on unmount
   }, []);
 
-  localStorage.removeItem("tenderReport");
-  localStorage.removeItem("tenderTitle");
-  localStorage.removeItem("tenderId");
   return (
     <div className="min-h-screen bg-gray-2d text-white">
       {/* Using the Header component */}
       <Header projectsVisibility={projectsVisibility} />
 
       {/* Main Content */}
-      <main className="flex justify-center items-start w-full px-10 py-6">
+      <main className="flex justify-center items-start w-full lg:px-10 px-5 py-6">
         <div
-          className={`flex flex-row gap-4 w-full  min-h-[calc(100vh-180px)] ${
+          className={`lg:flex flex-row gap-4 w-full  min-h-[calc(100vh-180px)] ${
             !projectsVisibility ? "pt-24 pb-32 px-48" : ""
           }`}
         >
